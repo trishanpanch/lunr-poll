@@ -53,8 +53,22 @@ export default function SessionPage() {
 
     if (error || !session) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
-                <p className="text-slate-500">Session not found or error loading session.</p>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
+                <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full border border-red-100">
+                    <h2 className="text-xl font-bold text-red-600 mb-2">Connection Error</h2>
+                    <p className="text-slate-600 mb-6">Could not load session.</p>
+
+                    <div className="text-left bg-slate-100 p-4 rounded-lg font-mono text-xs text-slate-500 overflow-auto mb-4">
+                        <p><strong>Code:</strong> {code}</p>
+                        <p><strong>Status:</strong> {loading ? "Loading..." : "Failed"}</p>
+                        <p><strong>Error:</strong> {error || "Session not found (Empty Result)"}</p>
+                    </div>
+
+                    <p className="text-sm text-slate-400">
+                        Ask your professor to check if their "Session ID" starts with "local_".
+                        If so, mobile sync is disabled.
+                    </p>
+                </div>
             </div>
         );
     }
