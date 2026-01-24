@@ -24,23 +24,18 @@ export default function SessionPage() {
     const [authLoading, setAuthLoading] = useState(true);
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (u) => {
-            if (u) {
-                setUser(u);
-                setAuthLoading(false);
-            } else {
-                console.log("Signing in anonymously...");
-                signInAnonymously(auth)
-                    .then(() => console.log("Signed in"))
-                    .catch((e) => {
-                        console.warn("Sign in failed (likely auth disabled), using mock user", e);
-                        // Mock user for dev/bypass
-                        setUser({ uid: "anon_student_" + Math.random(), isAnonymous: true } as User);
-                        setAuthLoading(false);
-                    });
-            }
-        });
-        return () => unsub();
+        // Use a simple local ID for student identity, avoiding Firebase Auth/Anonymous Login overhead
+        // checking if this fixes the timeout issues on mobile.
+        const storedId = localStorage.getItem("harvard_poll_student_uid");
+        if (storedId) {
+            setUser({ uid: storedId, isAnonymous: true } as User);
+            setAuthLoading(false);
+        } else {
+            const newId = "anon_" + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem("harvard_poll_student_uid", newId);
+            setUser({ uid: newId, isAnonymous: true } as User);
+            setAuthLoading(false);
+        }
     }, []);
 
     if (loading || authLoading) {
