@@ -1,72 +1,77 @@
-# Harvard Poll Platform
+# 🎓 Harvard Poll Platform (Lunr Poll)
 
-A real-time classroom interaction platform for Harvard University professors, built with Next.js 15, Firebase, and Google Vertex AI.
+A real-time polling application for classrooms, optimized for high-speed interaction between professors and students.
 
-## Features
+## 🚀 Features
 
-- **Student Flow**: Join via 6-character code, no login required (Anonymous Auth). Real-time optimistic updates.
-- **Professor Dashboard**: Manage sessions, build dynamic polls, view live results with charts / tickers.
-- **AI Synthesis**: "Close & Analyze" triggers Google Gemini (Vertex AI) to synthesize hundreds of open-ended responses into actionable pedagogical advice.
-- **Design**: "Harvard Minimalist" aesthetic using Tailwind CSS & Shadcn UI.
+### For Professors
+*   **Dashboard:** Manage multiple class sessions.
+*   **Session Builder:** Create polls with various question types (Short Text, Multiple Choice).
+*   **Live Mode:** Launch sessions instantly and view real-time incoming responses.
+*   **QR Code Sharing:** Generate a QR code that students can scan to join immediately (Auto-Join).
+*   **Local Demo Mode:** Fully functional offline/demo mode for testing without Firebase authentication.
 
-## Setup Instructions
+### For Students
+*   **Instant Join:** Join via 6-character code or QR scan.
+*   **Live Questions:** Questions appear in real-time as the professor launches them.
+*   **No Login Required:** Frictionless entry for maximum participation.
 
-### 1. Environment Variables
+## 🛠️ Technology Stack
 
-Copy `.env.example` to `.env.local` and fill in your Firebase and Google Cloud credentials.
+*   **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+*   **Styling:** [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+*   **Backend:** [Firebase](https://firebase.google.com/) (Firestore for real-time data, Auth for professors)
+*   **Deployment:** Google Cloud Run (Dockerized)
 
-```bash
-cp .env.example .env.local
-```
+## 📂 Project Structure
 
-You need a Firebase Project with:
-- **Authentication**: Email/Password (Professor) & Anonymous (Student).
-- **Firestore Database**: Create default database in `Nam5` (us-central1) or similar.
-- **Storage**: Enable Storage.
+- `src/app/professor`: Dashboard, Login, and Session management pages.
+- `src/app/student`: Student landing and joining logic.
+- `src/app/session/[code]`: Real-time student view for answering questions.
+- `src/components`: Reusable UI components (shadcn) and feature-specific components.
+- `src/lib/firebase`: Firebase client initialization and utilities.
+- `src/hooks`: Custom hooks like `useSession` for real-time data subscription.
 
-For AI features:
-- Enable **Vertex AI API** in your Google Cloud Console.
-- Ensure your local environment has credentials (e.g., `gcloud auth application-default login`) or set `FIREBASE_SERVICE_ACCOUNT_KEY` in env for server-side usage if not on GCP.
+## 🏗️ Implementation Details
 
-### 2. Firestore Rules
+*   **Real-time Updates:** Uses Firestore `onSnapshot` listeners to push question state changes and new answers immediately to connected clients.
+*   **Local Demo Mode:** A robust fallback system allows the app to function entirely in the browser using `localStorage` if Firebase Auth is restricted or for demo purposes.
+*   **QR Auto-Join:** The student landing page detects `?code=...` in the URL and bypasses the input form.
 
-For the MVP, you can use these rules (update for production security!):
+## 🔮 What Needs to be Built (Roadmap)
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /sessions/{sessionId} {
-      allow read: if true; // Students need to read session to join
-      allow write: if request.auth != null; // Professors create/update
-    }
-    match /responses/{responseId} {
-      allow read: if request.auth != null; // Professors read responses
-      allow write: if true; // Students write their responses
-    }
-    match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
-    }
-  }
-}
-```
+1.  **Response Analysis:**
+    *   Export results to CSV/Excel.
+    *   Word cloud visualization for text responses.
+    *   History view for closed sessions.
 
-### 3. Run Locally
+2.  **Advanced Question Types:**
+    *   File Upload (Image/PDF) - *Scaffolding exists but backend storage needs implementation.*
+    *   Ranking/Sorting questions.
+    *   Click-on-image heatmaps.
 
-```bash
-npm run dev
-```
+3.  **Authentication & Security:**
+    *   Enable real Google/Email auth providers in Firebase Console for production use beyond the "lunr" bypass.
+    *   Implement row-level security (Firestore Security Rules) to lock down data access.
 
-Visit `http://localhost:3000`.
+4.  **Student Experience:**
+    *   "Waiting room" state before session goes live.
+    *   Ability to see their own past submissions.
 
-## Architecture
+## 🏃‍♂️ Getting Started
 
-- **Frontend**: Next.js 15 App Router, React Server Components + Client Components.
-- **Styling**: Tailwind CSS v4, Framer Motion, Shadcn UI.
-- **Backend**: Next.js API Routes (`/api/synthesize`), Firebase Admin SDK.
-- **Real-time**: Cloud Firestore `onSnapshot`.
-
-## Deployment
-
-Deploy to **Firebase App Hosting** or **Vercel**.
-If deploying to Vercel, ensure you add the Environment Variables in the project settings.
+1.  Clone the repo:
+    ```bash
+    git clone https://github.com/trishanpanch/lunr-poll.git
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Run locally:
+    ```bash
+    npm run dev
+    ```
+4.  **Professor Login (Demo):**
+    *   Email: `lunr@lunr.studio`
+    *   Password: `lunr`
