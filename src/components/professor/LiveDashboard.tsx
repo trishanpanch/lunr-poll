@@ -38,8 +38,16 @@ export function LiveDashboard({ session }: { session: Session }) {
     }, [session.code, session.id]);
 
     const closeSession = async () => {
-        // Local Demo Mode Close
-        if (session.id && session.id.startsWith("local_")) {
+        // Try Cloud Close First
+        try {
+            await updateDoc(doc(db, "sessions", session.id!), { status: "CLOSED" });
+            return;
+        } catch (e) {
+            console.warn("Cloud close failed, trying local", e);
+        }
+
+        // Local Demo Mode Close Fallback
+        if (session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
             try {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
@@ -56,8 +64,6 @@ export function LiveDashboard({ session }: { session: Session }) {
             }
             return;
         }
-
-        await updateDoc(doc(db, "sessions", session.id!), { status: "CLOSED" });
     };
 
     const getAggregatedData = (question: Question) => {

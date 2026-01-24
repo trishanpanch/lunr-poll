@@ -29,13 +29,35 @@ export default function Dashboard() {
             const devUser = JSON.parse(devUserStr);
             setUser(devUser);
 
-            // Load mock sessions from local storage if available, or init with empty
-            const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-            if (localSessionsStr) {
-                setSessions(JSON.parse(localSessionsStr));
-            }
-            setLoading(false);
-            return () => clearTimeout(timer);
+            // Cloud First Strategy for Demo
+            // 1. Try to listen to Firestore
+            // 2. If it errors (permission denied), fallback to localStorage
+            const q = query(
+                collection(db, "sessions"),
+                where("ownerId", "==", devUser.uid)
+            );
+
+            const unsub = onSnapshot(q, (snapshot) => {
+                const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Session));
+                // Simple sort
+                list.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                setSessions(list);
+                setLoading(false);
+            }, (err) => {
+                console.warn("Cloud sync failed (likely perm denied), falling back to local storage", err);
+
+                // Fallback to local storage
+                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
+                if (localSessionsStr) {
+                    setSessions(JSON.parse(localSessionsStr));
+                }
+                setLoading(false);
+            });
+
+            return () => {
+                unsub();
+                clearTimeout(timer);
+            };
         }
 
         const unsubAuth = onAuthStateChanged(auth, (u) => {
@@ -81,7 +103,22 @@ export default function Dashboard() {
         try {
             const code = generateSessionCode();
 
-            // Local Dev Mode Handling
+            // Try Cloud First
+            try {
+                const docRef = await addDoc(collection(db, "sessions"), {
+                    code,
+                    ownerId: user.uid,
+                    status: "DRAFT",
+                    createdAt: serverTimestamp(),
+                    questions: []
+                });
+                router.push(`/professor/session/${docRef.id}`);
+                return;
+            } catch (cloudErr) {
+                console.warn("Cloud create failed, falling back to local", cloudErr);
+            }
+
+            // Local Fallback
             if (user.uid === "dev_lunr_ID") {
                 const newSession: Session = {
                     id: "local_" + Date.now(),
@@ -103,14 +140,9 @@ export default function Dashboard() {
                 return;
             }
 
-            const docRef = await addDoc(collection(db, "sessions"), {
-                code,
-                ownerId: user.uid,
-                status: "DRAFT",
-                createdAt: serverTimestamp(),
-                questions: []
-            });
-            router.push(`/professor/session/${docRef.id}`);
+            // If real user and cloud failed, we just fail
+            alert("Failed to create session (Cloud Error)");
+            setCreating(false);
         } catch (e) {
             console.error(e);
             alert("Failed to create session");
