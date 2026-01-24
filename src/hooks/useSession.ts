@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Session } from "@/lib/types";
 
@@ -61,11 +61,33 @@ export function useSession(code: string) {
         setLoading(true);
         const q = query(collection(db, "sessions"), where("code", "==", code));
 
+        // Strategy: Run getDocs (one-time fetch) AND onSnapshot (realtime) in parallel.
+        // Whoever wins first sets the data. This bypasses 'onSnapshot' hangs on some mobile networks.
+
+        // 1. One-time Fetch
+        getDocs(q).then((snapshot) => {
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                console.log("One-time fetch success");
+                setSession({ id: doc.id, ...doc.data() } as Session);
+                setError(null);
+                setLoading(false);
+            } else {
+                // Don't set error here yet, wait for realtime listener to confirm empty
+                // unless we want to be fast.
+                // Actually if getDocs says empty, it's empty.
+                // setSession(null);
+                // setError("Session not found");
+                // setLoading(false);
+            }
+        }).catch(e => {
+            console.warn("One-time fetch failed", e);
+        });
+
+        // 2. Realtime Listener
         const unsubscribe = onSnapshot(q, (snapshot) => {
             if (snapshot.empty) {
-                // Double check local storage just in case it was created after mount? 
-                // Unlikely but if we want to be safe we can re-read here or just fail.
-                // We typically fail here.
+                // Only authoritative "Not Found" if both failed or this confirms it
                 setSession(null);
                 setError("Session not found");
                 setLoading(false);
@@ -77,10 +99,12 @@ export function useSession(code: string) {
             }
         }, (err) => {
             console.error(err);
-            // If permissions failed, we assume it might be a local session we missed or just error out.
-            // But we already checked local storage above.
-            setError(err.message);
-            setLoading(false);
+            // If realtime fails but getDocs succeeded, we might want to keep the data?
+            // But usually this means permission error which applies to both.
+            if (!session) {
+                setError(err.message);
+                setLoading(false);
+            }
         });
 
         return () => {
