@@ -28,9 +28,9 @@ export default function SessionPage() {
     const { session, loading, error } = useSession(code, sessionId || undefined, { enabled: !authLoading });
     const [user, setUser] = useState<User | null>(null);
 
+    const [authError, setAuthError] = useState<string | null>(null);
+
     useEffect(() => {
-        // Restore Anonymous Auth now that Config is fixed.
-        // This is required for Firestore Security Rules.
         const unsub = onAuthStateChanged(auth, (u) => {
             if (u) {
                 console.log("Auth user restored:", u.uid);
@@ -41,11 +41,10 @@ export default function SessionPage() {
                 signInAnonymously(auth)
                     .then((creds) => {
                         console.log("Signed in anonymously", creds.user.uid);
-                        // User will be set by onAuthStateChanged
                     })
                     .catch((e) => {
                         console.error("Sign in failed", e);
-                        // Fallback? If auth fails, we can't do much if rules require it.
+                        setAuthError(e.message);
                         setAuthLoading(false);
                     });
             }
@@ -61,22 +60,23 @@ export default function SessionPage() {
         );
     }
 
-    if (error || !session) {
+    if (error || authError || !session) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
                 <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full border border-red-100">
                     <h2 className="text-xl font-bold text-red-600 mb-2">Connection Error</h2>
-                    <p className="text-slate-600 mb-6">Could not load session.</p>
+                    <p className="text-slate-600 mb-6 font-mono text-sm">{authError ? "Authentication Failed" : "Could not load session"}</p>
 
                     <div className="text-left bg-slate-100 p-4 rounded-lg font-mono text-xs text-slate-500 overflow-auto mb-4">
                         <p><strong>Code:</strong> {code}</p>
                         <p><strong>Status:</strong> {loading ? "Loading..." : "Failed"}</p>
-                        <p><strong>Error:</strong> {error || "Session not found (Empty Result)"}</p>
+                        <p><strong>Error:</strong> {authError || error || "Session not found"}</p>
                     </div>
 
                     <p className="text-sm text-slate-400">
-                        Ask your professor to check if their "Session ID" starts with "local_".
-                        If so, mobile sync is disabled.
+                        {authError && "Check 'Authorized Domains' in Firebase Authentication Settings."}
+                        {error?.includes("permission") && "Check Firestore Security Rules (allow read)."}
+                        {!authError && !error?.includes("permission") && "Ask your professor if the session is valid."}
                     </p>
                 </div>
             </div>
