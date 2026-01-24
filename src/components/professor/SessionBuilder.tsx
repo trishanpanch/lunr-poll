@@ -58,7 +58,37 @@ export function SessionBuilder({ session }: { session: Session }) {
         toast.error("Failed to save");
     };
 
-    // ... (helper functions like addQuestion, updateQuestion etc. stay same) ...
+    const addQuestion = (type: QuestionType, text = "", options?: string[]) => {
+        const newQ: Question = {
+            id: generateId(),
+            text: text || "New Question",
+            type,
+            options: options || (type === "multiple_choice" ? ["Option A", "Option B"] : undefined)
+        };
+        saveQuestions([...questions, newQ]);
+    };
+
+    const updateQuestion = (id: string, updates: Partial<Question>) => {
+        const newQuestions = questions.map(q => q.id === id ? { ...q, ...updates } : q);
+        saveQuestions(newQuestions);
+    };
+
+    const removeQuestion = (id: string) => {
+        saveQuestions(questions.filter(q => q.id !== id));
+    };
+
+    const addPreset = (preset: string) => {
+        if (preset === "one_minute") {
+            addQuestion("short_text", "What was the most important thing you learned today?");
+            addQuestion("short_text", "What important question remains unanswered?");
+        } else if (preset === "muddiest") {
+            addQuestion("short_text", "What was the 'muddiest' point in today's session?");
+        } else if (preset === "vote") {
+            addQuestion("multiple_choice", "Vote for the best option:", ["Option A", "Option B", "Option C", "Option D"]);
+        } else if (preset === "rate_class") {
+            addQuestion("multiple_choice", "How would you rate today's class?", ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"]);
+        }
+    };
 
     const handleLaunch = async () => {
         if (questions.length === 0) {
