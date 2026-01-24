@@ -27,10 +27,16 @@ export function SessionBuilder({ session }: { session: Session }) {
     const saveQuestions = async (newQuestions: Question[]) => {
         setQuestions(newQuestions);
 
+        // Sanitize questions for Firestore (no undefined allowed)
+        const sanitizedQuestions = newQuestions.map(q => ({
+            ...q,
+            options: q.options === undefined ? null : q.options
+        }));
+
         // Try Cloud First (for everyone, including Demo)
         try {
             const ref = doc(db, "sessions", session.id!);
-            await updateDoc(ref, { questions: newQuestions });
+            await updateDoc(ref, { questions: sanitizedQuestions });
             return; // Success
         } catch (cloudErr) {
             console.warn("Cloud save failed, checking local...", cloudErr);
