@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Harvard Poll Platform
 
-## Getting Started
+A real-time classroom interaction platform for Harvard University professors, built with Next.js 15, Firebase, and Google Vertex AI.
 
-First, run the development server:
+## Features
+
+- **Student Flow**: Join via 6-character code, no login required (Anonymous Auth). Real-time optimistic updates.
+- **Professor Dashboard**: Manage sessions, build dynamic polls, view live results with charts / tickers.
+- **AI Synthesis**: "Close & Analyze" triggers Google Gemini (Vertex AI) to synthesize hundreds of open-ended responses into actionable pedagogical advice.
+- **Design**: "Harvard Minimalist" aesthetic using Tailwind CSS & Shadcn UI.
+
+## Setup Instructions
+
+### 1. Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in your Firebase and Google Cloud credentials.
+
+```bash
+cp .env.example .env.local
+```
+
+You need a Firebase Project with:
+- **Authentication**: Email/Password (Professor) & Anonymous (Student).
+- **Firestore Database**: Create default database in `Nam5` (us-central1) or similar.
+- **Storage**: Enable Storage.
+
+For AI features:
+- Enable **Vertex AI API** in your Google Cloud Console.
+- Ensure your local environment has credentials (e.g., `gcloud auth application-default login`) or set `FIREBASE_SERVICE_ACCOUNT_KEY` in env for server-side usage if not on GCP.
+
+### 2. Firestore Rules
+
+For the MVP, you can use these rules (update for production security!):
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sessions/{sessionId} {
+      allow read: if true; // Students need to read session to join
+      allow write: if request.auth != null; // Professors create/update
+    }
+    match /responses/{responseId} {
+      allow read: if request.auth != null; // Professors read responses
+      allow write: if true; // Students write their responses
+    }
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}
+```
+
+### 3. Run Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: Next.js 15 App Router, React Server Components + Client Components.
+- **Styling**: Tailwind CSS v4, Framer Motion, Shadcn UI.
+- **Backend**: Next.js API Routes (`/api/synthesize`), Firebase Admin SDK.
+- **Real-time**: Cloud Firestore `onSnapshot`.
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deploy to **Firebase App Hosting** or **Vercel**.
+If deploying to Vercel, ensure you add the Environment Variables in the project settings.

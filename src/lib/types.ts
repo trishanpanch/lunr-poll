@@ -1,0 +1,45 @@
+import { Timestamp } from "firebase/firestore";
+
+export type QuestionType = "short_text" | "multiple_choice" | "file_upload";
+
+export interface Question {
+    id: string;
+    text: string;
+    type: QuestionType;
+    options?: string[]; // For multiple choice
+}
+
+export type SessionStatus = "DRAFT" | "OPEN" | "CLOSED" | "ARCHIVED";
+
+export interface Session {
+    id?: string; // Document ID
+    code: string;
+    ownerId: string;
+    status: SessionStatus;
+    createdAt: Timestamp;
+    questions: Question[];
+    analysis?: Record<string, AnalysisResult>;
+}
+
+export interface TeacherProfile {
+    uid: string;
+    email: string;
+    name: string;
+    createdAt: Timestamp;
+}
+
+export interface StudentResponse {
+    id?: string;
+    sessionId: string;
+    studentId: string;
+    studentName: string;
+    answers: Record<string, string>; // questionId -> answer (or url)
+    submittedAt: Timestamp;
+}
+
+export interface AnalysisResult {
+    consensus: string;
+    confusion_points: string[];
+    outlier_insight: string;
+    recommended_action: string;
+}
