@@ -24,13 +24,8 @@ export default function ProfessorLogin() {
         try {
             // Bypass for testing - complete local mock
             if (email.toLowerCase() === "lunr@lunr.studio" && password === "lunr") {
-                // Ensure we have a firebase auth token so firestore doesn't reject us
-                try {
-                    await signInAnonymously(auth);
-                } catch (e) {
-                    console.warn("Dev Bypass: Anonymous auth failed (likely not enabled in console), proceeding without auth.", e);
-                    toast.warning("Auth warning: Enable Anonymous Auth in Firebase Console for live data.");
-                }
+                // Skip actual firebase auth to avoid "admin-restricted-operation" errors if providers are disabled.
+                // We just rely on localStorage for the bypass.
 
                 // Set a mock session in local storage
                 localStorage.setItem("harvard_poll_dev_user", JSON.stringify({

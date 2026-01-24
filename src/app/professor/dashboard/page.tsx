@@ -20,29 +20,22 @@ export default function Dashboard() {
     const router = useRouter();
 
     useEffect(() => {
+        // Safety timeout for loading
+        const timer = setTimeout(() => setLoading(false), 5000);
+
         // Check for Dev Bypass
         const devUserStr = localStorage.getItem("harvard_poll_dev_user");
         if (devUserStr) {
             const devUser = JSON.parse(devUserStr);
             setUser(devUser);
 
-            // In dev mode, we subscribe to sessions owned by "dev_lunr_ID"
-            const q = query(
-                collection(db, "sessions"),
-                where("ownerId", "==", devUser.uid)
-            );
-            const unsub = onSnapshot(q, (snapshot) => {
-                const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Session));
-                // Simple sort
-                list.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                setSessions(list);
-                setSessions(list);
-                setLoading(false);
-            }, (error) => {
-                console.error("Dev Dashboard Error:", error);
-                setLoading(false);
-            });
-            return () => unsub();
+            // Load mock sessions from local storage if available, or init with empty
+            const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
+            if (localSessionsStr) {
+                setSessions(JSON.parse(localSessionsStr));
+            }
+            setLoading(false);
+            return () => clearTimeout(timer);
         }
 
         const unsubAuth = onAuthStateChanged(auth, (u) => {
@@ -54,7 +47,6 @@ export default function Dashboard() {
                 const q = query(
                     collection(db, "sessions"),
                     where("ownerId", "==", u.uid)
-                    // orderBy("createdAt", "desc") // requires composite index usually. Client-side sort is fine for small lists.
                 );
 
                 const unsubData = onSnapshot(q, (snapshot) => {
@@ -68,16 +60,19 @@ export default function Dashboard() {
                         return tB - tA;
                     });
                     setSessions(list);
-                    setSessions(list);
                     setLoading(false);
                 }, (error) => {
                     console.error("Dashboard Error:", error);
+                    // If error (e.g. permission denied), just stop loading so UI shows
                     setLoading(false);
                 });
                 return () => unsubData();
             }
         });
-        return () => unsubAuth();
+        return () => {
+            unsubAuth();
+            clearTimeout(timer);
+        };
     }, [router]);
 
     const createSession = async () => {
@@ -85,6 +80,29 @@ export default function Dashboard() {
         setCreating(true);
         try {
             const code = generateSessionCode();
+
+            // Local Dev Mode Handling
+            if (user.uid === "dev_lunr_ID") {
+                const newSession: Session = {
+                    id: "local_" + Date.now(),
+                    code,
+                    ownerId: user.uid,
+                    status: "DRAFT",
+                    createdAt: {
+                        seconds: Date.now() / 1000,
+                        nanoseconds: 0,
+                        toMillis: () => Date.now()
+                    } as any,
+                    questions: []
+                };
+                const updatedSessions = [newSession, ...sessions];
+                setSessions(updatedSessions);
+                localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
+                router.push(`/professor/session/${newSession.id}`);
+                setCreating(false);
+                return;
+            }
+
             const docRef = await addDoc(collection(db, "sessions"), {
                 code,
                 ownerId: user.uid,
