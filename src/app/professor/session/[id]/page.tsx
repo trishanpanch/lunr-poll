@@ -19,6 +19,23 @@ export default function SessionCommandCenter() {
 
     useEffect(() => {
         if (!id) return;
+
+        // Local Demo Mode Logic
+        if (id.startsWith("local_")) {
+            const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
+            if (localSessionsStr) {
+                const sessions = JSON.parse(localSessionsStr) as Session[];
+                const found = sessions.find(s => s.id === id);
+                if (found) {
+                    setSession(found);
+                } else {
+                    setSession(null);
+                }
+            }
+            setLoading(false);
+            return;
+        }
+
         const ref = doc(db, "sessions", id);
         const unsub = onSnapshot(ref, (snap) => {
             if (snap.exists()) {
@@ -26,6 +43,10 @@ export default function SessionCommandCenter() {
             } else {
                 setSession(null);
             }
+            setLoading(false);
+        }, (err) => {
+            console.error("Session Error:", err);
+            // If permission denied, checking local storage might be a fallback, but for now just stop loading
             setLoading(false);
         });
         return () => unsub();

@@ -22,15 +22,41 @@ export function LiveDashboard({ session }: { session: Session }) {
     const [responses, setResponses] = useState<StudentResponse[]>([]);
 
     useEffect(() => {
+        // Skip firestore subscription for local demo sessions to avoid permission errors
+        if (session.id && session.id.startsWith("local_")) {
+            return;
+        }
+
         const q = query(collection(db, "responses"), where("sessionId", "==", session.code));
         const unsub = onSnapshot(q, (snapshot) => {
             const list = snapshot.docs.map(d => d.data() as StudentResponse);
             setResponses(list);
+        }, (err) => {
+            console.error("LiveDashboard Error:", err);
         });
         return () => unsub();
-    }, [session.code]);
+    }, [session.code, session.id]);
 
     const closeSession = async () => {
+        // Local Demo Mode Close
+        if (session.id && session.id.startsWith("local_")) {
+            try {
+                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
+                if (localSessionsStr) {
+                    const sessions = JSON.parse(localSessionsStr) as Session[];
+                    const updatedSessions = sessions.map(s =>
+                        s.id === session.id ? { ...s, status: "CLOSED" as const } : s
+                    );
+                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
+                    // Force reload to update parent view
+                    window.location.reload();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            return;
+        }
+
         await updateDoc(doc(db, "sessions", session.id!), { status: "CLOSED" });
     };
 

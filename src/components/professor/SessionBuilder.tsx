@@ -26,6 +26,26 @@ export function SessionBuilder({ session }: { session: Session }) {
 
     const saveQuestions = async (newQuestions: Question[]) => {
         setQuestions(newQuestions);
+
+        // Local Demo Mode Write
+        if (session.id && session.id.startsWith("local_")) {
+            try {
+                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
+                if (localSessionsStr) {
+                    const sessions = JSON.parse(localSessionsStr) as Session[];
+                    const updatedSessions = sessions.map(s =>
+                        s.id === session.id ? { ...s, questions: newQuestions } : s
+                    );
+                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
+                    toast.success("Saved locally");
+                }
+            } catch (e) {
+                console.error(e);
+                toast.error("Failed to save local session");
+            }
+            return;
+        }
+
         try {
             const ref = doc(db, "sessions", session.id!);
             await updateDoc(ref, { questions: newQuestions });
@@ -72,6 +92,22 @@ export function SessionBuilder({ session }: { session: Session }) {
             toast.error("Add at least one question.");
             return;
         }
+
+        // Local Demo Mode Launch
+        if (session.id && session.id.startsWith("local_")) {
+            const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
+            if (localSessionsStr) {
+                const sessions = JSON.parse(localSessionsStr) as Session[];
+                const updatedSessions = sessions.map(s =>
+                    s.id === session.id ? { ...s, status: "OPEN" as const } : s
+                );
+                localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
+                toast.success("Session is LIVE (Local)!");
+                window.location.reload(); // Simple reload to refresh parent state
+            }
+            return;
+        }
+
         try {
             const ref = doc(db, "sessions", session.id!);
             await updateDoc(ref, { status: "OPEN" });
