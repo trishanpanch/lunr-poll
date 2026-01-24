@@ -1,15 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 export default function StudentLanding() {
     const [code, setCode] = useState("");
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const joinCode = searchParams.get("code");
+        if (joinCode) {
+            setLoading(true);
+            setCode(joinCode);
+            // Small delay to show feedback or just immediate redirect
+            router.push(`/session/${joinCode.toUpperCase()}`);
+        }
+    }, [searchParams, router]);
 
     const handleJoin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,7 +42,7 @@ export default function StudentLanding() {
                         Harvard<span className="text-primary">Poll</span>
                     </h1>
                     <p className="text-slate-500 font-sans">
-                        Enter your session code to join.
+                        {loading ? "Joining session..." : "Enter your session code to join."}
                     </p>
                 </div>
 
