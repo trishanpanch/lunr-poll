@@ -24,23 +24,33 @@ export default function SessionPage() {
     const code = typeof params.code === 'string' ? params.code : "";
     const sessionId = searchParams.get("id");
 
-    const { session, loading, error } = useSession(code, sessionId || undefined);
-    const [user, setUser] = useState<User | null>(null);
     const [authLoading, setAuthLoading] = useState(true);
+    const { session, loading, error } = useSession(code, sessionId || undefined, { enabled: !authLoading });
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        // Use a simple local ID for student identity, avoiding Firebase Auth/Anonymous Login overhead
-        // checking if this fixes the timeout issues on mobile.
-        const storedId = localStorage.getItem("harvard_poll_student_uid");
-        if (storedId) {
-            setUser({ uid: storedId, isAnonymous: true } as User);
-            setAuthLoading(false);
-        } else {
-            const newId = "anon_" + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem("harvard_poll_student_uid", newId);
-            setUser({ uid: newId, isAnonymous: true } as User);
-            setAuthLoading(false);
-        }
+        // Restore Anonymous Auth now that Config is fixed.
+        // This is required for Firestore Security Rules.
+        const unsub = onAuthStateChanged(auth, (u) => {
+            if (u) {
+                console.log("Auth user restored:", u.uid);
+                setUser(u);
+                setAuthLoading(false);
+            } else {
+                console.log("Signing in anonymously...");
+                signInAnonymously(auth)
+                    .then((creds) => {
+                        console.log("Signed in anonymously", creds.user.uid);
+                        // User will be set by onAuthStateChanged
+                    })
+                    .catch((e) => {
+                        console.error("Sign in failed", e);
+                        // Fallback? If auth fails, we can't do much if rules require it.
+                        setAuthLoading(false);
+                    });
+            }
+        });
+        return () => unsub();
     }, []);
 
     if (loading || authLoading) {

@@ -5,12 +5,18 @@ import { collection, query, where, onSnapshot, getDocs, doc, getDoc } from "fire
 import { db } from "@/lib/firebase/client";
 import { Session } from "@/lib/types";
 
-export function useSession(code: string, sessionId?: string) {
+export function useSession(code: string, sessionId?: string, options: { enabled?: boolean } = {}) {
+    const { enabled = true } = options;
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        // If not enabled (waiting for auth), just wait.
+        if (!enabled) {
+            return;
+        }
+
         // Safety timeout
         const timer = setTimeout(() => {
             if (loading) {
@@ -18,7 +24,7 @@ export function useSession(code: string, sessionId?: string) {
                 setLoading(false);
                 if (!session) setError("Timeout loading session");
             }
-        }, 8000);
+        }, 15000); // Increased timeout for safety
 
         if (!code && !sessionId) {
             setLoading(false);
@@ -116,7 +122,7 @@ export function useSession(code: string, sessionId?: string) {
             unsubscribe();
             clearTimeout(timer);
         };
-    }, [code, sessionId]);
+    }, [code, sessionId, enabled]);
 
     return { session, loading, error };
 }
