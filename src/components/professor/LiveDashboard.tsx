@@ -115,7 +115,7 @@ export function LiveDashboard({ session }: { session: Session }) {
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-md">
-                            <SessionQR sessionCode={session.code} />
+                            <SessionQR sessionCode={session.code} sessionId={session.id} />
                         </DialogContent>
                     </Dialog>
 

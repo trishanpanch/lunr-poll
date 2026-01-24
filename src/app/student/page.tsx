@@ -15,10 +15,15 @@ function StudentContent() {
 
     useEffect(() => {
         const joinCode = searchParams.get("code");
+        const sessionId = searchParams.get("id"); // Get direct ID if available
         if (joinCode) {
             setLoading(true);
             setCode(joinCode);
-            router.push(`/session/${joinCode.toUpperCase()}`);
+            let url = `/session/${joinCode.toUpperCase()}`;
+            if (sessionId) {
+                url += `?id=${sessionId}`;
+            }
+            router.push(url);
         }
     }, [searchParams, router]);
 

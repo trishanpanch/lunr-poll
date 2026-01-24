@@ -9,14 +9,20 @@ import { toast } from "sonner";
 
 interface SessionQRProps {
     sessionCode: string;
+    sessionId?: string; // Optional for backward compatibility, but we will pass it
 }
 
-export function SessionQR({ sessionCode }: SessionQRProps) {
+export function SessionQR({ sessionCode, sessionId }: SessionQRProps) {
     const qrRef = useRef<HTMLDivElement>(null);
     // Use window.location.origin to adapt to localhost or prod URL automatically
     // Fallback to localhost if window is undefined (SSR safety, though this is 'use client')
     const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-    const joinUrl = `${origin}/student?code=${sessionCode}`;
+
+    // Construct robust URL
+    let joinUrl = `${origin}/student?code=${sessionCode}`;
+    if (sessionId && !sessionId.startsWith("local_")) {
+        joinUrl += `&id=${sessionId}`;
+    }
 
     const downloadQR = async () => {
         if (!qrRef.current) return;

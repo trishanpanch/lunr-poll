@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot, getDocs } from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Session } from "@/lib/types";
 
-export function useSession(code: string) {
+export function useSession(code: string, sessionId?: string) {
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -20,24 +20,7 @@ export function useSession(code: string) {
             }
         }, 8000);
 
-        if (!code) {
-            setLoading(false);
-            return () => clearTimeout(timer);
-        }
-
-        // Dev Bypass for static testing codes
-        if (code === "TESTCODE" || code === "QsNeM3uxs0Ozp470VNO6") {
-            setSession({
-                id: "mock_session_id",
-                code: code,
-                status: "OPEN",
-                ownerId: "mock_owner",
-                createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 },
-                questions: [
-                    { id: "q1", type: "short_text", text: "Mock Question: How are you?" },
-                    { id: "q2", type: "multiple_choice", text: "Rate this bypass", options: ["Good", "Bad"] }
-                ]
-            } as any);
+        if (!code && !sessionId) {
             setLoading(false);
             return () => clearTimeout(timer);
         }
@@ -47,7 +30,9 @@ export function useSession(code: string) {
         if (localSessionsStr) {
             try {
                 const sessions = JSON.parse(localSessionsStr) as Session[];
-                const found = sessions.find(s => s.code === code);
+                const found = sessionId
+                    ? sessions.find(s => s.id === sessionId)
+                    : sessions.find(s => s.code === code);
                 if (found) {
                     setSession(found);
                     setLoading(false);
@@ -59,35 +44,57 @@ export function useSession(code: string) {
         }
 
         setLoading(true);
-        const q = query(collection(db, "sessions"), where("code", "==", code));
 
-        // Strategy: Run getDocs (one-time fetch) AND onSnapshot (realtime) in parallel.
-        // Whoever wins first sets the data. This bypasses 'onSnapshot' hangs on some mobile networks.
+        // If we have a sessionId, we can do a DIRECT lookup (faster/more robust)
+        if (sessionId && !sessionId.startsWith("local_")) {
+            const docRef = doc(db, "sessions", sessionId);
+
+            // 1. One-time Direct Fetch
+            getDoc(docRef).then((snap) => {
+                if (snap.exists()) {
+                    setSession({ id: snap.id, ...snap.data() } as Session);
+                    setError(null);
+                    setLoading(false);
+                }
+            }).catch(e => console.warn("Direct fetch failed", e));
+
+            // 2. Realtime Direct Listener
+            const unsub = onSnapshot(docRef, (snap) => {
+                if (snap.exists()) {
+                    setSession({ id: snap.id, ...snap.data() } as Session);
+                    setError(null);
+                    setLoading(false);
+                } else {
+                    setError("Session not found (ID)");
+                    setLoading(false);
+                }
+            }, (err) => {
+                setError(err.message);
+                setLoading(false);
+            });
+
+            return () => {
+                unsub();
+                clearTimeout(timer);
+            };
+        }
+
+        // Fallback to Code Query
+        const q = query(collection(db, "sessions"), where("code", "==", code));
 
         // 1. One-time Fetch
         getDocs(q).then((snapshot) => {
             if (!snapshot.empty) {
                 const doc = snapshot.docs[0];
-                console.log("One-time fetch success");
                 setSession({ id: doc.id, ...doc.data() } as Session);
                 setError(null);
                 setLoading(false);
-            } else {
-                // Don't set error here yet, wait for realtime listener to confirm empty
-                // unless we want to be fast.
-                // Actually if getDocs says empty, it's empty.
-                // setSession(null);
-                // setError("Session not found");
-                // setLoading(false);
             }
-        }).catch(e => {
-            console.warn("One-time fetch failed", e);
-        });
+        }).catch(e => console.warn("Query fetch failed", e));
 
         // 2. Realtime Listener
         const unsubscribe = onSnapshot(q, (snapshot) => {
             if (snapshot.empty) {
-                // Only authoritative "Not Found" if both failed or this confirms it
                 setSession(null);
                 setError("Session not found");
                 setLoading(false);
@@ -99,8 +106,6 @@ export function useSession(code: string) {
             }
         }, (err) => {
             console.error(err);
-            // If realtime fails but getDocs succeeded, we might want to keep the data?
-            // But usually this means permission error which applies to both.
             if (!session) {
                 setError(err.message);
                 setLoading(false);
@@ -111,7 +116,7 @@ export function useSession(code: string) {
             unsubscribe();
             clearTimeout(timer);
         };
-    }, [code]);
+    }, [code, sessionId]);
 
     return { session, loading, error };
 }

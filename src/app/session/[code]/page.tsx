@@ -13,13 +13,18 @@ import { QuestionList } from "@/components/student/QuestionList";
 // But we are in "use client".
 // We can use `useParams` from `next/navigation`.
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 export default function SessionPage() {
     const params = useParams();
-    const code = typeof params.code === 'string' ? params.code : "";
+    const searchParams = useSearchParams();
 
-    const { session, loading, error } = useSession(code);
+    // Fallback: If code is missing from path but present in search params? 
+    // Usually path takes precedence.
+    const code = typeof params.code === 'string' ? params.code : "";
+    const sessionId = searchParams.get("id");
+
+    const { session, loading, error } = useSession(code, sessionId || undefined);
     const [user, setUser] = useState<User | null>(null);
     const [authLoading, setAuthLoading] = useState(true);
 
