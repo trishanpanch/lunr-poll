@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users: Users can read/write their own profile
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Sessions:
+    match /sessions/{sessionId} {
+      // Public read allowed so students can join by code
+      allow read: if true;
+      
+      // Only professors (non-anonymous) can create
+      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      
+      // Only the owner can update (close/open) or delete
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+
+      // Responses Subcollection
+      match /responses/{responseId} {
+        // Students (anyone) can write a response
+        allow create: if true;
+        
+        // 🔒 SECURE READ: Only the Professor (Owner of the session) can read responses
+        // This requires "getting" the parent session to check the ownerId
+        allow read, list: if request.auth != null && 
+                          request.auth.uid == get(/databases/$(database)/documents/sessions/$(sessionId)).data.ownerId;
+      }
+    }
+  }
+}

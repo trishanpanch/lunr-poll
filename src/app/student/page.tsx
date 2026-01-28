@@ -5,20 +5,23 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 function StudentContent() {
-    const [code, setCode] = useState("");
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
     const searchParams = useSearchParams();
+    const router = useRouter();
+
+    // Initialize state from URL to avoid effect updates
+    const [code, setCode] = useState(searchParams.get("code") || "");
+    const [loading] = useState(() => !!searchParams.get("code"));
 
     useEffect(() => {
         const joinCode = searchParams.get("code");
         const sessionId = searchParams.get("id"); // Get direct ID if available
+
         if (joinCode) {
-            setLoading(true);
-            setCode(joinCode);
+            // We are redirecting, no need to setCode. 
+            // The initial state handles the UI.
             let url = `/session/${joinCode.toUpperCase()}`;
             if (sessionId) {
                 url += `?id=${sessionId}`;
@@ -41,7 +44,7 @@ function StudentContent() {
             className="w-full max-w-md space-y-8"
         >
             <div className="text-center space-y-2">
-                <h1 className="text-4xl font-serif font-bold text-slate-900 tracking-tighter">
+                <h1 className="text-4xl font-serif font-bold text-slate-900 tracking-widest">
                     Harvard<span className="text-primary">Poll</span>
                 </h1>
                 <p className="text-slate-500 font-sans">
@@ -70,10 +73,6 @@ function StudentContent() {
                     Join Session <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
             </form>
-
-            <p className="text-center text-sm text-slate-400">
-                No account required for students.
-            </p>
         </motion.div>
     );
 }

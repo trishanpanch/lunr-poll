@@ -7,6 +7,7 @@ export interface Question {
     text: string;
     type: QuestionType;
     options?: string[]; // For multiple choice
+    isActive?: boolean;
 }
 
 export type SessionStatus = "DRAFT" | "OPEN" | "CLOSED" | "ARCHIVED";
@@ -42,4 +43,6 @@ export interface AnalysisResult {
     confusion_points: string[];
     outlier_insight: string;
     recommended_action: string;
+    distribution_analysis: string;
+    key_inferences: string[];
 }

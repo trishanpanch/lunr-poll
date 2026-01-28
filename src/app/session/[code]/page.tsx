@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "@/hooks/useSession";
 import { signInAnonymously, onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebase/client";
+import { auth, db } from "@/lib/firebase/client"; // Added db
+import { doc, onSnapshot } from "firebase/firestore"; // Added doc, onSnapshot
 import { Loader2 } from "lucide-react";
 import { QuestionList } from "@/components/student/QuestionList";
 
@@ -83,6 +84,22 @@ export default function SessionPage() {
         );
     }
 
+    const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        if (!session?.id || !user?.uid) return;
+
+        const unsub = onSnapshot(doc(db, "sessions", session.id, "responses", user.uid), (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data.answers) {
+                    setAnsweredQuestionIds(new Set(Object.keys(data.answers)));
+                }
+            }
+        });
+        return () => unsub();
+    }, [session?.id, user?.uid]);
+
     if (session.status !== "OPEN") {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
@@ -110,7 +127,7 @@ export default function SessionPage() {
                 </div>
             </header>
 
-            <QuestionList session={session} userId={user?.uid!} />
+            <QuestionList session={session} userId={user?.uid || ""} answeredQuestionIds={answeredQuestionIds} />
         </main>
     );
 }

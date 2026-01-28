@@ -6,12 +6,9 @@ import { db } from "@/lib/firebase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Plus, Play, GripVertical, Rocket, QrCode } from "lucide-react";
+import { Trash2, Plus, GripVertical, Rocket, QrCode } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SessionQR } from "@/components/professor/SessionQR";
 
@@ -142,24 +139,13 @@ export function SessionBuilder({ session }: { session: Session }) {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 p-6">
-            <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <div>
+            <header className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div className="text-center md:text-left">
                     <h2 className="text-2xl font-serif font-bold text-slate-800">Session Builder</h2>
                     <p className="text-slate-500 font-mono text-sm">Code: {session.code}</p>
                 </div>
-                <div className="flex gap-3">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" className="gap-2">
-                                <QrCode className="w-4 h-4" /> Share / QR
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-md">
-                            <SessionQR sessionCode={session.code} sessionId={session.id} />
-                        </DialogContent>
-                    </Dialog>
-
-                    <Button size="lg" onClick={handleLaunch} className="bg-primary hover:bg-rose-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div className="flex gap-3 w-full md:w-auto">
+                    <Button size="lg" onClick={handleLaunch} className="w-full md:w-auto bg-primary hover:bg-rose-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all">
                         <Rocket className="mr-2 w-5 h-5" /> Launch Session
                     </Button>
                 </div>
@@ -209,7 +195,7 @@ export function SessionBuilder({ session }: { session: Session }) {
                             Add questions to build your session.
                         </div>
                     )}
-                    {questions.map((q, idx) => (
+                    {questions.map((q) => (
                         <Card key={q.id} className="relative group border-slate-200">
                             <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-200 rounded-l-xl group-hover:bg-primary transition-colors"></div>
                             <CardContent className="p-6 space-y-4">

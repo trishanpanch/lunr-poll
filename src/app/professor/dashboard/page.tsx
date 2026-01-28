@@ -2,66 +2,28 @@
 
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase/client";
-import { collection, query, where, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Session } from "@/lib/types";
 import { generateSessionCode } from "@/utils/code";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
-import { Plus, ArrowRight, Clock, Users, BarChart } from "lucide-react";
-import { formatDistanceToNow } from "date-fns"; // User might not have date-fns. I'll just use simple date.
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Plus, ArrowRight } from "lucide-react";
 
 export default function Dashboard() {
     const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(true);
     const [creating, setCreating] = useState(false);
-    const [user, setUser] = useState<any>(null);
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
     useEffect(() => {
         // Safety timeout for loading
         const timer = setTimeout(() => setLoading(false), 5000);
 
-        // Check for Dev Bypass
-        const devUserStr = localStorage.getItem("harvard_poll_dev_user");
-        if (devUserStr) {
-            const devUser = JSON.parse(devUserStr);
-            setUser(devUser);
-
-            // Cloud First Strategy for Demo
-            // 1. Try to listen to Firestore
-            // 2. If it errors (permission denied), fallback to localStorage
-            const q = query(
-                collection(db, "sessions"),
-                where("ownerId", "==", devUser.uid)
-            );
-
-            const unsub = onSnapshot(q, (snapshot) => {
-                const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Session));
-                // Simple sort
-                list.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                setSessions(list);
-                setLoading(false);
-            }, (err) => {
-                console.warn("Cloud sync failed (likely perm denied), falling back to local storage", err);
-
-                // Fallback to local storage
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    setSessions(JSON.parse(localSessionsStr));
-                }
-                setLoading(false);
-            });
-
-            return () => {
-                unsub();
-                clearTimeout(timer);
-            };
-        }
-
         const unsubAuth = onAuthStateChanged(auth, (u) => {
-            if (!u) {
+            if (!u || u.isAnonymous) {
                 router.push("/professor");
             } else {
                 setUser(u);
@@ -75,9 +37,7 @@ export default function Dashboard() {
                     const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Session));
                     // Manually sort
                     list.sort((a, b) => {
-                        // @ts-ignore
                         const tA = a.createdAt?.toMillis?.() || 0;
-                        // @ts-ignore
                         const tB = b.createdAt?.toMillis?.() || 0;
                         return tB - tA;
                     });
@@ -103,7 +63,7 @@ export default function Dashboard() {
         try {
             const code = generateSessionCode();
 
-            // Try Cloud First
+            // Cloud Only Strategy
             try {
                 const docRef = await addDoc(collection(db, "sessions"), {
                     code,
@@ -113,44 +73,20 @@ export default function Dashboard() {
                     questions: []
                 });
                 router.push(`/professor/session/${docRef.id}`);
-                return;
-            } catch (cloudErr) {
-                console.warn("Cloud create failed, falling back to local", cloudErr);
-            }
-
-            // Local Fallback
-            if (user.uid === "dev_lunr_ID") {
-                const newSession: Session = {
-                    id: "local_" + Date.now(),
-                    code,
-                    ownerId: user.uid,
-                    status: "DRAFT",
-                    createdAt: {
-                        seconds: Date.now() / 1000,
-                        nanoseconds: 0,
-                        toMillis: () => Date.now()
-                    } as any,
-                    questions: []
-                };
-                const updatedSessions = [newSession, ...sessions];
-                setSessions(updatedSessions);
-                localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
-                router.push(`/professor/session/${newSession.id}`);
+            } catch (cloudErr: unknown) {
+                console.error("Cloud create failed", cloudErr);
+                alert(`Failed to create session in Cloud: ${(cloudErr as Error).message}`);
                 setCreating(false);
-                return;
             }
-
-            // If real user and cloud failed, we just fail
-            alert("Failed to create session (Cloud Error)");
-            setCreating(false);
-        } catch (e) {
+        } catch (e: unknown) {
             console.error(e);
-            alert("Failed to create session");
+            alert("Unexpected error creating session");
             setCreating(false);
         }
     };
 
     if (loading) return <div className="p-10 text-center">Loading dashboard...</div>;
+    if (!user) return null;
 
     return (
         <main className="min-h-screen bg-slate-50 p-8">

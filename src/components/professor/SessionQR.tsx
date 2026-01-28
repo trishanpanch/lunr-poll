@@ -20,7 +20,7 @@ export function SessionQR({ sessionCode, sessionId }: SessionQRProps) {
 
     // Construct robust URL
     let joinUrl = `${origin}/student?code=${sessionCode}`;
-    if (sessionId && !sessionId.startsWith("local_")) {
+    if (sessionId) {
         joinUrl += `&id=${sessionId}`;
     }
 
@@ -43,8 +43,7 @@ export function SessionQR({ sessionCode, sessionId }: SessionQRProps) {
         <div className="flex flex-col items-center space-y-6">
             <div
                 ref={qrRef}
-                className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center space-y-4"
-                style={{ width: "300px" }}
+                className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center space-y-4 w-full max-w-[300px]"
             >
                 <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Join Session</h3>
                 <QRCodeSVG value={joinUrl} size={200} level="H" />

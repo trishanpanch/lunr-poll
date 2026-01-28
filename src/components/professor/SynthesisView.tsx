@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Session, Question, StudentResponse, AnalysisResult } from "@/lib/types";
-import { collection, query, where, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { Session, Question, StudentResponse } from "@/lib/types";
+import { collection, query, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sparkles, Loader2, Lightbulb, AlertTriangle, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
@@ -17,16 +16,16 @@ export function SynthesisView({ session }: { session: Session }) {
     const [analyzing, setAnalyzing] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
-        const q = query(collection(db, "responses"), where("sessionId", "==", session.code));
+        const q = query(collection(db, "sessions", session.id!, "responses"));
         const unsub = onSnapshot(q, (snapshot) => {
             const list = snapshot.docs.map(d => d.data() as StudentResponse);
             setResponses(list);
         });
         return () => unsub();
-    }, [session.code]);
+    }, [session.code, session.id]);
 
     const analyzeQuestion = async (q: Question) => {
-        const answers = responses.map(r => r.answers[q.id]).filter(Boolean);
+        const answers = responses.map(r => r.answers ? r.answers[q.id] : undefined).filter(Boolean);
         if (answers.length === 0) {
             toast.error("No responses to analyze");
             return;
@@ -49,9 +48,9 @@ export function SynthesisView({ session }: { session: Session }) {
                 [`analysis.${q.id}`]: data
             });
             toast.success("Analysis complete");
-        } catch (e: any) {
+        } catch (e) {
             console.error(e);
-            toast.error(e.message || "Analysis failed");
+            toast.error((e as Error).message || "Analysis failed");
         } finally {
             setAnalyzing(prev => ({ ...prev, [q.id]: false }));
         }
@@ -62,6 +61,7 @@ export function SynthesisView({ session }: { session: Session }) {
             const counts: Record<string, number> = {};
             question.options?.forEach(o => counts[o] = 0);
             responses.forEach(r => {
+                if (!r.answers) return;
                 const ans = r.answers[question.id];
                 if (ans && counts[ans] !== undefined) counts[ans]++;
             });
@@ -87,19 +87,23 @@ export function SynthesisView({ session }: { session: Session }) {
 
                         {q.type === "multiple_choice" ? (
                             <Card className="p-6">
-                                <div className="h-[250px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={getAggregatedData(q)} layout="vertical" margin={{ left: 0 }}>
-                                            <XAxis type="number" hide />
-                                            <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12 }} />
-                                            <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: 8 }} />
-                                            <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]}>
-                                                {getAggregatedData(q).map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#be123c' : '#e11d48'} />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
+                                <div className="h-[250px] w-full flex items-center justify-center">
+                                    {getAggregatedData(q).length > 0 ? (
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={getAggregatedData(q)} layout="vertical" margin={{ left: 0 }}>
+                                                <XAxis type="number" hide />
+                                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12 }} />
+                                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: 8 }} />
+                                                <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]}>
+                                                    {getAggregatedData(q).map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#be123c' : '#e11d48'} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <p className="text-slate-400 italic">No responses to display.</p>
+                                    )}
                                 </div>
                             </Card>
                         ) : (
@@ -114,7 +118,7 @@ export function SynthesisView({ session }: { session: Session }) {
                                                 if (!ans || typeof ans !== 'string') return null;
                                                 return (
                                                     <div key={i} className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700">
-                                                        "{ans}"
+                                                        &quot;{ans}&quot;
                                                     </div>
                                                 );
                                             })}
@@ -162,7 +166,7 @@ export function SynthesisView({ session }: { session: Session }) {
                                                     <h4 className="text-xs font-bold uppercase text-indigo-500 mb-1 flex items-center gap-1">
                                                         <Lightbulb className="w-3 h-3" /> Outlier Insight
                                                     </h4>
-                                                    <p className="text-sm italic text-slate-600">"{analysis.outlier_insight}"</p>
+                                                    <p className="text-sm italic text-slate-600">&quot;{analysis.outlier_insight}&quot;</p>
                                                 </div>
 
                                                 <div>
@@ -175,7 +179,7 @@ export function SynthesisView({ session }: { session: Session }) {
                                         ) : (
                                             <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center text-sm p-4">
                                                 <Sparkles className="w-8 h-8 mb-2 opacity-20" />
-                                                Hit "Analyze" to synthesize student responses with Gemini.
+                                                Hit &quot;Analyze&quot; to synthesize student responses with Gemini.
                                             </div>
                                         )}
                                     </CardContent>

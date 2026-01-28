@@ -18,15 +18,18 @@ export async function POST(req: Request) {
         });
 
         const prompt = `
-      You are an expert pedagogical consultant for a Harvard graduate course. Analyze these student responses. Do not summarize; diagnose. Identify misconceptions, consensus, and outliers.
-      
+      You are an expert pedagogical consultant for a Harvard graduate course. Analyze these student responses. Do not summarize; diagnose. 
+      Identify the distribution of sentiment or fact patterns, and draw deep inferences about student understanding given the question.
+
       Question: "${question}"
       Student Responses: ${JSON.stringify(responses)}
       
       Output JSON only matching this schema:
       {
-        "consensus": "String (1 sentence)",
-        "confusion_points": ["String", "String"],
+        "consensus": "String (1 sentence high-level summary)",
+        "distribution_analysis": "String (Description of how responses are distributed, e.g., '60% focused on X, while 20% argued Y')",
+        "key_inferences": ["String", "String (Deep insights about *why* students answered this way)"],
+        "confusion_points": ["String", "String (Specific misunderstandings)"],
         "outlier_insight": "String (Quote a unique perspective)",
         "recommended_action": "String (Specific 2-minute classroom intervention)"
       }
@@ -39,8 +42,9 @@ export async function POST(req: Request) {
         if (!text) throw new Error("No response from AI");
 
         return NextResponse.json(JSON.parse(text));
-    } catch (error: any) {
+    } catch (error) {
+        const e = error as Error;
         console.error("AI Error:", error);
-        return NextResponse.json({ error: error.message || "Failed to synthesize" }, { status: 500 });
+        return NextResponse.json({ error: e.message || "Failed to synthesize" }, { status: 500 });
     }
 }

@@ -22,17 +22,19 @@ export default function SessionCommandCenter() {
 
         // Local Demo Mode Logic
         if (id.startsWith("local_")) {
-            const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-            if (localSessionsStr) {
-                const sessions = JSON.parse(localSessionsStr) as Session[];
-                const found = sessions.find(s => s.id === id);
-                if (found) {
-                    setSession(found);
-                } else {
-                    setSession(null);
+            setTimeout(() => {
+                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
+                if (localSessionsStr) {
+                    const sessions = JSON.parse(localSessionsStr) as Session[];
+                    const found = sessions.find(s => s.id === id);
+                    if (found) {
+                        setSession(found);
+                    } else {
+                        setSession(null);
+                    }
                 }
-            }
-            setLoading(false);
+                setLoading(false);
+            }, 0);
             return;
         }
 
