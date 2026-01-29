@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 
 export function QuestionList({ session, userId, answeredQuestionIds }: { session: Session; userId: string; answeredQuestionIds?: Set<string> }) {
 
-    const visibleQuestions = session.questions.filter(q => {
+    const visibleQuestions = (session.questions || []).filter(q => {
+        if (!q) return false;
         // Show if active (default true) AND not answered
         const isActive = q.isActive !== false;
         const isAnswered = answeredQuestionIds?.has(q.id);

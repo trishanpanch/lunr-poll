@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 
-export type QuestionType = "short_text" | "multiple_choice" | "file_upload";
+export type QuestionType = "short_text" | "multiple_choice" | "file_upload" | "rating";
 
 export interface Question {
     id: string;

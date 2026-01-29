@@ -12,6 +12,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
 import { Check, Upload, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { StarRating } from "@/components/ui/StarRating";
 
 interface QuestionItemProps {
     question: Question;
@@ -161,6 +162,20 @@ export function QuestionItem({ question, sessionId, userId, studentName = "Anony
                         <Upload className="w-8 h-8 text-slate-400" />
                         <p className="text-slate-600 font-medium">{file ? file.name : "Tap to upload file"}</p>
                     </div>
+                </div>
+            )}
+
+            {question.type === "rating" && (
+                <div className="flex flex-col items-center justify-center py-10 bg-slate-50/50 rounded-xl border border-slate-100">
+                    <StarRating
+                        value={parseFloat(answer || "0")}
+                        onChange={(val) => setAnswer(val.toString())}
+                        size="lg"
+                        className="justify-center"
+                    />
+                    <p className="mt-4 text-slate-400 text-sm font-medium uppercase tracking-widest">
+                        {answer ? (parseFloat(answer) === 5 ? "Excellent" : parseFloat(answer) >= 4 ? "Very Good" : parseFloat(answer) >= 3 ? "Good" : "Needs Improvement") : "Tap to Rate"}
+                    </p>
                 </div>
             )}
 

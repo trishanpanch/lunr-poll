@@ -89,7 +89,7 @@ export function SessionBuilder({ session }: { session: Session }) {
         } else if (preset === "vote") {
             addQuestion("multiple_choice", "Vote for the best option:", ["Option A", "Option B", "Option C", "Option D"]);
         } else if (preset === "rate_class") {
-            addQuestion("multiple_choice", "How would you rate today's class?", ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"]);
+            addQuestion("rating", "How would you rate today's class?");
         }
     };
 
@@ -184,6 +184,9 @@ export function SessionBuilder({ session }: { session: Session }) {
                             </Button>
                             <Button variant="outline" className="w-full justify-start" onClick={() => addQuestion("file_upload")}>
                                 <Plus className="mr-2 w-4 h-4" /> File Upload
+                            </Button>
+                            <Button variant="outline" className="w-full justify-start" onClick={() => addQuestion("rating")}>
+                                <Plus className="mr-2 w-4 h-4" /> Star Rating
                             </Button>
                         </CardContent>
                     </Card>

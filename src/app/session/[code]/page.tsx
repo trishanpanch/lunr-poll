@@ -7,6 +7,7 @@ import { auth, db } from "@/lib/firebase/client"; // Added db
 import { doc, onSnapshot } from "firebase/firestore"; // Added doc, onSnapshot
 import { Loader2 } from "lucide-react";
 import { QuestionList } from "@/components/student/QuestionList";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // React 18+ / Next.js 14+ specific: params is a Promise in some contexts, but in 'use client' pages provided via props or hook?
 // Actually in Next 15 params is async in Layouts but Page props used to be simple? 
@@ -30,6 +31,7 @@ export default function SessionPage() {
     const [user, setUser] = useState<User | null>(null);
 
     const [authError, setAuthError] = useState<string | null>(null);
+    const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -52,6 +54,20 @@ export default function SessionPage() {
         });
         return () => unsub();
     }, []);
+
+    useEffect(() => {
+        if (!session?.id || !user?.uid) return;
+
+        const unsub = onSnapshot(doc(db, "sessions", session.id, "responses", user.uid), (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data.answers) {
+                    setAnsweredQuestionIds(new Set(Object.keys(data.answers)));
+                }
+            }
+        });
+        return () => unsub();
+    }, [session?.id, user?.uid]);
 
     if (loading || authLoading) {
         return (
@@ -84,28 +100,14 @@ export default function SessionPage() {
         );
     }
 
-    const [answeredQuestionIds, setAnsweredQuestionIds] = useState<Set<string>>(new Set());
 
-    useEffect(() => {
-        if (!session?.id || !user?.uid) return;
-
-        const unsub = onSnapshot(doc(db, "sessions", session.id, "responses", user.uid), (snap) => {
-            if (snap.exists()) {
-                const data = snap.data();
-                if (data.answers) {
-                    setAnsweredQuestionIds(new Set(Object.keys(data.answers)));
-                }
-            }
-        });
-        return () => unsub();
-    }, [session?.id, user?.uid]);
 
     if (session.status !== "OPEN") {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
                 <div className="text-center">
                     <h2 className="text-2xl font-serif text-slate-800 mb-2">Session Closed</h2>
-                    <p className="text-slate-500">This session is currently {session.status.toLowerCase()}.</p>
+                    <p className="text-slate-500">This session is currently {(session.status || "closed").toLowerCase()}.</p>
                 </div>
             </div>
         );
@@ -127,7 +129,9 @@ export default function SessionPage() {
                 </div>
             </header>
 
-            <QuestionList session={session} userId={user?.uid || ""} answeredQuestionIds={answeredQuestionIds} />
+            <ErrorBoundary>
+                <QuestionList session={session} userId={user?.uid || ""} answeredQuestionIds={answeredQuestionIds} />
+            </ErrorBoundary>
         </main>
     );
 }

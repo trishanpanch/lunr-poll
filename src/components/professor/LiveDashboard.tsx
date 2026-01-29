@@ -12,6 +12,7 @@ import { Users, StopCircle, QrCode, Loader2, Sparkles, Bot, Plus, Play, EyeOff, 
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SessionQR } from "@/components/professor/SessionQR";
+import { StarRating } from "@/components/ui/StarRating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,7 +38,7 @@ export function LiveDashboard({ session }: { session: Session }) {
     const [analyzing, setAnalyzing] = useState(false);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [newQText, setNewQText] = useState("");
-    const [newQType, setNewQType] = useState<"short_text" | "multiple_choice" | "file_upload">("short_text");
+    const [newQType, setNewQType] = useState<"short_text" | "multiple_choice" | "file_upload" | "rating">("short_text");
     const [newQOptions, setNewQOptions] = useState<string[]>(["Option 1", "Option 2"]);
 
     const [analyzingIds, setAnalyzingIds] = useState<Set<string>>(new Set());
@@ -324,6 +325,7 @@ export function LiveDashboard({ session }: { session: Session }) {
                                         <SelectContent>
                                             <SelectItem value="short_text">Short Text</SelectItem>
                                             <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                                            <SelectItem value="rating">Star Rating</SelectItem>
                                             <SelectItem value="file_upload">File Upload</SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -498,6 +500,53 @@ export function LiveDashboard({ session }: { session: Session }) {
                                             </AnimatePresence>
                                             {getTextAnswers(q.id).length === 0 && <p className="text-slate-400 italic">No responses yet...</p>}
                                         </div>
+                                    </div>
+                                ) : q.type === "rating" ? (
+                                    <div className="flex flex-col md:flex-row gap-8 items-center justify-center py-8">
+                                        {(() => {
+                                            const answers = responses
+                                                .map(r => r.answers ? parseFloat(r.answers[q.id] || "0") : 0)
+                                                .filter(v => v > 0);
+
+                                            const avg = answers.length > 0 ? (answers.reduce((a, b) => a + b, 0) / answers.length) : 0;
+
+                                            // Histogram
+                                            const counts: Record<string, number> = { "5 Stars": 0, "4 Stars": 0, "3 Stars": 0, "2 Stars": 0, "1 Star": 0 };
+                                            answers.forEach(a => {
+                                                const bucket = Math.round(a); // Round 4.5 to 5 for histogram bucket
+                                                if (bucket >= 1 && bucket <= 5) counts[`${bucket} ${bucket === 1 ? "Star" : "Stars"}`]++;
+                                            });
+                                            const chartData = Object.entries(counts).map(([name, value]) => ({ name, value }));
+
+                                            return (
+                                                <>
+                                                    <div className="flex flex-col items-center">
+                                                        <div className="text-6xl font-serif font-bold text-slate-800">{avg.toFixed(1)}</div>
+                                                        <div className="mb-2">
+                                                            <StarRating value={avg} readOnly size="lg" />
+                                                        </div>
+                                                        <div className="text-slate-400 text-sm">{answers.length} Responses</div>
+                                                    </div>
+
+                                                    {answers.length > 0 && (
+                                                        <div className="h-[200px] w-full md:w-1/2">
+                                                            <ResponsiveContainer width="100%" height="100%">
+                                                                <BarChart data={chartData} layout="vertical" margin={{ left: 0 }}>
+                                                                    <XAxis type="number" hide />
+                                                                    <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 12 }} />
+                                                                    <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: 8 }} />
+                                                                    <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]}>
+                                                                        {chartData.map((entry, index) => (
+                                                                            <Cell key={`cell-${index}`} fill='#fbbf24' />
+                                                                        ))}
+                                                                    </Bar>
+                                                                </BarChart>
+                                                            </ResponsiveContainer>
+                                                        </div>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 ) : (
                                     <div className="text-slate-500 italic">File uploads are collected in storage. Visualization coming soon.</div>
