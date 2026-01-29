@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /sessions/{sessionId}/{userId}/{fileName} {
+      // Allow upload only if:
+      // 1. User is authenticated
+      // 2. User is uploading to their own path segment
+      // 3. File is less than 5MB
+      // 4. Content type is image or PDF
+      allow write: if request.auth != null 
+                   && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+      
+      // Allow read if user is the uploader. 
+      // Note: Professors will access via Download URLs which bypass these rules, 
+      // or we could add a rule for professor access if we had a custom claim or firestore lookup.
+      // For now, restricting SDK read to owner is safe.
+      allow read: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

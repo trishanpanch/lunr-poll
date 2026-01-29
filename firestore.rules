@@ -9,24 +9,32 @@ service cloud.firestore {
 
     // Sessions:
     match /sessions/{sessionId} {
-      // Public read allowed so students can join by code
-      allow read: if true;
+      // Public read ONLY if session is OPEN, or if user is owner
+      allow read: if (request.auth != null && request.auth.uid == resource.data.ownerId) || 
+                     resource.data.status == "OPEN";
       
-      // Only professors (non-anonymous) can create
-      allow create: if request.auth != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+      // Only professors (non-anonymous) can create, AND must match ownerId
+      allow create: if request.auth != null && 
+                       request.auth.token.firebase.sign_in_provider != 'anonymous' &&
+                       request.resource.data.ownerId == request.auth.uid;
       
       // Only the owner can update (close/open) or delete
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
 
       // Responses Subcollection
       match /responses/{responseId} {
-        // Students (anyone) can write a response
-        allow create: if true;
+        // Students (authenticated via anon or otherwise) can write their OWN response
+        // Enforce: Must be their own doc ID, and Session must be OPEN
+        allow create, update: if request.auth != null && 
+                                 request.auth.uid == responseId &&
+                                 get(/databases/$(database)/documents/sessions/$(sessionId)).data.status == "OPEN";
         
-        // 🔒 SECURE READ: Only the Professor (Owner of the session) can read responses
-        // This requires "getting" the parent session to check the ownerId
-        allow read, list: if request.auth != null && 
-                          request.auth.uid == get(/databases/$(database)/documents/sessions/$(sessionId)).data.ownerId;
+        // Professor (Owner) can list/read all responses
+        // Student can read their OWN response
+        allow read, list: if request.auth != null && (
+                            request.auth.uid == get(/databases/$(database)/documents/sessions/$(sessionId)).data.ownerId ||
+                            request.auth.uid == responseId
+                          );
       }
     }
   }

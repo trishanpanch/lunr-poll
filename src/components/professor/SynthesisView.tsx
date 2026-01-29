@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Session, Question, StudentResponse } from "@/lib/types";
 import { collection, query, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
+import { db, auth } from "@/lib/firebase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,12 +31,21 @@ export function SynthesisView({ session }: { session: Session }) {
             return;
         }
 
+        if (!auth.currentUser) {
+            toast.error("You must be logged in to analyze");
+            return;
+        }
+
         setAnalyzing(prev => ({ ...prev, [q.id]: true }));
         try {
+            const token = await auth.currentUser.getIdToken();
             const res = await fetch("/api/synthesize", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: q.text, responses: answers })
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ question: q.text, responses: answers, sessionId: session.id })
             });
             const data = await res.json();
             if (data.error) throw new Error(data.error);

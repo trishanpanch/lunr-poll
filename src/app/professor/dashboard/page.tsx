@@ -61,18 +61,23 @@ export default function Dashboard() {
         if (!user) return;
         setCreating(true);
         try {
-            const code = generateSessionCode();
-
-            // Cloud Only Strategy
+            // Cloud Only Strategy via API (Server-Side)
             try {
-                const docRef = await addDoc(collection(db, "sessions"), {
-                    code,
-                    ownerId: user.uid,
-                    status: "DRAFT",
-                    createdAt: serverTimestamp(),
-                    questions: []
+                const token = await user.getIdToken();
+                const res = await fetch("/api/sessions/create", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
                 });
-                router.push(`/professor/session/${docRef.id}`);
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || "Failed to create");
+                }
+
+                const { id } = await res.json();
+                router.push(`/professor/session/${id}`);
             } catch (cloudErr: unknown) {
                 console.error("Cloud create failed", cloudErr);
                 alert(`Failed to create session in Cloud: ${(cloudErr as Error).message}`);

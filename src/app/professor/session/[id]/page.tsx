@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Session } from "@/lib/types";
+import { IS_DEMO_MODE } from "@/lib/config";
 import { SessionBuilder } from "@/components/professor/SessionBuilder";
 import { LiveDashboard } from "@/components/professor/LiveDashboard";
 import { SynthesisView } from "@/components/professor/SynthesisView";
@@ -22,6 +23,11 @@ export default function SessionCommandCenter() {
 
         // Local Demo Mode Logic
         if (id.startsWith("local_")) {
+            if (!IS_DEMO_MODE) {
+                setSession(null);
+                setLoading(false);
+                return;
+            }
             setTimeout(() => {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {

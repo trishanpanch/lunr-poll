@@ -1,8 +1,9 @@
 "use client";
 
 import { Session, Question, QuestionType } from "@/lib/types";
+import { IS_DEMO_MODE } from "@/lib/config";
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
+import { db, auth } from "@/lib/firebase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,17 +31,32 @@ export function SessionBuilder({ session }: { session: Session }) {
             options: q.options === undefined ? null : q.options
         }));
 
-        // Try Cloud First (for everyone, including Demo)
+        // Try Cloud First via API (Server-Side)
         try {
-            const ref = doc(db, "sessions", session.id!);
-            await updateDoc(ref, { questions: sanitizedQuestions });
-            return; // Success
+            if (auth.currentUser) {
+                const token = await auth.currentUser.getIdToken();
+                const res = await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ questions: sanitizedQuestions })
+                });
+
+                if (!res.ok) {
+                    throw new Error("Update failed");
+                }
+                return; // Success
+            } else {
+                throw new Error("Not authenticated");
+            }
         } catch (cloudErr) {
             console.warn("Cloud save failed, checking local...", cloudErr);
         }
 
         // Local Demo Mode Write Fallback
-        if (session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
+        if (IS_DEMO_MODE && session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
             try {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
@@ -99,25 +115,30 @@ export function SessionBuilder({ session }: { session: Session }) {
             return;
         }
 
-        // Try Cloud Launch First
+        // Try Cloud Launch First via API
         try {
-            const ref = doc(db, "sessions", session.id!);
-            await updateDoc(ref, { status: "OPEN" });
-            toast.success("Session is LIVE!");
-            // Cloud launch success means we don't need to do anything else, 
-            // the onSnapshot in parent/LiveDashboard will pick it up?
-            // Wait, if parent is listening to Cloud, yes. 
-            // If parent is listening to Local, we need to update Local too?
-            // If we are in "Cloud Mode", typically we don't need to do local. 
-            // BUT if we created a local-only session ID, Cloud write will fail (404 doc not found). 
-            // So the try/catch handles it perfectly.
-            return;
+            if (auth.currentUser) {
+                const token = await auth.currentUser.getIdToken();
+                const res = await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: "OPEN" })
+                });
+
+                if (!res.ok) throw new Error("Launch failed");
+
+                toast.success("Session is LIVE!");
+                return;
+            }
         } catch (e) {
             console.warn("Cloud launch failed, trying local", e);
         }
 
         // Local Demo Mode Launch Fallback
-        if (session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
+        if (IS_DEMO_MODE && session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
             const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
             if (localSessionsStr) {
                 const sessions = JSON.parse(localSessionsStr) as Session[];

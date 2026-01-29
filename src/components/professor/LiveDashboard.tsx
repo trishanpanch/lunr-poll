@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Session, Question, StudentResponse } from "@/lib/types";
 import { collection, query, onSnapshot, doc, updateDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase/client";
+import { db, auth } from "@/lib/firebase/client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -16,6 +16,7 @@ import { StarRating } from "@/components/ui/StarRating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { IS_DEMO_MODE } from "@/lib/config";
 
 export function LiveDashboard({ session }: { session: Session }) {
     const [responses, setResponses] = useState<StudentResponse[]>([]);
@@ -46,6 +47,16 @@ export function LiveDashboard({ session }: { session: Session }) {
     const handleAnalyzeQuestion = async (q: Question) => {
         if (analyzingIds.has(q.id)) return;
 
+        if (session.id?.startsWith("local_")) {
+            toast.info("AI Analysis is not available in local demo mode.");
+            return;
+        }
+
+        if (!auth.currentUser) {
+            toast.error("You must be logged in to analyze.");
+            return;
+        }
+
         setAnalyzingIds(prev => new Set(prev).add(q.id));
         toast.info("Asking LUNR AI...");
 
@@ -65,10 +76,14 @@ export function LiveDashboard({ session }: { session: Session }) {
                 return;
             }
 
+            const token = await auth.currentUser.getIdToken();
             const res = await fetch("/api/synthesize", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: q.text, responses: answers })
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ question: q.text, responses: answers, sessionId: session.id })
             });
 
             const data = await res.json();
@@ -82,8 +97,13 @@ export function LiveDashboard({ session }: { session: Session }) {
             };
 
             if (!session.id?.startsWith("local_")) {
-                await updateDoc(doc(db, "sessions", session.id!), { analysis: updatedAnalysis });
-            } else {
+                const token = await auth.currentUser.getIdToken();
+                await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ analysis: updatedAnalysis })
+                });
+            } else if (IS_DEMO_MODE) {
                 // Local logic
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
@@ -124,9 +144,14 @@ export function LiveDashboard({ session }: { session: Session }) {
 
         try {
             if (!session.id?.startsWith("local_")) {
-                await updateDoc(doc(db, "sessions", session.id!), { questions: updatedQuestions });
+                const token = await auth.currentUser?.getIdToken();
+                await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ questions: updatedQuestions })
+                });
             }
-            if (session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
+            if (IS_DEMO_MODE && session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
                     const sessions = JSON.parse(localSessionsStr) as Session[];
@@ -155,8 +180,13 @@ export function LiveDashboard({ session }: { session: Session }) {
 
         try {
             if (!session.id?.startsWith("local_")) {
-                await updateDoc(doc(db, "sessions", session.id!), { questions: updatedQuestions });
-            } else {
+                const token = await auth.currentUser?.getIdToken();
+                await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ questions: updatedQuestions })
+                });
+            } else if (IS_DEMO_MODE) {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
                     const sessions = JSON.parse(localSessionsStr) as Session[];
@@ -177,8 +207,13 @@ export function LiveDashboard({ session }: { session: Session }) {
         const updatedQuestions = session.questions.filter(q => q.id !== qId);
         try {
             if (!session.id?.startsWith("local_")) {
-                await updateDoc(doc(db, "sessions", session.id!), { questions: updatedQuestions });
-            } else {
+                const token = await auth.currentUser?.getIdToken();
+                await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ questions: updatedQuestions })
+                });
+            } else if (IS_DEMO_MODE) {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
                     const sessions = JSON.parse(localSessionsStr) as Session[];
@@ -230,17 +265,38 @@ export function LiveDashboard({ session }: { session: Session }) {
         }
 
         try {
-            await updateDoc(doc(db, "sessions", session.id!), {
-                status: "CLOSED",
-                ...(Object.keys(analysisResults).length > 0 ? { analysis: analysisResults } : {})
-            });
+            if (!session.id?.startsWith("local_")) {
+                const token = await auth.currentUser?.getIdToken();
+                await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({
+                        status: "CLOSED",
+                        ...(Object.keys(analysisResults).length > 0 ? { analysis: analysisResults } : {})
+                    })
+                });
+            } else {
+                throw new Error("Local close not fully supported in this block"); // Force fallback to local block below? 
+                // Actually the original code just had updateDoc for Cloud, and then a separate block for Local.
+                // So we need to ensure we don't break flow.
+                // The original code:
+                /*
+                try {
+                   await updateDoc(...);
+                   toast.success(...);
+                   return; // Returns here if cloud success
+                } catch (e) { ... }
+                
+                if (session.id...) { // Local block }
+                */
+            }
             toast.success("Session closed and analyzed.");
             return;
         } catch (e) {
             console.warn("Cloud close failed, trying local", e);
         }
 
-        if (session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
+        if (IS_DEMO_MODE && session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
             try {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
