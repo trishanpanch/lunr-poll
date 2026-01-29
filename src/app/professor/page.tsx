@@ -125,7 +125,7 @@ export default function ProfessorLogin() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            placeholder="harvard@edu..."
+                            placeholder="hello@lunr.studio"
                         />
                     </div>
                     <div className="space-y-2">

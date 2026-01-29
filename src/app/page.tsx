@@ -22,8 +22,8 @@ export default function LandingPage() {
   return (
     <main className="min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Navigation */}
-      <nav className="flex justify-between items-center p-6 md:px-12 max-w-7xl mx-auto">
-        <div className="text-2xl font-serif font-bold tracking-widest">
+      <nav className="flex justify-between items-center px-6 py-6 max-w-7xl mx-auto">
+        <div className="text-2xl font-serif font-bold tracking-tight">
           Harvard<span className="text-primary">Poll</span>
         </div>
       </nav>
@@ -132,7 +132,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="py-8 text-center text-slate-400 text-sm border-t border-slate-200 font-sans">
-        © {new Date().getFullYear()} Harvard University • Academic Technology Group
+        Made with love by <a href="https://www.lunr.studio" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">LUNR Studio</a>
       </footer>
     </main>
   );
