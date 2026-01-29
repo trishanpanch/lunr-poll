@@ -98,11 +98,15 @@ export function LiveDashboard({ session }: { session: Session }) {
 
             if (!session.id?.startsWith("local_")) {
                 const token = await auth.currentUser.getIdToken();
-                await fetch(`/api/sessions/${session.id}/update`, {
+                const updateRes = await fetch(`/api/sessions/${session.id}/update`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                     body: JSON.stringify({ analysis: updatedAnalysis })
                 });
+
+                if (!updateRes.ok) {
+                    throw new Error("Failed to save analysis results");
+                }
             } else if (IS_DEMO_MODE) {
                 // Local logic
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
