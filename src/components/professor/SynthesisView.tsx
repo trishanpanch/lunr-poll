@@ -96,7 +96,7 @@ export function SynthesisView({ session }: { session: Session }) {
 
                         {q.type === "multiple_choice" ? (
                             <Card className="p-6">
-                                <div className="h-[250px] w-full flex items-center justify-center">
+                                <div className="h-[250px] w-full">
                                     {getAggregatedData(q).length > 0 ? (
                                         <ResponsiveContainer width="100%" height="100%">
                                             <BarChart data={getAggregatedData(q)} layout="vertical" margin={{ left: 0 }}>
@@ -111,7 +111,9 @@ export function SynthesisView({ session }: { session: Session }) {
                                             </BarChart>
                                         </ResponsiveContainer>
                                     ) : (
-                                        <p className="text-slate-400 italic">No responses to display.</p>
+                                        <div className="h-full w-full flex items-center justify-center">
+                                            <p className="text-slate-400 italic">No responses to display.</p>
+                                        </div>
                                     )}
                                 </div>
                             </Card>

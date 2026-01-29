@@ -69,7 +69,7 @@ export async function POST(req: Request) {
         const location = "us-central1";
         const vertexAI = new VertexAI({ project, location });
         const model = vertexAI.getGenerativeModel({
-            model: "gemini-1.5-pro",
+            model: "gemini-1.5-flash",
             generationConfig: {
                 responseMimeType: "application/json"
             }
