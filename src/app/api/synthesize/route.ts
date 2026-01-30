@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { VertexAI } from "@google-cloud/vertexai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { auth as adminAuth, db as adminDb } from "@/lib/firebase/server";
 import { Timestamp } from "firebase-admin/firestore";
 
@@ -63,13 +63,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Forbidden: You do not own this session" }, { status: 403 });
         }
 
-        const project = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-        if (!project) throw new Error("Missing Project ID");
+        const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+        if (!apiKey) throw new Error("Missing API Key");
 
-        const location = "us-central1";
-        const vertexAI = new VertexAI({ project, location });
-        const model = vertexAI.getGenerativeModel({
-            model: "gemini-1.0-pro",
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
             generationConfig: {
                 responseMimeType: "application/json"
             }
