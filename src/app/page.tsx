@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Users, BarChart3, ShieldCheck, Zap } from "lucide-react";
+import { GraduationCap, Users, BarChart3, ShieldCheck, Zap, Bot, Sparkles } from "lucide-react";
 import Image from "next/image";
 
 export default function LandingPage() {
@@ -72,26 +72,31 @@ export default function LandingPage() {
       <section className="bg-white py-24 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
-              <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600">
-                <BarChart3 className="w-6 h-6" />
+            <div className="space-y-4 p-6 rounded-2xl bg-white border border-rose-100 shadow-xl shadow-rose-100/50 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                <Sparkles className="w-12 h-12 text-rose-200" />
               </div>
-              <h3 className="text-xl font-bold font-serif">Live Analytics</h3>
-              <p className="text-slate-600">Visualize student comprehension instantly with dynamic charts and heatmaps.</p>
+              <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600">
+                <Bot className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold font-serif">AI-Powered Synthesis</h3>
+              <p className="text-slate-600">
+                Instantly synthesize hundreds of student responses into actionable insights using <strong>Gemini 2.0</strong>. Identify common misconceptions and get real-time teaching recommendations.
+              </p>
             </div>
             <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
-                <ShieldCheck className="w-6 h-6" />
+                <BarChart3 className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold font-serif">Anonymous Feedback</h3>
-              <p className="text-slate-600">Encourage participation from every student with secure, anonymous responses.</p>
+              <h3 className="text-xl font-bold font-serif">Live Analytics</h3>
+              <p className="text-slate-600">Visualize student comprehension instantly with dynamic charts, voting histograms, and engagement metrics.</p>
             </div>
             <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
               <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600">
                 <Zap className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold font-serif">Instant Setup</h3>
-              <p className="text-slate-600">No app download required. Students join via QR code or a simple 6-digit link.</p>
+              <h3 className="text-xl font-bold font-serif">Instant Interactions</h3>
+              <p className="text-slate-600">No app download required. Students join via QR code. Professors launch sessions with one click.</p>
             </div>
           </div>
         </div>
