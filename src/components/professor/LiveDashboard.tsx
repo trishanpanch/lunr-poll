@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, StopCircle, QrCode, Loader2, Sparkles, Bot, Plus, Play, EyeOff, Trash2 } from "lucide-react";
+import { Users, StopCircle, QrCode, Loader2, Sparkles, Bot, Plus, Play, EyeOff, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { SessionQR } from "@/components/professor/SessionQR";
@@ -230,9 +230,13 @@ export function LiveDashboard({ session }: { session: Session }) {
             <header className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900 text-white p-6 rounded-2xl shadow-lg">
                 {/* ... existing header ... */}
                 <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-                    <div className="text-center">
+                    <a href="/professor" className="md:mr-4 p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors">
+                        <ArrowLeft className="w-5 h-5 text-slate-300" />
+                    </a>
+                    <div className="text-center md:text-left">
                         <div className="text-xs text-slate-400 uppercase tracking-widest font-bold">Join Code</div>
                         <div className="text-5xl font-mono font-bold tracking-widest">{session.code}</div>
+                        {session.title && <div className="text-lg font-serif font-bold text-slate-300 mt-1">{session.title}</div>}
                     </div>
                     <div className="hidden md:block h-12 w-px bg-slate-700"></div>
                     <div className="flex items-center gap-3">

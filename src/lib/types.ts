@@ -15,6 +15,7 @@ export type SessionStatus = "DRAFT" | "OPEN" | "CLOSED" | "ARCHIVED";
 export interface Session {
     id?: string; // Document ID
     code: string;
+    title?: string;
     ownerId: string;
     status: SessionStatus;
     createdAt: Timestamp;

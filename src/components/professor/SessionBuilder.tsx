@@ -109,6 +109,28 @@ export function SessionBuilder({ session }: { session: Session }) {
         }
     };
 
+    const [title, setTitle] = useState(session.title || "Untitled Session");
+
+    const saveTitle = async () => {
+        try {
+            if (auth.currentUser) {
+                const token = await auth.currentUser.getIdToken();
+                await fetch(`/api/sessions/${session.id}/update`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title })
+                });
+                toast.success("Title saved");
+            }
+        } catch (e) {
+            console.error("Failed to save title", e);
+            toast.error("Failed to save title");
+        }
+    };
+
     const handleLaunch = async () => {
         if (questions.length === 0) {
             toast.error("Add at least one question.");
@@ -161,9 +183,14 @@ export function SessionBuilder({ session }: { session: Session }) {
     return (
         <div className="max-w-4xl mx-auto space-y-8 p-6">
             <header className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <div className="text-center md:text-left">
-                    <h2 className="text-2xl font-serif font-bold text-slate-800">Session Builder</h2>
-                    <p className="text-slate-500 font-mono text-sm">Code: {session.code}</p>
+                <div className="text-center md:text-left flex-1">
+                    <Input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        onBlur={saveTitle}
+                        className="text-2xl font-serif font-bold text-slate-800 border-transparent hover:border-slate-200 focus:border-primary px-0 h-auto"
+                    />
+                    <p className="text-slate-500 font-mono text-sm mt-1">Code: {session.code}</p>
                 </div>
                 <div className="flex gap-3 w-full md:w-auto">
                     <Button size="lg" onClick={handleLaunch} className="w-full md:w-auto bg-primary hover:bg-rose-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all">
