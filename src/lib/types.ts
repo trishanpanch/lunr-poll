@@ -20,6 +20,7 @@ export interface Session {
     createdAt: Timestamp;
     questions: Question[];
     analysis?: Record<string, AnalysisResult>;
+    globalAnalysis?: GlobalAnalysis;
 }
 
 export interface TeacherProfile {
@@ -45,4 +46,11 @@ export interface AnalysisResult {
     recommended_action: string;
     distribution_analysis: string;
     key_inferences: string[];
+}
+
+export interface GlobalAnalysis {
+    executive_summary: string;
+    common_misconceptions: string[];
+    engagement_analysis: string;
+    teaching_recommendations: string[];
 }

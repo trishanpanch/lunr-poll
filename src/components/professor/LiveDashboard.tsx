@@ -44,94 +44,7 @@ export function LiveDashboard({ session }: { session: Session }) {
 
     const [analyzingIds, setAnalyzingIds] = useState<Set<string>>(new Set());
 
-    const handleAnalyzeQuestion = async (q: Question) => {
-        if (analyzingIds.has(q.id)) return;
 
-        if (session.id?.startsWith("local_")) {
-            toast.info("AI Analysis is not available in local demo mode.");
-            return;
-        }
-
-        if (!auth.currentUser) {
-            toast.error("You must be logged in to analyze.");
-            return;
-        }
-
-        setAnalyzingIds(prev => new Set(prev).add(q.id));
-        toast.info("Asking LUNR AI...");
-
-        try {
-            // Get answers for this question
-            const answers = responses
-                .map(r => r.answers ? r.answers[q.id] : undefined)
-                .filter(a => a && typeof a === 'string'); // Only analyze text strings
-
-            if (answers.length === 0) {
-                toast.error("No responses to analyze yet");
-                setAnalyzingIds(prev => {
-                    const next = new Set(prev);
-                    next.delete(q.id);
-                    return next;
-                });
-                return;
-            }
-
-            const token = await auth.currentUser.getIdToken();
-            const res = await fetch("/api/synthesize", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ question: q.text, responses: answers, sessionId: session.id })
-            });
-
-            const data = await res.json();
-
-            if (data.error) throw new Error(data.error);
-
-            // Update session with analysis
-            const updatedAnalysis = {
-                ...(session.analysis || {}),
-                [q.id]: data
-            };
-
-            if (!session.id?.startsWith("local_")) {
-                const token = await auth.currentUser.getIdToken();
-                const updateRes = await fetch(`/api/sessions/${session.id}/update`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ analysis: updatedAnalysis })
-                });
-
-                if (!updateRes.ok) {
-                    throw new Error("Failed to save analysis results");
-                }
-            } else if (IS_DEMO_MODE) {
-                // Local logic
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    const sessions = JSON.parse(localSessionsStr) as Session[];
-                    const sessionsUpd = sessions.map(s =>
-                        s.id === session.id ? { ...s, analysis: updatedAnalysis } : s
-                    );
-                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(sessionsUpd));
-                    window.location.reload();
-                }
-            }
-            toast.success("LUNR AI Analysis Complete");
-
-        } catch (e) {
-            console.error(e);
-            toast.error("Analysis failed");
-        } finally {
-            setAnalyzingIds(prev => {
-                const next = new Set(prev);
-                next.delete(q.id);
-                return next;
-            });
-        }
-    };
 
     const handleAddQuestion = async () => {
         if (!newQText) return;
@@ -238,35 +151,8 @@ export function LiveDashboard({ session }: { session: Session }) {
         setAnalyzing(true);
         const analysisResults: Record<string, any> = {};
 
-        if (!session.id?.startsWith("local_")) {
-            toast.info("Synthesizing student responses with AI...");
-            try {
-                await Promise.all(session.questions.map(async (q) => {
-                    const answers = responses
-                        .map(r => r.answers ? r.answers[q.id] : undefined)
-                        .filter(a => a && typeof a === 'string');
-
-                    if (answers.length > 0) {
-                        try {
-                            const res = await fetch("/api/synthesize", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ question: q.text, responses: answers })
-                            });
-                            const data = await res.json();
-                            if (!data.error) {
-                                analysisResults[q.id] = data;
-                            }
-                        } catch (err) {
-                            console.error(`Failed to analyze question ${q.id}`, err);
-                        }
-                    }
-                }));
-            } catch (e) {
-                console.error("Analysis failed", e);
-                toast.error("Analysis warning: Some questions could not be processed.");
-            }
-        }
+        // Global synthesis is now handled in the SynthesisView manually after session close.
+        // We just close the session here.
 
         try {
             if (!session.id?.startsWith("local_")) {
@@ -455,21 +341,7 @@ export function LiveDashboard({ session }: { session: Session }) {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleAnalyzeQuestion(q)}
-                                        disabled={analyzingIds.has(q.id)}
-                                        className="text-violet-600 border-violet-200 hover:bg-violet-50 hover:text-violet-700"
-                                    >
-                                        {analyzingIds.has(q.id) ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <>
-                                                <Sparkles className="w-4 h-4 mr-2" /> Ask LUNR AI
-                                            </>
-                                        )}
-                                    </Button>
+
 
                                     <Button
                                         variant="ghost"

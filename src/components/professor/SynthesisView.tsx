@@ -13,7 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 
 export function SynthesisView({ session }: { session: Session }) {
     const [responses, setResponses] = useState<StudentResponse[]>([]);
-    const [analyzing, setAnalyzing] = useState<Record<string, boolean>>({});
+    const [isSynthesizing, setIsSynthesizing] = useState(false);
 
     useEffect(() => {
         const q = query(collection(db, "sessions", session.id!, "responses"));
@@ -24,19 +24,13 @@ export function SynthesisView({ session }: { session: Session }) {
         return () => unsub();
     }, [session.code, session.id]);
 
-    const analyzeQuestion = async (q: Question) => {
-        const answers = responses.map(r => r.answers ? r.answers[q.id] : undefined).filter(Boolean);
-        if (answers.length === 0) {
-            toast.error("No responses to analyze");
-            return;
-        }
-
+    const synthesizeSession = async () => {
         if (!auth.currentUser) {
             toast.error("You must be logged in to analyze");
             return;
         }
 
-        setAnalyzing(prev => ({ ...prev, [q.id]: true }));
+        setIsSynthesizing(true);
         try {
             const token = await auth.currentUser.getIdToken();
             const res = await fetch("/api/synthesize", {
@@ -45,23 +39,26 @@ export function SynthesisView({ session }: { session: Session }) {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ question: q.text, responses: answers, sessionId: session.id })
+                body: JSON.stringify({
+                    questions: session.questions,
+                    responses: responses,
+                    sessionId: session.id
+                })
             });
             const data = await res.json();
             if (data.error) throw new Error(data.error);
 
             // Save to Firestore
             const ref = doc(db, "sessions", session.id!);
-            // Update specific key in map
             await updateDoc(ref, {
-                [`analysis.${q.id}`]: data
+                globalAnalysis: data
             });
-            toast.success("Analysis complete");
+            toast.success("Session synthesis complete");
         } catch (e) {
             console.error(e);
-            toast.error((e as Error).message || "Analysis failed");
+            toast.error((e as Error).message || "Synthesis failed");
         } finally {
-            setAnalyzing(prev => ({ ...prev, [q.id]: false }));
+            setIsSynthesizing(false);
         }
     };
 
@@ -81,45 +78,105 @@ export function SynthesisView({ session }: { session: Session }) {
 
     return (
         <div className="max-w-5xl mx-auto p-6 space-y-8">
-            <header className="text-center space-y-2 mb-10">
+            <header className="text-center space-y-4 mb-10">
                 <h1 className="text-4xl font-serif font-bold text-slate-900">Session Report</h1>
                 <p className="text-slate-500">Code: {session.code} • {responses.length} Participants</p>
+
+                {!session.globalAnalysis && (
+                    <Button size="lg" onClick={synthesizeSession} disabled={isSynthesizing} className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg">
+                        {isSynthesizing ? (
+                            <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Synthesizing Session...</>
+                        ) : (
+                            <><Sparkles className="mr-2 h-5 w-5" /> Synthesize Session</>
+                        )}
+                    </Button>
+                )}
             </header>
 
-            {session.questions.map((q, idx) => {
-                const analysis = session.analysis?.[q.id];
-                const isAnalyzing = analyzing[q.id];
+            {/* Global Analysis Section */}
+            {session.globalAnalysis && (
+                <div className="bg-white rounded-2xl shadow-xl border border-rose-100 overflow-hidden mb-12">
+                    <div className="bg-rose-50/50 p-6 border-b border-rose-100 flex items-center gap-3">
+                        <div className="bg-rose-100 p-2 rounded-lg">
+                            <Sparkles className="w-6 h-6 text-rose-600" />
+                        </div>
+                        <h2 className="text-2xl font-serif font-bold text-slate-800">Executive Summary</h2>
+                    </div>
+                    <div className="p-8 space-y-8">
+                        <div>
+                            <p className="text-lg leading-relaxed text-slate-800 font-medium">
+                                {session.globalAnalysis.executive_summary}
+                            </p>
+                        </div>
 
-                return (
-                    <div key={q.id} className="space-y-4">
-                        <h2 className="text-2xl font-serif font-bold text-slate-800">{idx + 1}. {q.text}</h2>
-
-                        {q.type === "multiple_choice" ? (
-                            <Card className="p-6">
-                                <div className="h-[250px] w-full min-w-0">
-                                    {getAggregatedData(q).length > 0 ? (
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <BarChart data={getAggregatedData(q)} layout="vertical" margin={{ left: 0 }}>
-                                                <XAxis type="number" hide />
-                                                <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12 }} />
-                                                <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: 8 }} />
-                                                <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]}>
-                                                    {getAggregatedData(q).map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#be123c' : '#e11d48'} />
-                                                    ))}
-                                                </Bar>
-                                            </BarChart>
-                                        </ResponsiveContainer>
-                                    ) : (
-                                        <div className="h-full w-full flex items-center justify-center">
-                                            <p className="text-slate-400 italic">No responses to display.</p>
-                                        </div>
-                                    )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Class Engagement</h3>
+                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-slate-700">
+                                    {session.globalAnalysis.engagement_analysis}
                                 </div>
-                            </Card>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {/* Raw Responses */}
+                            </div>
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4" /> Common Misconceptions
+                                </h3>
+                                <ul className="space-y-2">
+                                    {session.globalAnalysis.common_misconceptions.map((item, i) => (
+                                        <li key={i} className="flex gap-3 text-slate-700">
+                                            <span className="text-amber-400 font-bold">•</span>
+                                            {item}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div className="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-indigo-600 mb-4 flex items-center gap-2">
+                                <Lightbulb className="w-4 h-4" /> Teaching Recommendations
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {session.globalAnalysis.teaching_recommendations.map((rec, i) => (
+                                    <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-indigo-50 text-slate-700 text-sm">
+                                        {rec}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="space-y-12">
+                {session.questions.map((q, idx) => {
+                    return (
+                        <div key={q.id} className="space-y-4">
+                            <h2 className="text-2xl font-serif font-bold text-slate-800 border-b pb-2">{idx + 1}. {q.text}</h2>
+
+                            {q.type === "multiple_choice" ? (
+                                <Card className="p-6">
+                                    <div className="h-[250px] w-full min-w-0">
+                                        {getAggregatedData(q).length > 0 ? (
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart data={getAggregatedData(q)} layout="vertical" margin={{ left: 0 }}>
+                                                    <XAxis type="number" hide />
+                                                    <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12 }} />
+                                                    <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: 8 }} />
+                                                    <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]}>
+                                                        {getAggregatedData(q).map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#be123c' : '#e11d48'} />
+                                                        ))}
+                                                    </Bar>
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <div className="h-full w-full flex items-center justify-center">
+                                                <p className="text-slate-400 italic">No responses to display.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Card>
+                            ) : (
                                 <Card className="h-[400px] flex flex-col">
                                     <div className="p-4 border-b font-medium text-slate-500">Student Responses</div>
                                     <ScrollArea className="flex-1 p-4">
@@ -136,70 +193,11 @@ export function SynthesisView({ session }: { session: Session }) {
                                         </div>
                                     </ScrollArea>
                                 </Card>
-
-                                {/* AI Analysis */}
-                                <Card className={`border-l-4 ${analysis ? "border-rose-600 shadow-md" : "border-slate-200"}`}>
-                                    <div className="p-4 border-b font-medium flex justify-between items-center">
-                                        <div className="flex items-center gap-2 text-rose-700">
-                                            <Sparkles className="w-4 h-4" />
-                                            <span>AI Synthesis</span>
-                                        </div>
-                                        {!analysis && (
-                                            <Button size="sm" onClick={() => analyzeQuestion(q)} disabled={isAnalyzing}>
-                                                {isAnalyzing ? <Loader2 className="animate-spin w-4 h-4" /> : "Analyze"}
-                                            </Button>
-                                        )}
-                                    </div>
-                                    <CardContent className="p-6">
-                                        {isAnalyzing ? (
-                                            <div className="space-y-4 animate-pulse">
-                                                <div className="h-4 bg-slate-100 rounded w-3/4"></div>
-                                                <div className="h-4 bg-slate-100 rounded w-full"></div>
-                                                <div className="h-4 bg-slate-100 rounded w-5/6"></div>
-                                            </div>
-                                        ) : analysis ? (
-                                            <div className="space-y-6">
-                                                <div>
-                                                    <h4 className="text-xs font-bold uppercase text-slate-400 mb-1">Consensus</h4>
-                                                    <p className="text-slate-800 font-medium leading-relaxed">{analysis.consensus}</p>
-                                                </div>
-
-                                                <div>
-                                                    <h4 className="text-xs font-bold uppercase text-amber-500 mb-1 flex items-center gap-1">
-                                                        <AlertTriangle className="w-3 h-3" /> Confusion Points
-                                                    </h4>
-                                                    <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
-                                                        {analysis.confusion_points.map((p, i) => <li key={i}>{p}</li>)}
-                                                    </ul>
-                                                </div>
-
-                                                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                                    <h4 className="text-xs font-bold uppercase text-indigo-500 mb-1 flex items-center gap-1">
-                                                        <Lightbulb className="w-3 h-3" /> Outlier Insight
-                                                    </h4>
-                                                    <p className="text-sm italic text-slate-600">&quot;{analysis.outlier_insight}&quot;</p>
-                                                </div>
-
-                                                <div>
-                                                    <h4 className="text-xs font-bold uppercase text-green-600 mb-1 flex items-center gap-1">
-                                                        <ArrowRight className="w-3 h-3" /> Recommended Action
-                                                    </h4>
-                                                    <p className="text-sm font-medium text-slate-800">{analysis.recommended_action}</p>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center text-sm p-4">
-                                                <Sparkles className="w-8 h-8 mb-2 opacity-20" />
-                                                Hit &quot;Analyze&quot; to synthesize student responses with Gemini.
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }

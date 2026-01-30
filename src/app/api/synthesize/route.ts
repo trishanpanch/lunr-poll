@@ -41,7 +41,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
-        const { question, responses, sessionId } = await req.json();
+        const { questions, responses, sessionId } = await req.json();
 
         if (!sessionId) {
             return NextResponse.json({ error: "Session ID required" }, { status: 400 });
@@ -69,27 +69,37 @@ export async function POST(req: Request) {
         const location = "us-central1";
         const vertexAI = new VertexAI({ project, location });
         const model = vertexAI.getGenerativeModel({
-            model: "gemini-1.5-flash-001",
+            model: "gemini-1.0-pro",
             generationConfig: {
                 responseMimeType: "application/json"
             }
         });
 
-        const prompt = `
-      You are an expert pedagogical consultant for a Harvard graduate course. Analyze these student responses. Do not summarize; diagnose. 
-      Identify the distribution of sentiment or fact patterns, and draw deep inferences about student understanding given the question.
+        // Construct a prompt that aggregates all questions and responses
+        const inputs = questions.map((q: any) => {
+            const answers = responses
+                .map((r: any) => r.answers ? r.answers[q.id] : undefined)
+                .filter((a: any) => a && typeof a === 'string');
+            return {
+                question: q.text,
+                answers: answers
+            };
+        });
 
-      Question: "${question}"
-      Student Responses: ${JSON.stringify(responses)}
+        const prompt = `
+      You are an expert pedagogical consultant for a Harvard graduate course. 
+      Analyze the following student responses across the entire session. 
+      Do not summarize; diagnose. Identify patterns in understanding and misconceptions.
+
+      Session Data:
+      ${JSON.stringify(inputs)}
       
       Output JSON only matching this schema:
       {
-        "consensus": "String (1 sentence high-level summary)",
-        "distribution_analysis": "String (Description of how responses are distributed, e.g., '60% focused on X, while 20% argued Y')",
-        "key_inferences": ["String", "String (Deep insights about *why* students answered this way)"],
-        "confusion_points": ["String", "String (Specific misunderstandings)"],
-        "outlier_insight": "String (Quote a unique perspective)",
-        "recommended_action": "String (Specific 2-minute classroom intervention)"
+        "executive_summary": "String (High-level summary of the class's performance and engagement)",
+        "common_misconceptions": ["String", "String (Cross-cutting misunderstandings observed)"],
+        "engagement_analysis": "String (Analysis of how students engaged with the material)",
+        "teaching_recommendations": ["String", "String (Specific, actionable 2-minute interventions for the professor)"]
       }
     `;
 
