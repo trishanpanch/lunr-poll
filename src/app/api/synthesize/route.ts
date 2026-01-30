@@ -63,12 +63,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Forbidden: You do not own this session" }, { status: 403 });
         }
 
-        const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
         if (!apiKey) throw new Error("Missing API Key");
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
+            model: "gemini-2.0-flash",
             generationConfig: {
                 responseMimeType: "application/json"
             }
