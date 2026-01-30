@@ -35,7 +35,9 @@ gcloud run deploy $SERVICE_NAME \
   --set-env-vars NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=$NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID \
   --set-env-vars NEXT_PUBLIC_FIREBASE_APP_ID=$NEXT_PUBLIC_FIREBASE_APP_ID \
   --set-env-vars NEXT_PUBLIC_FIREBASE_DATABASE_ID=${NEXT_PUBLIC_FIREBASE_DATABASE_ID:-"(default)"} \
-  --set-env-vars FIREBASE_DATABASE_ID=${NEXT_PUBLIC_FIREBASE_DATABASE_ID:-"(default)"}
+  --set-env-vars NEXT_PUBLIC_FIREBASE_DATABASE_ID=${NEXT_PUBLIC_FIREBASE_DATABASE_ID:-"(default)"} \
+  --set-env-vars FIREBASE_DATABASE_ID=${NEXT_PUBLIC_FIREBASE_DATABASE_ID:-"(default)"} \
+  --set-env-vars GEMINI_API_KEY=${GEMINI_API_KEY}
 
 echo "Deployment Complete!"
 echo "Your service is live. Check the URL above."
