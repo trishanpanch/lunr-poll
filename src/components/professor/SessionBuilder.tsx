@@ -106,6 +106,8 @@ export function SessionBuilder({ session }: { session: Session }) {
             addQuestion("multiple_choice", "Vote for the best option:", ["Option A", "Option B", "Option C", "Option D"]);
         } else if (preset === "rate_class") {
             addQuestion("rating", "How would you rate today's class?");
+        } else if (preset === "what_better") {
+            addQuestion("short_text", "What can I do better?");
         }
     };
 
@@ -209,14 +211,11 @@ export function SessionBuilder({ session }: { session: Session }) {
                             <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("rate_class")}>
                                 Rate the Class
                             </Button>
-                            <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("one_minute")}>
-                                One Minute Paper
-                            </Button>
-                            <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("muddiest")}>
-                                Muddiest Point
-                            </Button>
                             <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("vote")}>
                                 Polling / Vote
+                            </Button>
+                            <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("what_better")}>
+                                What can I do better?
                             </Button>
                         </CardContent>
                     </Card>
