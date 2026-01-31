@@ -76,7 +76,8 @@ export function useSession(code: string, sessionId?: string, options: { enabled?
         }
 
         // Fallback to Code Query
-        const q = query(collection(db, "sessions"), where("code", "==", code));
+        // SECURITY FIX: Must include where("status", "==", "OPEN") to match security rules for public reads.
+        const q = query(collection(db, "sessions"), where("code", "==", code), where("status", "==", "OPEN"));
 
         // 1. One-time Fetch
         getDocs(q).then((snapshot) => {
