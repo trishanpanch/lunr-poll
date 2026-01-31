@@ -37,10 +37,10 @@ export default function LandingPage() {
       >
         <motion.div variants={itemVariants} className="space-y-8">
           <h1 className="text-5xl md:text-7xl font-serif font-bold leading-tight text-slate-900">
-            Real-time insights for the <br /><span className="text-primary">connected classroom</span>.
+            Real-time insights <br /> from the <br /><span className="text-primary">connected classroom</span>.
           </h1>
           <p className="text-xl text-slate-600 max-w-lg leading-relaxed">
-            Empower your lectures with instant student feedback, live polls, and anonymous Q&A. Simple, fast, and effective.
+            Empower your lectures with instant student feedback, live polls, <br /> and anonymous Q&A. Simple, fast, and effective.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button size="lg" className="text-lg px-8 h-14 rounded-full" onClick={() => router.push("/professor")}>
@@ -72,6 +72,23 @@ export default function LandingPage() {
       <section className="bg-white py-24 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+
+            <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
+              <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600">
+                <Zap className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold font-serif">Instant Interactions</h3>
+              <p className="text-slate-600">No app download required. Students join via QR code. Professors launch sessions with one click.</p>
+            </div>
+
+            <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
+              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+                <BarChart3 className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold font-serif">Live Analytics</h3>
+              <p className="text-slate-600">Visualize student comprehension instantly with dynamic charts, voting histograms, and engagement metrics.</p>
+            </div>
+
             <div className="space-y-4 p-6 rounded-2xl bg-white border border-rose-100 shadow-xl shadow-rose-100/50 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
                 <Sparkles className="w-12 h-12 text-rose-200" />
@@ -84,20 +101,7 @@ export default function LandingPage() {
                 Instantly synthesize hundreds of student responses into actionable insights using <strong>Gemini 2.0</strong>. Identify common misconceptions and get real-time teaching recommendations.
               </p>
             </div>
-            <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
-              <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
-                <BarChart3 className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold font-serif">Live Analytics</h3>
-              <p className="text-slate-600">Visualize student comprehension instantly with dynamic charts, voting histograms, and engagement metrics.</p>
-            </div>
-            <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
-              <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center text-teal-600">
-                <Zap className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-bold font-serif">Instant Interactions</h3>
-              <p className="text-slate-600">No app download required. Students join via QR code. Professors launch sessions with one click.</p>
-            </div>
+
           </div>
         </div>
       </section>

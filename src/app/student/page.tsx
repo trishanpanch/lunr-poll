@@ -44,7 +44,7 @@ function StudentContent() {
             className="w-full max-w-md space-y-8"
         >
             <div className="text-center space-y-2">
-                <h1 className="text-4xl font-serif font-bold text-slate-900 tracking-widest">
+                <h1 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">
                     Harvard<span className="text-primary">Poll</span>
                 </h1>
                 <p className="text-slate-500 font-sans">
