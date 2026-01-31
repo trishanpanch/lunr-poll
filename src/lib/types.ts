@@ -19,6 +19,7 @@ export interface Session {
     ownerId: string;
     status: SessionStatus;
     createdAt: Timestamp;
+    activeQuestionId?: string | null;
     questions: Question[];
     analysis?: Record<string, AnalysisResult>;
     globalAnalysis?: GlobalAnalysis;

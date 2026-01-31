@@ -90,31 +90,31 @@ export function LiveDashboard({ session }: { session: Session }) {
         }
     };
 
-    const toggleQuestionStatus = async (qId: string, currentStatus?: boolean) => {
-        const updatedQuestions = session.questions.map(q =>
-            q.id === qId ? { ...q, isActive: !currentStatus } : q
-        );
-
+    const setActiveQuestion = async (qId: string | null) => {
         try {
             if (!session.id?.startsWith("local_")) {
                 const token = await auth.currentUser?.getIdToken();
                 await fetch(`/api/sessions/${session.id}/update`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ questions: updatedQuestions })
+                    body: JSON.stringify({ activeQuestionId: qId })
                 });
             } else if (IS_DEMO_MODE) {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
                     const sessions = JSON.parse(localSessionsStr) as Session[];
                     const sessionsUpd = sessions.map(s =>
-                        s.id === session.id ? { ...s, questions: updatedQuestions } : s
+                        s.id === session.id ? { ...s, activeQuestionId: qId } : s
                     );
                     localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(sessionsUpd));
                     window.location.reload();
                 }
             }
-            toast.success(currentStatus ? "Question closed" : "Question activated");
+            if (qId) {
+                toast.success("Question is NOW LIVE");
+            } else {
+                toast.success("Presentation stopped");
+            }
         } catch (e) {
             toast.error("Failed to update status");
         }
@@ -339,8 +339,8 @@ export function LiveDashboard({ session }: { session: Session }) {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <CardTitle className="font-serif text-xl">{q.text}</CardTitle>
-                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${q.isActive !== false ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
-                                            {q.isActive !== false ? "Active" : "Closed"}
+                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${session.activeQuestionId === q.id ? "bg-rose-100 text-rose-700 animate-pulse" : "bg-slate-100 text-slate-500"}`}>
+                                            {session.activeQuestionId === q.id ? "Presenting Now" : "Hidden"}
                                         </span>
                                     </div>
                                 </div>
@@ -348,12 +348,20 @@ export function LiveDashboard({ session }: { session: Session }) {
 
 
                                     <Button
-                                        variant="ghost"
+                                        variant={session.activeQuestionId === q.id ? "destructive" : "default"}
                                         size="sm"
-                                        onClick={() => toggleQuestionStatus(q.id, q.isActive !== false)}
-                                        className={`${q.isActive !== false ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50" : "text-green-600 hover:text-green-700 hover:bg-green-50"}`}
+                                        onClick={() => setActiveQuestion(session.activeQuestionId === q.id ? null : q.id)}
+                                        className={`${session.activeQuestionId === q.id ? "bg-rose-600 hover:bg-rose-700 text-white" : "bg-indigo-600 hover:bg-indigo-700 text-white"}`}
                                     >
-                                        {q.isActive !== false ? <EyeOff className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                                        {session.activeQuestionId === q.id ? (
+                                            <>
+                                                <StopCircle className="w-4 h-4 mr-2" /> Stop
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Play className="w-4 h-4 mr-2" /> Present
+                                            </>
+                                        )}
                                     </Button>
                                     <Button variant="ghost" size="sm" onClick={() => deleteQuestion(q.id)} className="text-slate-400 hover:text-red-600 hover:bg-red-50">
                                         <Trash2 className="w-4 h-4" />

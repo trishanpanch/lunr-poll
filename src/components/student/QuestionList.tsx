@@ -8,17 +8,21 @@ export function QuestionList({ session, userId, answeredQuestionIds }: { session
 
     const visibleQuestions = (session.questions || []).filter(q => {
         if (!q) return false;
-        // Show if active (default true) AND not answered
-        const isActive = q.isActive !== false;
-        const isAnswered = answeredQuestionIds?.has(q.id);
-        return isActive && !isAnswered;
+
+        // Strict Pacing Mode: Only show the question if it matches activeQuestionId
+        if (session.activeQuestionId) {
+            return q.id === session.activeQuestionId;
+        }
+
+        // If no strict question is active, show nothing (Professor controls the flow)
+        return false;
     });
 
     if (visibleQuestions.length === 0) {
         return (
             <div className="text-center py-10 text-slate-500 font-sans">
-                <p>Waiting for new questions from the professor...</p>
-                {answeredQuestionIds && answeredQuestionIds.size > 0 && <p className="text-sm mt-2">You have answered all available questions.</p>}
+                <p>Waiting for the professor to present the next question...</p>
+                {/* Optional: Add a subtle pulse animation or icon here */}
             </div>
         );
     }
