@@ -78,14 +78,14 @@ export default function LandingPage() {
                 <Zap className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold font-serif">Instant Interactions</h3>
-              <p className="text-slate-600">No app download required. Students join via QR code. Professors launch sessions with one click.</p>
+              <p className="text-slate-600">Poll students on pretty much anything from anywhere in real time during your lectures.</p>
             </div>
 
             <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
               <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
                 <BarChart3 className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold font-serif">Live Analytics</h3>
+              <h3 className="text-xl font-bold font-serif">Live Insights</h3>
               <p className="text-slate-600">Visualize student comprehension instantly with dynamic charts, voting histograms, and engagement metrics.</p>
             </div>
 
@@ -98,7 +98,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-bold font-serif">AI-Powered Synthesis</h3>
               <p className="text-slate-600">
-                Instantly synthesize hundreds of student responses into actionable insights using <strong>Gemini 2.0</strong>. Identify common misconceptions and get real-time teaching recommendations.
+                Instantly synthesize student responses into actionable insights to improve your lectures in real time.
               </p>
             </div>
 
