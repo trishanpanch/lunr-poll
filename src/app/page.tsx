@@ -40,7 +40,7 @@ export default function LandingPage() {
             Real-time insights <br /> from the <br /><span className="text-primary">connected classroom</span>.
           </h1>
           <p className="text-xl text-slate-600 max-w-lg leading-relaxed">
-            Empower your lectures with instant student feedback, <br /> live polls and anonymous Q&A.
+            Empower your lectures with instant student feedback and live polls.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button size="lg" className="text-lg px-8 h-14 rounded-full" onClick={() => router.push("/professor")}>
