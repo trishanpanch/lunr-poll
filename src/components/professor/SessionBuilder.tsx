@@ -114,8 +114,6 @@ export function SessionBuilder({ session }: { session: Session }) {
             newQuestionsToAdd.push(mkQ("multiple_choice", "Vote for the best option:", ["Option A", "Option B", "Option C", "Option D"]));
         } else if (preset === "rate_class") {
             newQuestionsToAdd.push(mkQ("rating", "How would you rate today's class?"));
-        } else if (preset === "what_better") {
-            newQuestionsToAdd.push(mkQ("short_text", "What can I do better?"));
         } else if (preset === "start_stop_continue") {
             newQuestionsToAdd.push(mkQ("short_text", "START: What is one thing I am not doing in these lectures that would help you understand the material better? (e.g., more live polls, specific case studies)"));
             newQuestionsToAdd.push(mkQ("short_text", "STOP: What is one thing I am doing that is distracting or makes it harder for you to follow the lecture? (e.g., moving too fast through slides, over-technical jargon)"));
@@ -232,9 +230,6 @@ export function SessionBuilder({ session }: { session: Session }) {
                             </Button>
                             <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("vote")}>
                                 Polling / Vote
-                            </Button>
-                            <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("what_better")}>
-                                What can I do better?
                             </Button>
                         </CardContent>
                     </Card>
