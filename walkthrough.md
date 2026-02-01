@@ -77,7 +77,7 @@ The "hub" for managing classes.
 
 ![Session Builder](docs/assets/05_session_builder.png)
 
-*   **Presets**: Quick-add buttons for "Start, Stop, Continue" (Feedback Framework), "Rate the Class", "One Minute Paper", etc.
+*   **Presets**: Quick-add buttons for "Start, Stop, Continue" (Feedback Framework), "Rate the Class", "Polling / Vote", etc.
 *   **Launch**: "Launch Session" activates the poll.
 
 #### 2. Live Dashboard (Status: OPEN)
