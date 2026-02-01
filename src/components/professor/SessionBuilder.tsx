@@ -97,21 +97,33 @@ export function SessionBuilder({ session }: { session: Session }) {
     };
 
     const addPreset = (preset: string) => {
+        const newQuestionsToAdd: Question[] = [];
+        const mkQ = (type: QuestionType, text: string, options?: string[]): Question => ({
+            id: generateId() + Math.random().toString(36).substr(2, 4), // extra random to avoid ID collision in batch
+            text,
+            type,
+            options: options || (type === "multiple_choice" ? ["Option A", "Option B"] : undefined)
+        });
+
         if (preset === "one_minute") {
-            addQuestion("short_text", "What was the most important thing you learned today?");
-            addQuestion("short_text", "What important question remains unanswered?");
+            newQuestionsToAdd.push(mkQ("short_text", "What was the most important thing you learned today?"));
+            newQuestionsToAdd.push(mkQ("short_text", "What important question remains unanswered?"));
         } else if (preset === "muddiest") {
-            addQuestion("short_text", "What was the 'muddiest' point in today's session?");
+            newQuestionsToAdd.push(mkQ("short_text", "What was the 'muddiest' point in today's session?"));
         } else if (preset === "vote") {
-            addQuestion("multiple_choice", "Vote for the best option:", ["Option A", "Option B", "Option C", "Option D"]);
+            newQuestionsToAdd.push(mkQ("multiple_choice", "Vote for the best option:", ["Option A", "Option B", "Option C", "Option D"]));
         } else if (preset === "rate_class") {
-            addQuestion("rating", "How would you rate today's class?");
+            newQuestionsToAdd.push(mkQ("rating", "How would you rate today's class?"));
         } else if (preset === "what_better") {
-            addQuestion("short_text", "What can I do better?");
+            newQuestionsToAdd.push(mkQ("short_text", "What can I do better?"));
         } else if (preset === "start_stop_continue") {
-            addQuestion("short_text", "START: What is one thing I am not doing in these lectures that would help you understand the material better? (e.g., more live polls, specific case studies)");
-            addQuestion("short_text", "STOP: What is one thing I am doing that is distracting or makes it harder for you to follow the lecture? (e.g., moving too fast through slides, over-technical jargon)");
-            addQuestion("short_text", "CONTINUE: What is the most helpful thing I am doing that I should keep doing for the rest of the course? (e.g., the real-world AI examples, the Q&A breaks)");
+            newQuestionsToAdd.push(mkQ("short_text", "START: What is one thing I am not doing in these lectures that would help you understand the material better? (e.g., more live polls, specific case studies)"));
+            newQuestionsToAdd.push(mkQ("short_text", "STOP: What is one thing I am doing that is distracting or makes it harder for you to follow the lecture? (e.g., moving too fast through slides, over-technical jargon)"));
+            newQuestionsToAdd.push(mkQ("short_text", "CONTINUE: What is the most helpful thing I am doing that I should keep doing for the rest of the course? (e.g., the real-world AI examples, the Q&A breaks)"));
+        }
+
+        if (newQuestionsToAdd.length > 0) {
+            saveQuestions([...questions, ...newQuestionsToAdd]);
         }
     };
 
