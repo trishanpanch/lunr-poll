@@ -99,3 +99,21 @@ The "hub" for managing classes.
 
 *   **AI Analysis**: Generates "Consensus", "Confusion Points", and "Recommended Actions".
 *   **Raw Data**: Scrollable list of text responses.
+
+---
+
+### Synchronous Pacing Verification (V2)
+**Date:** 2026-01-30
+**Verification Goal:** Confirm the "Present" button correctly updates the student view after fixing the API route.
+
+#### 1. Student View - Question 1 Active
+Professor clicked "Present" on Q1. Student sees the question input.
+![Student View Q1](/Users/trishanpanch/.gemini/antigravity/brain/554fffcc-7012-4d63-b3a7-3e5f6c1b2ab0/student_view_q1_1769874202159.png)
+
+#### 2. Student View - Question 2 Active
+Professor clicked "Present" on Q2. Student view updated immediately.
+![Student View Q2](/Users/trishanpanch/.gemini/antigravity/brain/554fffcc-7012-4d63-b3a7-3e5f6c1b2ab0/student_view_q2_1769874298208.png)
+
+#### 3. Student View - Waiting State
+Professor clicked "Stop". Student sees the waiting message.
+![Student View Waiting](/Users/trishanpanch/.gemini/antigravity/brain/554fffcc-7012-4d63-b3a7-3e5f6c1b2ab0/student_view_waiting_1769874477562.png)

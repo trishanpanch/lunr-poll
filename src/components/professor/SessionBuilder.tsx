@@ -108,6 +108,10 @@ export function SessionBuilder({ session }: { session: Session }) {
             addQuestion("rating", "How would you rate today's class?");
         } else if (preset === "what_better") {
             addQuestion("short_text", "What can I do better?");
+        } else if (preset === "start_stop_continue") {
+            addQuestion("short_text", "START: What is one thing I am not doing in these lectures that would help you understand the material better? (e.g., more live polls, specific case studies)");
+            addQuestion("short_text", "STOP: What is one thing I am doing that is distracting or makes it harder for you to follow the lecture? (e.g., moving too fast through slides, over-technical jargon)");
+            addQuestion("short_text", "CONTINUE: What is the most helpful thing I am doing that I should keep doing for the rest of the course? (e.g., the real-world AI examples, the Q&A breaks)");
         }
     };
 
@@ -208,6 +212,9 @@ export function SessionBuilder({ session }: { session: Session }) {
                     <Card className="border-slate-200 shadow-sm">
                         <div className="p-4 border-b border-slate-100 font-medium text-slate-700">Presets</div>
                         <CardContent className="p-4 space-y-3">
+                            <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("start_stop_continue")}>
+                                Start, Stop, Continue
+                            </Button>
                             <Button variant="ghost" className="w-full justify-start text-slate-600" onClick={() => addPreset("rate_class")}>
                                 Rate the Class
                             </Button>
