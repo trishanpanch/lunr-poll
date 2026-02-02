@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Users, StopCircle, QrCode, Loader2, Sparkles, Bot, Plus, Play, EyeOff, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import Link from "next/link";
 import { SessionQR } from "@/components/professor/SessionQR";
 import { StarRating } from "@/components/ui/StarRating";
 import { Input } from "@/components/ui/input";
@@ -250,9 +251,9 @@ export function LiveDashboard({ session }: { session: Session }) {
             <header className="flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-900 text-white p-6 rounded-2xl shadow-lg">
                 {/* ... existing header ... */}
                 <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-                    <a href="/professor" className="md:mr-4 p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors">
+                    <Link href="/professor/dashboard" className="md:mr-4 p-2 bg-slate-800 rounded-full hover:bg-slate-700 transition-colors">
                         <ArrowLeft className="w-5 h-5 text-slate-300" />
-                    </a>
+                    </Link>
                     <div className="text-center md:text-left">
                         <div className="text-xs text-slate-400 uppercase tracking-widest font-bold">Join Code</div>
                         <div className="text-5xl font-mono font-bold tracking-widest">{session.code}</div>

@@ -11,6 +11,7 @@ import { Sparkles, Loader2, Lightbulb, AlertTriangle, ArrowRight, ArrowLeft } fr
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
+import Link from "next/link";
 export function SynthesisView({ session }: { session: Session }) {
     const [responses, setResponses] = useState<StudentResponse[]>([]);
     const [isSynthesizing, setIsSynthesizing] = useState(false);
@@ -79,9 +80,9 @@ export function SynthesisView({ session }: { session: Session }) {
     return (
         <div className="max-w-5xl mx-auto p-6 space-y-8">
             <header className="text-center space-y-4 mb-10 relative">
-                <a href="/professor" className="absolute left-0 top-1/2 -translate-y-1/2 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors text-slate-500">
+                <Link href="/professor/dashboard" className="absolute left-0 top-1/2 -translate-y-1/2 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors text-slate-500">
                     <ArrowLeft className="w-5 h-5" />
-                </a>
+                </Link>
                 <h1 className="text-4xl font-serif font-bold text-slate-900">{session.title || "Session Report"}</h1>
                 <p className="text-slate-500">Code: {session.code} • {responses.length} Participants</p>
 
