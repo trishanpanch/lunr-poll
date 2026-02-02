@@ -20,6 +20,7 @@ export interface Session {
     status: SessionStatus;
     createdAt: Timestamp;
     activeQuestionId?: string | null;
+    activeQuestionIds?: string[];
     questions: Question[];
     analysis?: Record<string, AnalysisResult>;
     globalAnalysis?: GlobalAnalysis;

@@ -54,6 +54,9 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         if (body.activeQuestionId !== undefined) {
             updates.activeQuestionId = body.activeQuestionId;
         }
+        if (body.activeQuestionIds !== undefined) {
+            updates.activeQuestionIds = body.activeQuestionIds;
+        }
 
         if (Object.keys(updates).length === 0) {
             return NextResponse.json({ message: "No updates provided" });

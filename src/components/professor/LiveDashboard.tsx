@@ -90,30 +90,50 @@ export function LiveDashboard({ session }: { session: Session }) {
         }
     };
 
-    const setActiveQuestion = async (qId: string | null) => {
+    const toggleActiveQuestion = async (qId: string) => {
+        const currentActiveIds = new Set(session.activeQuestionIds || (session.activeQuestionId ? [session.activeQuestionId] : []));
+
+        let isNowActive = false;
+        if (currentActiveIds.has(qId)) {
+            currentActiveIds.delete(qId);
+            isNowActive = false;
+        } else {
+            currentActiveIds.add(qId);
+            isNowActive = true;
+        }
+
+        const newActiveIds = Array.from(currentActiveIds);
+
         try {
             if (!session.id?.startsWith("local_")) {
                 const token = await auth.currentUser?.getIdToken();
                 await fetch(`/api/sessions/${session.id}/update`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ activeQuestionId: qId })
+                    body: JSON.stringify({
+                        activeQuestionIds: newActiveIds,
+                        activeQuestionId: newActiveIds.length > 0 ? newActiveIds[newActiveIds.length - 1] : null // Keep legacy field partially in sync for safety
+                    })
                 });
             } else if (IS_DEMO_MODE) {
                 const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
                 if (localSessionsStr) {
                     const sessions = JSON.parse(localSessionsStr) as Session[];
                     const sessionsUpd = sessions.map(s =>
-                        s.id === session.id ? { ...s, activeQuestionId: qId } : s
+                        s.id === session.id ? {
+                            ...s,
+                            activeQuestionIds: newActiveIds,
+                            activeQuestionId: newActiveIds.length > 0 ? newActiveIds[newActiveIds.length - 1] : null
+                        } : s
                     );
                     localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(sessionsUpd));
                     window.location.reload();
                 }
             }
-            if (qId) {
+            if (isNowActive) {
                 toast.success("Question is NOW LIVE");
             } else {
-                toast.success("Presentation stopped");
+                toast.success("Question stopped");
             }
         } catch (e) {
             toast.error("Failed to update status");
@@ -333,14 +353,18 @@ export function LiveDashboard({ session }: { session: Session }) {
             <div className="grid grid-cols-1 gap-6">
                 {session.questions.map((q) => {
                     const analysis = session.analysis?.[q.id];
+                    const isActive = session.activeQuestionIds
+                        ? session.activeQuestionIds.includes(q.id)
+                        : session.activeQuestionId === q.id;
+
                     return (
                         <Card key={q.id} className="border-slate-200 shadow-sm overflow-hidden">
                             <CardHeader className="bg-slate-50 border-b border-slate-100 pb-3 flex flex-row justify-between items-start">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <CardTitle className="font-serif text-xl">{q.text}</CardTitle>
-                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${session.activeQuestionId === q.id ? "bg-rose-100 text-rose-700 animate-pulse" : "bg-slate-100 text-slate-500"}`}>
-                                            {session.activeQuestionId === q.id ? "Presenting Now" : "Hidden"}
+                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${isActive ? "bg-rose-100 text-rose-700 animate-pulse" : "bg-slate-100 text-slate-500"}`}>
+                                            {isActive ? "Presenting Now" : "Hidden"}
                                         </span>
                                     </div>
                                 </div>
@@ -348,18 +372,18 @@ export function LiveDashboard({ session }: { session: Session }) {
 
 
                                     <Button
-                                        variant={session.activeQuestionId === q.id ? "destructive" : "default"}
+                                        variant={isActive ? "destructive" : "default"}
                                         size="sm"
-                                        onClick={() => setActiveQuestion(session.activeQuestionId === q.id ? null : q.id)}
-                                        className={`${session.activeQuestionId === q.id ? "bg-rose-600 hover:bg-rose-700 text-white" : "bg-indigo-600 hover:bg-indigo-700 text-white"}`}
+                                        onClick={() => toggleActiveQuestion(q.id)}
+                                        className={`${isActive ? "bg-rose-600 hover:bg-rose-700 text-white" : "bg-indigo-600 hover:bg-indigo-700 text-white"}`}
                                     >
-                                        {session.activeQuestionId === q.id ? (
+                                        {isActive ? (
                                             <>
                                                 <StopCircle className="w-4 h-4 mr-2" /> Stop
                                             </>
                                         ) : (
                                             <>
-                                                <Play className="w-4 h-4 mr-2" /> Present
+                                                <Play className="w-4 h-4 mr-2" /> Show Live
                                             </>
                                         )}
                                     </Button>

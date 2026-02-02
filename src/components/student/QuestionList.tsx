@@ -9,7 +9,12 @@ export function QuestionList({ session, userId, answeredQuestionIds }: { session
     const visibleQuestions = (session.questions || []).filter(q => {
         if (!q) return false;
 
-        // Strict Pacing Mode: Only show the question if it matches activeQuestionId
+        // Strict Pacing Mode: Show if in activeQuestionIds array OR matches legacy activeQuestionId
+        if (session.activeQuestionIds && session.activeQuestionIds.length > 0) {
+            return session.activeQuestionIds.includes(q.id);
+        }
+
+        // Legacy fallback
         if (session.activeQuestionId) {
             return q.id === session.activeQuestionId;
         }
