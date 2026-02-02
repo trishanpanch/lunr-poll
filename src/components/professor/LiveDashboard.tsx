@@ -274,7 +274,7 @@ export function LiveDashboard({ session }: { session: Session }) {
                 <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                     <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                         <DialogTrigger asChild>
-                            <Button size="lg" className="w-full sm:w-auto rounded-xl px-6 font-bold text-lg bg-indigo-600 hover:bg-indigo-700 text-white border-0 shadow-lg shadow-indigo-200">
+                            <Button size="lg" className="w-full sm:w-auto rounded-xl px-6 font-bold text-lg bg-indigo-600 hover:bg-indigo-700 text-white border-0">
                                 <Plus className="mr-2 w-6 h-6" /> Add Question
                             </Button>
                         </DialogTrigger>

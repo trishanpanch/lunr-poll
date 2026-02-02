@@ -90,6 +90,7 @@ The "hub" for managing classes.
 **With Results:**
 ![Live Results](docs/assets/08_results.png)
 
+*   **Show Live**: Click "Show Live" to send a question to student devices. You can have multiple questions active at the same time.
 *   **Real-time**: Bars update instantly as students vote.
 *   **Active Count**: Shows number of students connected.
 
