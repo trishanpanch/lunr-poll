@@ -79,15 +79,20 @@ export function SynthesisView({ session }: { session: Session }) {
 
     return (
         <div className="max-w-5xl mx-auto p-6 space-y-8">
-            <header className="text-center space-y-4 mb-10 relative">
-                <Link href="/professor/dashboard" className="absolute left-0 top-1/2 -translate-y-1/2 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors text-slate-500">
+            <header className="text-center space-y-4 mb-10 relative print:mb-4">
+                <div className="hidden print:block text-left border-b-2 border-slate-900 pb-4 mb-8">
+                    <h1 className="text-3xl font-serif font-bold text-slate-900">Harvard Poll Report</h1>
+                    <p className="text-sm text-slate-500">Generated on {new Date().toLocaleDateString()}</p>
+                </div>
+
+                <Link href="/professor/dashboard" className="absolute left-0 top-1/2 -translate-y-1/2 p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors text-slate-500 print:hidden">
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
-                <h1 className="text-4xl font-serif font-bold text-slate-900">{session.title || "Session Report"}</h1>
+                <h1 className="text-4xl font-serif font-bold text-slate-900 print:text-2xl">{session.title || "Session Report"}</h1>
                 <p className="text-slate-500">Code: {session.code} • {responses.length} Participants</p>
 
                 {!session.globalAnalysis && (
-                    <Button size="lg" onClick={synthesizeSession} disabled={isSynthesizing} className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg">
+                    <Button size="lg" onClick={synthesizeSession} disabled={isSynthesizing} className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg print:hidden">
                         {isSynthesizing ? (
                             <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Synthesizing Session...</>
                         ) : (

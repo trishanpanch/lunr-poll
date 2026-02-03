@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Check, Upload, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { StarRating } from "@/components/ui/StarRating";
+import { RichText } from "@/components/ui/RichText";
 
 interface QuestionItemProps {
     question: Question;
@@ -88,7 +89,9 @@ export function QuestionItem({ question, sessionId, userId, studentName = "Anony
 
     return (
         <div className="space-y-4">
-            <h3 className="font-serif text-lg font-semibold text-slate-800">{question.text}</h3>
+            <div className="font-serif text-lg font-semibold text-slate-800">
+                <RichText content={question.text} />
+            </div>
 
             {question.type === "short_text" && (
                 <Textarea

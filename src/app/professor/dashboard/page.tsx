@@ -9,7 +9,7 @@ import { Session } from "@/lib/types";
 import { generateSessionCode } from "@/utils/code";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Plus, ArrowRight } from "lucide-react";
+import { Plus, ArrowRight, Settings, FileBarChart } from "lucide-react";
 
 export default function Dashboard() {
     const [sessions, setSessions] = useState<Session[]>([]);
@@ -101,9 +101,17 @@ export default function Dashboard() {
                         <h1 className="text-3xl font-serif font-bold text-slate-900">My Classes</h1>
                         <p className="text-slate-500">Manage your polls and view results.</p>
                     </div>
-                    <Button onClick={createSession} disabled={creating} size="lg" className="rounded-xl shadow-md">
-                        <Plus className="mr-2 w-5 h-5" /> New Session
-                    </Button>
+                    <div className="flex gap-3">
+                        <Button variant="outline" onClick={() => router.push("/professor/reports")} className="rounded-xl">
+                            <FileBarChart className="w-5 h-5 text-slate-500" />
+                        </Button>
+                        <Button variant="outline" onClick={() => router.push("/professor/settings")} className="rounded-xl">
+                            <Settings className="w-5 h-5 text-slate-500" />
+                        </Button>
+                        <Button onClick={createSession} disabled={creating} size="lg" className="rounded-xl shadow-md">
+                            <Plus className="mr-2 w-5 h-5" /> New Session
+                        </Button>
+                    </div>
                 </header>
 
                 {sessions.length === 0 ? (

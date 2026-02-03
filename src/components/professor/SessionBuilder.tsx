@@ -6,9 +6,10 @@ import { auth } from "@/lib/firebase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, Plus, GripVertical, Rocket } from "lucide-react";
+import { Trash2, Plus, GripVertical, Rocket, Sparkles, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
     DndContext,
     closestCenter,
@@ -26,6 +27,7 @@ import {
     useSortable
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { RichText } from "@/components/ui/RichText";
 
 // Forcing uuid import/polyfil might be annoying in client. I can use crypto.randomUUID() or Math.random.
 // Or just let Firestore handle if collection, but questions are array.
@@ -116,6 +118,10 @@ function SortableQuestionItem({
                                             </Button>
                                         </div>
                                     ))}
+                                    <div className="mt-2 text-xs text-slate-400 pl-6">
+                                        <span className="font-semibold">Preview:</span>
+                                        <RichText content={q.text} className="inline-block align-top ml-2 text-slate-600" />
+                                    </div>
                                     <Button
                                         variant="link"
                                         size="sm"
@@ -135,6 +141,68 @@ function SortableQuestionItem({
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+function MagicDraftDialog({
+    open,
+    onOpenChange,
+    onDraft
+}: {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onDraft: (topic: string, type: QuestionType) => Promise<void>;
+}) {
+    const [topic, setTopic] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [type, setType] = useState<QuestionType>("multiple_choice");
+
+    const handleDraft = async () => {
+        if (!topic.trim()) return;
+        setLoading(true);
+        await onDraft(topic, type);
+        setLoading(false);
+        onOpenChange(false);
+        setTopic("");
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 font-serif">
+                        <Sparkles className="w-5 h-5 text-purple-600" />
+                        Magic Draft
+                    </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-700">Topic or Concept</label>
+                        <Input
+                            value={topic}
+                            onChange={(e) => setTopic(e.target.value)}
+                            placeholder="e.g. keynesian economics, mitochondria, supply and demand..."
+                            autoFocus
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-slate-700">Activity Type</label>
+                        <select
+                            value={type}
+                            onChange={(e) => setType(e.target.value as QuestionType)}
+                            className="w-full h-10 px-3 rounded-md border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        >
+                            <option value="multiple_choice">Multiple Choice</option>
+                            <option value="short_text">Short Text / Open Ended</option>
+                        </select>
+                    </div>
+                    <Button onClick={handleDraft} disabled={loading || !topic.trim()} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                        {loading ? <Loader2 className="animate-spin mr-2 w-4 h-4" /> : <Sparkles className="mr-2 w-4 h-4" />}
+                        Generate Question
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -272,6 +340,41 @@ export function SessionBuilder({ session }: { session: Session }) {
         }
     };
 
+    const [isMagicOpen, setIsMagicOpen] = useState(false);
+
+    const handleMagicDraft = async (topic: string, type: QuestionType) => {
+        try {
+            if (!auth.currentUser) throw new Error("Not logged in");
+            const token = await auth.currentUser.getIdToken();
+
+            const res = await fetch("/api/ai/draft", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ topic, type })
+            });
+
+            if (!res.ok) throw new Error("Failed to generate");
+
+            const data = await res.json();
+
+            const newQ: Question = {
+                id: generateId(),
+                text: data.text,
+                type,
+                options: data.options || (type === "multiple_choice" ? ["Option A", "Option B"] : undefined)
+            };
+
+            saveQuestions([...questions, newQ]);
+            toast.success("Magic Draft created!");
+        } catch (e) {
+            console.error(e);
+            toast.error("Failed to generate draft. Try again.");
+        }
+    };
+
     const [title, setTitle] = useState(session.title || "Untitled Session");
 
     const saveTitle = async () => {
@@ -403,7 +506,12 @@ export function SessionBuilder({ session }: { session: Session }) {
                     </Card>
 
                     <Card className="border-slate-200 shadow-sm">
-                        <div className="p-4 border-b border-slate-100 font-medium text-slate-700">Add Question</div>
+                        <div className="p-4 border-b border-slate-100 font-medium text-slate-700 flex justify-between items-center">
+                            Add Question
+                            <Button size="sm" variant="ghost" className="h-6 text-purple-600 hover:text-purple-700 hover:bg-purple-50" onClick={() => setIsMagicOpen(true)}>
+                                <Sparkles className="w-3 h-3 mr-1" /> Magic
+                            </Button>
+                        </div>
                         <CardContent className="p-4 space-y-3">
                             <Button
                                 variant="outline"
@@ -462,6 +570,12 @@ export function SessionBuilder({ session }: { session: Session }) {
                     </DndContext>
                 </div>
             </div>
+
+            <MagicDraftDialog
+                open={isMagicOpen}
+                onOpenChange={setIsMagicOpen}
+                onDraft={handleMagicDraft}
+            />
         </div>
     );
 }

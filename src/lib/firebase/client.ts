@@ -20,3 +20,20 @@ export const db = process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID
     ? getFirestore(app, process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID)
     : getFirestore(app);
 export const storage = getStorage(app);
+
+// Connect to Emulators in Development
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+    // Prevent multiple connections
+    if (!(global as any)._emulatorsConnected) {
+        console.log("Connecting to Firebase Emulators...");
+        const { connectAuthEmulator } = require("firebase/auth");
+        const { connectFirestoreEmulator } = require("firebase/firestore");
+        // const { connectStorageEmulator } = require("firebase/storage");
+
+        connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+        connectFirestoreEmulator(db, "127.0.0.1", 8080);
+        // connectStorageEmulator(storage, "127.0.0.1", 9199);
+
+        (global as any)._emulatorsConnected = true;
+    }
+}
