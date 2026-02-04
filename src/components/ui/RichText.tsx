@@ -12,17 +12,18 @@ interface RichTextProps {
 
 export const RichText: React.FC<RichTextProps> = ({ content, className }) => {
     return (
-        <ReactMarkdown
-            remarkPlugins={[remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-            className={cn("prose prose-slate max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-2", className)}
-            components={{
-                img: ({ node, ...props }) => (
-                    <img {...props} className="max-h-64 rounded-lg my-2 object-contain" />
-                )
-            }}
-        >
-            {content}
-        </ReactMarkdown>
+        <div className={cn("prose prose-slate max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-2", className)}>
+            <ReactMarkdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={{
+                    img: ({ node, ...props }) => (
+                        <img {...props} className="max-h-64 rounded-lg my-2 object-contain" />
+                    )
+                }}
+            >
+                {content}
+            </ReactMarkdown>
+        </div>
     );
 };
