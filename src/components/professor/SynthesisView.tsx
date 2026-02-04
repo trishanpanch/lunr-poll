@@ -171,35 +171,34 @@ export function SynthesisView({ session }: { session: Session }) {
                                                 total={responses.length}
                                             />
                                         ) : (
-                                        ): (
-                                                <div className = "h-full w-full flex items-center justify-center">
-                                                <p className = "text-slate-400 italic">No responses to display.</p>
-                                </div>
+                                            <div className="h-full w-full flex items-center justify-center">
+                                                <p className="text-slate-400 italic">No responses to display.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Card>
+                            ) : (
+                                <Card className="h-[400px] flex flex-col">
+                                    <div className="p-4 border-b font-medium text-slate-500">Student Responses</div>
+                                    <ScrollArea className="flex-1 p-4">
+                                        <div className="space-y-3">
+                                            {responses.map((r, i) => {
+                                                const ans = r.answers[q.id];
+                                                if (!ans || typeof ans !== 'string') return null;
+                                                return (
+                                                    <div key={i} className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700">
+                                                        &quot;{ans}&quot;
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </ScrollArea>
+                                </Card>
                             )}
                         </div>
-                                </Card>
-            ) : (
-            <Card className="h-[400px] flex flex-col">
-                <div className="p-4 border-b font-medium text-slate-500">Student Responses</div>
-                <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-3">
-                        {responses.map((r, i) => {
-                            const ans = r.answers[q.id];
-                            if (!ans || typeof ans !== 'string') return null;
-                            return (
-                                <div key={i} className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700">
-                                    &quot;{ans}&quot;
-                                </div>
-                            );
-                        })}
-                    </div>
-                </ScrollArea>
-            </Card>
-                            )}
+                    );
+                })}
+            </div>
         </div>
-    );
-})}
-            </div >
-        </div >
     );
 }
