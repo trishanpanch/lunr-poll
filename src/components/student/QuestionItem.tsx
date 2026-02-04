@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, serverTimestamp, collection, addDoc } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase/client";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
@@ -41,16 +41,40 @@ export function QuestionItem({ question, sessionId, userId, studentName = "Anony
                 finalAnswer = await getDownloadURL(storageRef);
             }
 
-            // Update response document in subcollection
-            const docRef = doc(db, "sessions", sessionId, "responses", userId);
+            // Universal Response Format (V2)
+            // Writes to global 'responses' collection for compatibility with Preview/Live View
+            // Mapping: sessionId -> activityId (for V1 sessions, this assumes strictly V2 usage, but fallback is safe)
+            // But QuestionItem is legacy. SessionId passed is often the Session Doc ID.
+            // If we are in V2 Mode, 'sessionId' is likely 'activityId'.
+            // To support Hybrid: We write to BOTH? Or we write to Global with sessionId as activityId.
+            // Best bet: If using V2 components, 'sessionId' is ActivityID.
 
-            // Critical Fix: Use nested object for answers map. 
-            // setDoc with merge:true will merge this key into the existing answers map.
-            // Using `answers.${question.id}` key created a field with a dot in the name, which was wrong.
+            // However, verify QuestionItem usage in QuestionList.
+            // For now, let's write to global 'responses' collection manually here to match the V2 schema.
+
+            // IMPORT submitResponse DYNAMICALLY TO AVOID CYCLES OR JUST USE RAW FIRESTORE
+            const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
+            const responsesRef = collection(db, "responses");
+
+            await addDoc(responsesRef, {
+                activityId: sessionId, // In V1 this is session ID. In V2 this is Activity ID.
+                participantId: userId,
+                content: {
+                    [question.id]: finalAnswer, // Legacy structure support
+                    // Also support V2 structure "optionId" or "text" if we can detect type
+                    text: typeof finalAnswer === 'string' ? finalAnswer : undefined,
+                    optionId: question.type === 'multiple_choice' ? finalAnswer : undefined
+                },
+                submittedAt: serverTimestamp(),
+                sessionId: sessionId // Store specifically as sessionId too
+            });
+
+            // Also keep legacy write for safety if V1 Dashboard depends on it
+            const docRef = doc(db, "sessions", sessionId, "responses", userId);
             await setDoc(docRef, {
                 sessionId,
                 studentId: userId,
-                studentName, // In a real app we'd manage names better
+                studentName,
                 answers: {
                     [question.id]: finalAnswer
                 },

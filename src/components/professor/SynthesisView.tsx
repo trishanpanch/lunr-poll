@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sparkles, Loader2, Lightbulb, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart } from "@/components/presentation/BarChart";
 
 import Link from "next/link";
 export function SynthesisView({ session }: { session: Session }) {
@@ -164,49 +164,42 @@ export function SynthesisView({ session }: { session: Session }) {
 
                             {q.type === "multiple_choice" ? (
                                 <Card className="p-6">
-                                    <div className="h-[250px] w-full min-w-0">
+                                    <div className="h-full w-full min-w-0 overflow-y-auto">
                                         {getAggregatedData(q).length > 0 ? (
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <BarChart data={getAggregatedData(q)} layout="vertical" margin={{ left: 0 }}>
-                                                    <XAxis type="number" hide />
-                                                    <YAxis dataKey="name" type="category" width={150} tick={{ fontSize: 12 }} />
-                                                    <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: 8 }} />
-                                                    <Bar dataKey="value" fill="var(--primary)" radius={[0, 4, 4, 0]}>
-                                                        {getAggregatedData(q).map((entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#be123c' : '#e11d48'} />
-                                                        ))}
-                                                    </Bar>
-                                                </BarChart>
-                                            </ResponsiveContainer>
+                                            <BarChart
+                                                data={getAggregatedData(q)}
+                                                total={responses.length}
+                                            />
                                         ) : (
-                                            <div className="h-full w-full flex items-center justify-center">
-                                                <p className="text-slate-400 italic">No responses to display.</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </Card>
-                            ) : (
-                                <Card className="h-[400px] flex flex-col">
-                                    <div className="p-4 border-b font-medium text-slate-500">Student Responses</div>
-                                    <ScrollArea className="flex-1 p-4">
-                                        <div className="space-y-3">
-                                            {responses.map((r, i) => {
-                                                const ans = r.answers[q.id];
-                                                if (!ans || typeof ans !== 'string') return null;
-                                                return (
-                                                    <div key={i} className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700">
-                                                        &quot;{ans}&quot;
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </ScrollArea>
-                                </Card>
+                                        ): (
+                                                <div className = "h-full w-full flex items-center justify-center">
+                                                <p className = "text-slate-400 italic">No responses to display.</p>
+                                </div>
                             )}
                         </div>
-                    );
-                })}
-            </div>
+                                </Card>
+            ) : (
+            <Card className="h-[400px] flex flex-col">
+                <div className="p-4 border-b font-medium text-slate-500">Student Responses</div>
+                <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-3">
+                        {responses.map((r, i) => {
+                            const ans = r.answers[q.id];
+                            if (!ans || typeof ans !== 'string') return null;
+                            return (
+                                <div key={i} className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700">
+                                    &quot;{ans}&quot;
+                                </div>
+                            );
+                        })}
+                    </div>
+                </ScrollArea>
+            </Card>
+                            )}
         </div>
+    );
+})}
+            </div >
+        </div >
     );
 }

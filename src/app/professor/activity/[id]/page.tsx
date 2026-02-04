@@ -143,7 +143,11 @@ export default function ActivityPage() {
                         <Eye className="mr-2 w-4 h-4" /> Preview
                     </Button>
                     <Button
-                        onClick={toggleLive}
+                        onClick={async () => {
+                            await toggleLive();
+                            // Open Present View in new tab
+                            window.open(`/professor/activity/${id}/present`, '_blank');
+                        }}
                         className={isLive ? "bg-red-600 hover:bg-red-700 animate-pulse" : "bg-primary hover:bg-rose-800"}
                     >
                         {isLive ? (
