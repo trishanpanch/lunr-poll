@@ -34,7 +34,7 @@ export const createActivity = async (
         settings: {
             isAnonymous: false,
             responseLimit: 1,
-            timerSeconds: defaults?.timerSeconds || null,
+            timerSeconds: defaults?.timerSeconds || undefined,
             profanityFilter: defaults?.profanityFilter || false
         }
     };
