@@ -56,18 +56,23 @@ export function QuestionItem({ question, sessionId, userId, studentName = "Anony
             const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
             const responsesRef = collection(db, "responses");
 
-            await addDoc(responsesRef, {
-                activityId: sessionId, // In V1 this is session ID. In V2 this is Activity ID.
-                participantId: userId,
-                content: {
-                    [question.id]: finalAnswer, // Legacy structure support
-                    // Also support V2 structure "optionId" or "text" if we can detect type
-                    text: typeof finalAnswer === 'string' ? finalAnswer : undefined,
-                    optionId: question.type === 'multiple_choice' ? finalAnswer : undefined
-                },
-                submittedAt: serverTimestamp(),
-                sessionId: sessionId // Store specifically as sessionId too
-            });
+            try {
+                await addDoc(responsesRef, {
+                    activityId: sessionId, // In V1 this is session ID. In V2 this is Activity ID.
+                    participantId: userId,
+                    content: {
+                        [question.id]: finalAnswer, // Legacy structure support
+                        // V2 structure — use conditional spread to avoid undefined (Firestore rejects it)
+                        ...(typeof finalAnswer === 'string' ? { text: finalAnswer } : {}),
+                        // Treat 'rating' value as an optionId for consistency
+                        ...((question.type === 'multiple_choice' || question.type === 'rating') ? { optionId: finalAnswer } : {}),
+                    },
+                    submittedAt: serverTimestamp(),
+                    sessionId: sessionId // Store specifically as sessionId too
+                });
+            } catch (v2Error) {
+                console.warn("V2 Write Failed (Non-fatal):", v2Error);
+            }
 
             // Also keep legacy write for safety if V1 Dashboard depends on it
             const docRef = doc(db, "sessions", sessionId, "responses", userId);

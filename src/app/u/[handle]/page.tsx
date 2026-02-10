@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase/client";
 import { resolveHandle, subscribeToUserProfile } from "@/lib/data/users";
 import { getActivity } from "@/lib/data/activities";
 import { UserProfile, Activity } from "@/lib/types";
@@ -27,25 +29,39 @@ export default function ParticipantPage() {
     const [currentActivityId, setCurrentActivityId] = useState<string | null>(null);
     const [activity, setActivity] = useState<Activity | null>(null);
     const [participantId, setParticipantId] = useState("");
+    const [authReady, setAuthReady] = useState(false);
 
-    // 1. Resolve Handle -> Professor UID
+    // 0. Authenticate anonymously first — Firestore rules require request.auth != null
     useEffect(() => {
-        const init = async () => {
-            // Generate anonymous Participant ID if not exists
-            let pid = localStorage.getItem("participant_id");
-            if (!pid) {
-                pid = crypto.randomUUID();
-                localStorage.setItem("participant_id", pid);
+        const unsub = onAuthStateChanged(auth, (u) => {
+            if (u) {
+                setParticipantId(u.uid);
+                setAuthReady(true);
+            } else {
+                signInAnonymously(auth).catch((e) => {
+                    console.error("Anonymous auth failed", e);
+                    // Fallback to localStorage ID so the UI isn't stuck,
+                    // but writes will fail without auth.
+                    let pid = localStorage.getItem("participant_id");
+                    if (!pid) { pid = crypto.randomUUID(); localStorage.setItem("participant_id", pid); }
+                    setParticipantId(pid);
+                    setAuthReady(true);
+                });
             }
-            setParticipantId(pid);
+        });
+        return () => unsub();
+    }, []);
 
+    // 1. Resolve Handle -> Professor UID (only after auth is ready)
+    useEffect(() => {
+        if (!authReady) return;
+
+        const init = async () => {
             try {
-                // Try resolving handle
                 const prof = await resolveHandle(handle);
                 if (prof) {
                     setProfessor(prof);
                 } else {
-                    // Handle not found
                     setLoading(false);
                 }
             } catch (e) {
@@ -54,7 +70,7 @@ export default function ParticipantPage() {
             }
         };
         init();
-    }, [handle]);
+    }, [handle, authReady]);
 
     // 2. Subscribe to Professor's Live State
     useEffect(() => {

@@ -25,22 +25,28 @@ export function StarRating({ value = 0, onChange, readOnly = false, size = "lg",
         lg: "w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16"
     };
 
-    const handleMouseMove = (e: React.MouseEvent, index: number) => {
-        if (readOnly) return;
+    const getValueFromEvent = (e: React.MouseEvent | React.TouchEvent, index: number): number => {
         const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
+        const clientX = 'touches' in e
+            ? (e as React.TouchEvent).touches[0]?.clientX ?? (e as React.TouchEvent).changedTouches[0]?.clientX ?? rect.left
+            : (e as React.MouseEvent).clientX;
+        const x = clientX - rect.left;
         const width = rect.width;
-
         // If x < width / 2, it's a half star (index + 0.5)
         // Otherwise it's a full star (index + 1)
-        const newValue = x < width / 2 ? index + 0.5 : index + 1;
-        setHoverValue(newValue);
+        return x < width / 2 ? index + 0.5 : index + 1;
     };
 
-    const handleClick = () => {
-        if (!readOnly && onChange && hoverValue !== null) {
-            onChange(hoverValue);
-        }
+    const handleMouseMove = (e: React.MouseEvent, index: number) => {
+        if (readOnly) return;
+        setHoverValue(getValueFromEvent(e, index));
+    };
+
+    const handleClick = (e: React.MouseEvent | React.TouchEvent, index: number) => {
+        if (readOnly || !onChange) return;
+        // On mobile, hoverValue may be null — compute directly from the event
+        const val = hoverValue !== null ? hoverValue : getValueFromEvent(e, index);
+        onChange(val);
     };
 
     return (
@@ -61,7 +67,8 @@ export function StarRating({ value = 0, onChange, readOnly = false, size = "lg",
                             !readOnly && "hover:scale-110 active:scale-95"
                         )}
                         onMouseMove={(e) => handleMouseMove(e, index)}
-                        onClick={handleClick}
+                        onClick={(e) => handleClick(e, index)}
+                        onTouchEnd={(e) => { e.preventDefault(); handleClick(e, index); }}
                         whileTap={!readOnly ? { scale: 0.9 } : undefined}
                     >
                         {/* Background (Empty/Gray Star) */}

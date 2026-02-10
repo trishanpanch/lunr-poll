@@ -31,6 +31,38 @@
                     "order": "DESCENDING"
                 }
             ]
+        },
+        {
+            "collectionGroup": "responses",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "activityId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "submittedAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "responses",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "activityId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "participantId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "submittedAt",
+                    "order": "DESCENDING"
+                }
+            ]
         }
     ],
     "fieldOverrides": []

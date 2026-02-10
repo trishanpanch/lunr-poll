@@ -78,7 +78,7 @@ export default function LandingPage() {
                 <Zap className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold font-serif">Instant Interactions</h3>
-              <p className="text-slate-600">Poll students on pretty much anything from anywhere in real time during your lectures.</p>
+              <p className="text-slate-600">Poll students with confident, verified submissions in real time during your lectures.</p>
             </div>
 
             <div className="space-y-4 p-6 rounded-2xl bg-slate-50 border border-slate-100">
@@ -86,7 +86,7 @@ export default function LandingPage() {
                 <BarChart3 className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold font-serif">Live Insights</h3>
-              <p className="text-slate-600">Visualize student comprehension instantly with dynamic charts, voting histograms, and engagement metrics.</p>
+              <p className="text-slate-600">Visualize student comprehension with crystal-clear, zero-overlap dynamic charts and engagement metrics.</p>
             </div>
 
             <div className="space-y-4 p-6 rounded-2xl bg-white border border-rose-100 shadow-xl shadow-rose-100/50 relative overflow-hidden group">

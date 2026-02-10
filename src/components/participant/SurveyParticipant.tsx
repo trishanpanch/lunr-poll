@@ -24,17 +24,25 @@ export function SurveyParticipant({ activity, participantId }: SurveyParticipant
 
     const handleSubmitAnswer = async (answerContent: any) => {
         setLoading(true);
-        // We submit with Parent Activity ID, but include questionId in content
-        await submitResponse(activity.id, participantId, {
-            questionId: currentQ.id,
-            ...answerContent
-        });
-        setLoading(false);
+        try {
+            // We submit with Parent Activity ID, but include questionId in content
+            await submitResponse(activity.id, participantId, {
+                questionId: currentQ.id,
+                ...answerContent
+            });
 
-        if (currentStep < questions.length - 1) {
-            setCurrentStep(currentStep + 1);
-        } else {
-            setCompleted(true);
+            if (currentStep < questions.length - 1) {
+                setCurrentStep(currentStep + 1);
+            } else {
+                setCompleted(true);
+            }
+        } catch (e) {
+            console.error("Survey submit error:", e);
+            // Show user-facing error so they know something went wrong
+            const { toast } = await import("sonner");
+            toast.error("Failed to submit. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 

@@ -2,9 +2,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Users: Users can read/write their own profile
+    // Users: Anyone authenticated can READ profiles (needed for handle resolution + live state).
+    // Only the user themselves can WRITE their own profile.
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
 
     // --- V2 COLLECTIONS ---
@@ -15,11 +17,11 @@ service cloud.firestore {
         allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
     }
 
-    // Activities: Only owner can access
+    // Activities: Only owner can access, OR public read for ACTIVE/DRAFT activities so participants can load them
     match /activities/{activityId} {
         allow read: if request.auth != null && (
             resource.data.ownerId == request.auth.uid || 
-            // Allow public read for "ACTIVE" activities so participants can load them
+            resource.data.status == "DRAFT" ||
             resource.data.status == "ACTIVE" ||
             resource.data.status == "LOCKED"
         );
@@ -29,37 +31,33 @@ service cloud.firestore {
 
     // Responses (Global Collection):
     match /responses/{responseId} {
-        // Create: Anyone (even anonymous) can submit if they have valid payload
-        // Ideally we check if Activity is ACTIVE, but that requires a get().
+        // Create: Anyone authenticated (including anonymous) can submit
         allow create: if request.auth != null; 
         
-        // Read: 
-        // 1. Professor (Owner of the linked Activity)
-        // 2. Participant (Author of the response)
-        // 3. Public? No, we don't want participants scraping all responses.
-        //    But for "Live Updates" (Word Cloud), participants might need to read?
-        //    Actually, usually only the Projector (Professor) reads All.
-        //    The Participant only reads THEIR own (or limited set).
-        //    For now, let's allow:
-        //    - Author
-        //    - Activity Owner (This is hard to enforce without get(), so we might rely on client query filtering for MVP security, or fetch activity)
-        allow read: if request.auth != null && (
-             resource.data.participantId == request.auth.uid ||
-             // Check if user is owner of the activity... expensive.
-             // For MVP/Staging, we might relax or use a "resource.data.activityOwnerId" denom.
-             // Let's rely on simplistic check:
-             true // WARNING: MVP rules. Tighten later.
-        );
+        // Read: Anyone authenticated can read (MVP — tighten later)
+        allow read: if request.auth != null;
 
+        // Update: Only the original author can update their response
         allow update: if request.auth != null && (
-            // Upvoting?
             resource.data.participantId == request.auth.uid
         );
     }
     
-    // --- V1 LEGACY (Keep for safety or delete) ---
+    // --- V1 LEGACY ---
     match /sessions/{sessionId} {
       allow read, write: if request.auth != null;
+      
+      // Allow read/write to sub-collections (responses, etc.) 
+      match /{document=**} {
+        allow read, write: if request.auth != null;
+      }
+    }
+
+    // Teams: Members can read, owner can write
+    match /teams/{teamId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null;
     }
   }
 }

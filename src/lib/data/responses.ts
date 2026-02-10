@@ -57,7 +57,6 @@ export const useResponses = (activityId: string, onData: (responses: Response[])
     return onSnapshot(q, (snapshot) => {
         const responses = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Response));
         if (onData) onData(responses);
-        if (onData) onData(responses);
     });
 };
 
