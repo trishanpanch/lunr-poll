@@ -31,7 +31,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         }
 
         // Prepare Update Data
-        const updates: any = {};
+        const updates: Record<string, unknown> = {};
         if (questions !== undefined) {
             // Basic validation: ensure questions is an array
             if (!Array.isArray(questions)) {
@@ -57,6 +57,15 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
         if (body.activeQuestionIds !== undefined) {
             updates.activeQuestionIds = body.activeQuestionIds;
         }
+        if (body.deliveryMode !== undefined) {
+            if (!["paced", "self_paced"].includes(body.deliveryMode)) {
+                return NextResponse.json({ error: "Invalid delivery mode" }, { status: 400 });
+            }
+            updates.deliveryMode = body.deliveryMode;
+        }
+        if (body.clonedFromSessionId !== undefined) {
+            updates.clonedFromSessionId = body.clonedFromSessionId;
+        }
 
         if (Object.keys(updates).length === 0) {
             return NextResponse.json({ message: "No updates provided" });
@@ -66,8 +75,11 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
         return NextResponse.json({ success: true });
 
-    } catch (e: any) {
-        console.error("Session Update Error:", e);
-        return NextResponse.json({ error: e.message || "Failed to update session" }, { status: 500 });
+    } catch (error: unknown) {
+        console.error("Session Update Error:", error);
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : "Failed to update session" },
+            { status: 500 }
+        );
     }
 }

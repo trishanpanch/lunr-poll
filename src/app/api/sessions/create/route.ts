@@ -26,14 +26,19 @@ export async function POST(req: Request) {
         const docRef = await adminDb.collection("sessions").add({
             code,
             ownerId: decodedToken.uid,
+            title: "Untitled Session",
             status: "DRAFT",
             createdAt: Timestamp.now(),
+            deliveryMode: "paced",
             questions: []
         });
 
         return NextResponse.json({ id: docRef.id, code });
-    } catch (e: any) {
-        console.error("Session Create Error:", e);
-        return NextResponse.json({ error: e.message || "Failed to create session" }, { status: 500 });
+    } catch (error: unknown) {
+        console.error("Session Create Error:", error);
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : "Failed to create session" },
+            { status: 500 }
+        );
     }
 }

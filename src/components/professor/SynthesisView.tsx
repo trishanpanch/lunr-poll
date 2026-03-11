@@ -1,20 +1,24 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Session, Question, StudentResponse } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { AnalysisResult, Session, Question, StudentResponse } from "@/lib/types";
 import { collection, query, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Loader2, Lightbulb, AlertTriangle, ArrowLeft, Download, FileImage, FileText, Star } from "lucide-react";
+import { Sparkles, Loader2, Lightbulb, AlertTriangle, ArrowLeft, FileImage, FileText, Star, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { StarRating } from "@/components/ui/StarRating";
 import Link from "next/link";
+import { BarChart as ResultsBarChart } from "@/components/presentation/BarChart";
 
 export function SynthesisView({ session }: { session: Session }) {
+    const router = useRouter();
     const [responses, setResponses] = useState<StudentResponse[]>([]);
     const [isSynthesizing, setIsSynthesizing] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    const [isRelaunching, setIsRelaunching] = useState(false);
     const summaryRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -148,7 +152,11 @@ export function SynthesisView({ session }: { session: Session }) {
                 const ans = r.answers[question.id];
                 if (ans && counts[ans] !== undefined) counts[ans]++;
             });
-            return Object.entries(counts).map(([name, value]) => ({ name, value }));
+            return Object.entries(counts).map(([name, value]) => ({
+                name,
+                value,
+                isCorrect: (question.correctAnswers || []).includes(name)
+            }));
         }
         return [];
     };
@@ -174,6 +182,37 @@ export function SynthesisView({ session }: { session: Session }) {
             .filter(a => isNaN(parseFloat(a)) || a.length > 5);
     };
 
+    const relaunchForNewCohort = async () => {
+        if (!auth.currentUser) {
+            toast.error("You must be logged in to relaunch");
+            return;
+        }
+
+        setIsRelaunching(true);
+        try {
+            const token = await auth.currentUser.getIdToken();
+            const response = await fetch(`/api/sessions/${session.id}/relaunch`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to relaunch session");
+            }
+
+            toast.success(`New cohort launched with code ${data.code}`);
+            router.push(`/professor/session/${data.id}`);
+        } catch (error) {
+            console.error(error);
+            toast.error((error as Error).message || "Failed to relaunch");
+        } finally {
+            setIsRelaunching(false);
+        }
+    };
+
     // ---------- Render ----------
 
     return (
@@ -190,6 +229,22 @@ export function SynthesisView({ session }: { session: Session }) {
                 </Link>
                 <h1 className="text-4xl font-serif font-bold text-slate-900 print:text-2xl">{session.title || "Session Report"}</h1>
                 <p className="text-slate-500">Code: {session.code} • {responses.length} Participants</p>
+
+                <div className="flex flex-wrap justify-center gap-3 print:hidden">
+                    <Button
+                        variant="outline"
+                        onClick={relaunchForNewCohort}
+                        disabled={isRelaunching}
+                        className="rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50"
+                    >
+                        {isRelaunching ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <RotateCcw className="mr-2 h-4 w-4" />
+                        )}
+                        Relaunch for New Cohort
+                    </Button>
+                </div>
 
                 {!session.globalAnalysis && (
                     <Button size="lg" onClick={synthesizeSession} disabled={isSynthesizing} className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg print:hidden">
@@ -327,8 +382,6 @@ export function SynthesisView({ session }: { session: Session }) {
 // ─── Sub-components ───────────────────────────────────────────
 
 function RatingBreakdown({ data }: { data: { avg: number; count: number; distribution: Record<number, number> } }) {
-    const maxCount = Math.max(...Object.values(data.distribution), 1);
-
     return (
         <Card className="border-slate-200 shadow-sm overflow-hidden">
             <CardContent className="p-6">
@@ -369,34 +422,12 @@ function RatingBreakdown({ data }: { data: { avg: number; count: number; distrib
 }
 
 
-function MultipleChoiceBreakdown({ data, total }: { data: { name: string; value: number }[]; total: number }) {
-    const maxValue = Math.max(...data.map(d => d.value), 1);
-
+function MultipleChoiceBreakdown({ data, total }: { data: { name: string; value: number; isCorrect?: boolean }[]; total: number }) {
     return (
         <Card className="border-slate-200 shadow-sm overflow-hidden">
             <CardContent className="p-6">
                 {data.length > 0 ? (
-                    <div className="space-y-3">
-                        {data.map((item, i) => {
-                            const pct = total > 0 ? Math.round((item.value / total) * 100) : 0;
-                            return (
-                                <div key={i} className="flex items-center gap-4">
-                                    <span className="w-36 shrink-0 text-sm font-medium text-slate-700 truncate">{item.name}</span>
-                                    <div className="flex-1 h-8 bg-slate-100 rounded-lg overflow-hidden">
-                                        <div
-                                            className="h-full bg-rose-500 rounded-lg transition-all duration-500 flex items-center pl-3"
-                                            style={{ width: `${Math.max((item.value / maxValue) * 100, 2)}%` }}
-                                        >
-                                            {item.value > 0 && (
-                                                <span className="text-xs font-bold text-white">{item.value}</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <span className="text-sm font-mono text-slate-400 w-12 text-right">{pct}%</span>
-                                </div>
-                            );
-                        })}
-                    </div>
+                    <ResultsBarChart data={data} total={Math.max(total, 1)} />
                 ) : (
                     <p className="text-slate-400 italic">No responses to display.</p>
                 )}
@@ -406,7 +437,7 @@ function MultipleChoiceBreakdown({ data, total }: { data: { name: string; value:
 }
 
 
-function TextResponsesBreakdown({ answers, analysis }: { answers: string[]; analysis?: any }) {
+function TextResponsesBreakdown({ answers, analysis }: { answers: string[]; analysis?: AnalysisResult }) {
     return (
         <Card className="border-slate-200 shadow-sm overflow-hidden">
             <CardContent className="p-6 space-y-6">

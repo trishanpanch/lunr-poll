@@ -15,7 +15,9 @@ export function CompetitionView({ responses }: CompetitionViewProps) {
     const leaderboard = useMemo(() => {
         // Filter those with scores
         const scored = responses
-            .filter(r => typeof r.content.score === 'number')
+            .filter((response): response is Response & { content: Response["content"] & { score: number } } =>
+                typeof response.content.score === "number"
+            )
             .sort((a, b) => b.content.score - a.content.score) // Descending
             .slice(0, 5); // Top 5
         return scored;

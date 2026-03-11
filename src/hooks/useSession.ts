@@ -76,8 +76,9 @@ export function useSession(code: string, sessionId?: string, options: { enabled?
         }
 
         // Fallback to Code Query
-        // SECURITY FIX: Must include where("status", "==", "OPEN") to match security rules for public reads.
-        const q = query(collection(db, "sessions"), where("code", "==", code), where("status", "==", "OPEN"));
+        // The legacy rules allow authenticated reads on sessions, so we can keep the session visible
+        // after it closes and show post-poll feedback.
+        const q = query(collection(db, "sessions"), where("code", "==", code));
 
         // 1. One-time Fetch
         getDocs(q).then((snapshot) => {

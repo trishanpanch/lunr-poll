@@ -1,8 +1,9 @@
+import { Response } from "@/lib/types";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
 interface WordCloudViewProps {
-    responses: { content: { text: string } }[];
+    responses: Response[];
 }
 
 export function WordCloudView({ responses }: WordCloudViewProps) {

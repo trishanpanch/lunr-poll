@@ -11,7 +11,7 @@ import {
     orderBy,
     onSnapshot,
     getDoc,
-    deleteDoc
+    QueryConstraint
 } from "firebase/firestore";
 
 const ACTIVITIES_COLLECTION = "activities";
@@ -22,14 +22,14 @@ export const createActivity = async (
     folderId?: string,
     defaults?: { timerSeconds?: number; profanityFilter?: boolean }
 ) => {
-    const newActivity: Partial<Activity> = {
+    const newActivity: Record<string, unknown> = {
         ownerId,
         type,
-        folderId: folderId || null as any, // Firestore doesn't like undefined
+        folderId: folderId || null,
         title: "Untitled Activity",
         status: "DRAFT",
-        createdAt: serverTimestamp() as any,
-        updatedAt: serverTimestamp() as any,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
         prompt: { text: "" },
         settings: {
             isAnonymous: false,
@@ -71,11 +71,33 @@ export const getActivity = async (id: string) => {
     return { id: snap.id, ...snap.data() } as Activity;
 };
 
+export const moveActivityToFolder = async (id: string, folderId: string | null) => {
+    await updateActivity(id, { folderId: folderId || null });
+};
+
+export const duplicateActivity = async (activity: Activity, folderId?: string | null) => {
+    const rest = Object.fromEntries(
+        Object.entries(activity).filter(([key]) => !["id", "createdAt", "updatedAt"].includes(key))
+    ) as Omit<Activity, "id" | "createdAt" | "updatedAt">;
+
+    const clonedActivity: Record<string, unknown> = {
+        ...rest,
+        title: activity.title ? `Copy of ${activity.title}` : "Copy of Untitled Activity",
+        status: "DRAFT",
+        folderId: folderId === undefined ? activity.folderId || null : folderId || null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    };
+
+    const docRef = await addDoc(collection(db, ACTIVITIES_COLLECTION), clonedActivity);
+    return docRef.id;
+};
+
 export const useActivities = (ownerId?: string, folderId: string | null = null, onData?: (data: Activity[]) => void) => {
     if (!ownerId) return () => { };
 
     // Base constraints
-    const constraints: any[] = [
+    const constraints: QueryConstraint[] = [
         where("status", "!=", "TRASH"), // Exclude trash
         // In Firestore, if we filter by status, we might need composite index if sorting by createdAt.
         // For now, let's keep it simple.

@@ -1,6 +1,9 @@
 import { Timestamp } from "firebase/firestore";
 
 export type QuestionType = "short_text" | "multiple_choice" | "file_upload" | "rating";
+export type QuestionPurpose = "assessment" | "information_gathering" | "discussion" | "feedback";
+export type QuestionRevealMode = "never" | "after_submission" | "after_session_close";
+export type SessionDeliveryMode = "paced" | "self_paced";
 
 export interface Question {
     id: string;
@@ -8,6 +11,10 @@ export interface Question {
     type: QuestionType;
     options?: string[]; // For multiple choice
     isActive?: boolean;
+    purpose?: QuestionPurpose | null;
+    correctAnswers?: string[] | null;
+    explanation?: string | null;
+    revealMode?: QuestionRevealMode | null;
 }
 
 export type SessionStatus = "DRAFT" | "OPEN" | "CLOSED" | "ARCHIVED";
@@ -21,9 +28,11 @@ export interface Session {
     createdAt: Timestamp;
     activeQuestionId?: string | null;
     activeQuestionIds?: string[];
+    deliveryMode?: SessionDeliveryMode;
     questions: Question[];
     analysis?: Record<string, AnalysisResult>;
     globalAnalysis?: GlobalAnalysis;
+    clonedFromSessionId?: string | null;
 }
 
 export interface TeacherProfile {
@@ -76,6 +85,11 @@ export interface RichContent {
     latex?: string;         // Math notation
 }
 
+export interface ActivityContent {
+    imageUrl?: string;
+    [key: string]: unknown;
+}
+
 export interface ActivityOption {
     id: string;
     content: RichContent;   // Supports rich text/images in options
@@ -98,7 +112,7 @@ export interface ActivitySettings {
 export interface Activity {
     id: string;
     ownerId: string;
-    folderId?: string;      // Organization
+    folderId?: string | null;      // Organization
     title: string;          // Internal name / Heading
 
     type: ActivityType;
@@ -111,7 +125,7 @@ export interface Activity {
     prompt: RichContent;
     options?: ActivityOption[];
     questions?: Activity[]; // For Surveys, we can embed "Sub-Activities" or simplified questions
-    content?: any; // Flexible payload for specific types (e.g. { imageUrl } for heatmap)
+    content?: ActivityContent; // Flexible payload for specific types (e.g. { imageUrl } for heatmap)
 
     // Configuration
     settings: ActivitySettings;
@@ -120,7 +134,7 @@ export interface Activity {
 export interface Folder {
     id: string;
     ownerId: string;
-    parentFolderId?: string;
+    parentFolderId?: string | null;
     name: string;
     createdAt: Timestamp;
     order: number; // sortIndex
@@ -170,7 +184,14 @@ export interface Response {
     activityId: string;
     runId?: string;       // Optional for now, linking to a specific "presentation session"
     participantId: string;
-    content: any;         // Flexible payload: { optionId: "123" } or { text: "answer" }
+    content: {
+        optionId?: string;
+        optionIds?: string[];
+        order?: string[];
+        text?: string;
+        score?: number;
+        [key: string]: unknown;
+    };
     submittedAt: Timestamp;
 
     // Q&A & Moderation
