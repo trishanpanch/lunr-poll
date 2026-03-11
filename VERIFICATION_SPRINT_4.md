@@ -5,10 +5,7 @@
 ## 1. Create a Survey
 1.  Go to Activity Library (`/professor/activities`).
 2.  Click **Create Activity**.
-3.  Select **Survey** type (you might need to ensure backend supports this or just edit an existing one if the UI button is missing, *Wait, I added SurveyEditor hook but not the Create Dialog button? Checked: I need to check CreateActivityDialog.tsx, I haven't edited it yet! I missed adding 'Survey' to the Type selector.*).
-
-> [!WARNING]
-> **Check Step**: Verify "Survey" option exists in Create Dialog. (If not, I will add it).
+3.  Select **Survey** type.
 
 ## 2. Edit Survey
 1.  Add 2 Questions:
@@ -16,16 +13,19 @@
     *   Q2: Open Ended ("Any comments?").
 2.  Click Save.
 
-## 3. Take Survey
-1.  Open Mobile View (`/u/handle`).
-2.  **Verify**:
+## 3. Run & Take Survey
+1.  **Student**: Open Mobile View (`/u/handle`).
+    *   **Verify**: "Waiting for presentation..." screen appears.
+2.  **Professor**: On the Activity Editor page, click **Present** (Play icon).
+3.  **Student**:
+    *   **Verify**: Screen automatically updates to show the Survey.
     *   Progress Bar (0%).
     *   Q1 appears. Select Option -> Progress moves.
     *   Q2 appears. Type text -> Click Next.
     *   Completion Screen ("You're all set!").
 
 ## 4. Archive / Reset
-1.  Go to **Settings** tab in Editor.
+1.  Go to **Activity Settings** (Sidebar or Tab).
 2.  Click **Archive & Reset**.
 3.  Confirm dialog.
 4.  **Verify**:

@@ -5,7 +5,8 @@
 ## 1. Create Q&A Activity
 1.  **Professor**: Create Activity -> **Q&A**.
 2.  Title: "What's on your mind?".
-3.  **UI Check**: You should see the Moderation Dashboard (Two columns: Live Q&A and possibly Moderation Queue if enabled).
+3.  **UI Check**: You should see the Moderation Dashboard.
+4.  **Action**: Click **Present** (Play icon) to go live.
 
 ## 2. Participant Flow
 1.  **Mobile**: Join `/u/handle`.

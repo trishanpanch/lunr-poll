@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprint 9 Design QA</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; background: #f0f0f0; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; padding: 30px; margin-bottom: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; color: #333; }
+        .screenshot { width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .note { color: #666; font-size: 14px; margin-top: 10px; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sprint 9 Design Review</h1>
+        <p>Please review the screenshots below for pixel-perfect precision.</p>
+
+        <div class="card">
+            <h2>1. Professor Synthesis View (Table Baseline)</h2>
+            <p><strong>Goal:</strong> Prevent text overlap in bar charts by moving labels to a dedicated column.</p>
+            <img src="professor_view.png" alt="Professor View" class="screenshot">
+            <p class="note">Labels "London", "Paris", etc. are now aligned left in the table layout.</p>
+        </div>
+
+        <div class="card">
+            <h2>2. Student Response Confirmation</h2>
+            <p><strong>Goal:</strong> Provide immediate green confirmation ("Response submitted") after answering.</p>
+            <img src="student_success.png" alt="Student Success" class="screenshot">
+            <p class="note">Green checkmark and success text appear immediately replacing the input form.</p>
+        </div>
+    </div>
+</body>
+</html>
