@@ -27,3 +27,4 @@
 - [x] AI drawer tab — tab doesn't open the drawer; also move tab from vertical-center to top of the panel
 - [x] URL source material — add URL input to AI panel; server fetches page and extracts text; extracted text populates the source material textarea
 - [x] URL source material — rework: URL should be stored as a chip (not pasted into textarea); text is fetched invisibly at generate time on the server
+- [x] Short Text model answer — show model answer on the question card in the builder canvas (currently only visible in the AI preview, disappears after adding)

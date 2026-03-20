@@ -50,6 +50,7 @@ interface Question {
   options?: string[]; // Multiple Choice answer options
   correctIndex?: number; // Index of the correct answer for Multiple Choice
   tfAnswer?: "True" | "False"; // Correct answer for True / False questions
+  modelAnswer?: string; // Model answer for Short Text questions
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
@@ -927,6 +928,39 @@ function QuestionCard({
             })}
           </div>
         )}
+        {/* Short Text model answer */}
+        {question.type === "Short Text" && question.modelAnswer && (
+          <div style={{ marginTop: 10 }}>
+            <p
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "oklch(0.48 0.18 264)",
+                margin: "0 0 4px",
+                fontFamily: "'Geist', system-ui, sans-serif",
+              }}
+            >
+              Model Answer
+            </p>
+            <p
+              style={{
+                fontSize: 12.5,
+                color: "oklch(0.3 0.12 264)",
+                lineHeight: 1.55,
+                margin: 0,
+                padding: "7px 10px",
+                background: "oklch(0.97 0.02 264 / 0.35)",
+                borderRadius: 8,
+                border: "1px solid oklch(0.88 0.06 264)",
+                fontFamily: "'Geist', system-ui, sans-serif",
+              }}
+            >
+              {question.modelAnswer}
+            </p>
+          </div>
+        )}
         <div style={{ marginTop: 8 }}>
           <span
             style={{
@@ -1527,6 +1561,10 @@ function AiPanel({
         // Carry over True / False correct answer
         if (q.type === "True / False" && (q.correctAnswer === "True" || q.correctAnswer === "False")) {
           base.tfAnswer = q.correctAnswer as "True" | "False";
+        }
+        // Carry over Short Text model answer
+        if (q.type === "Short Text" && q.modelAnswer) {
+          base.modelAnswer = q.modelAnswer;
         }
         return base;
       });
