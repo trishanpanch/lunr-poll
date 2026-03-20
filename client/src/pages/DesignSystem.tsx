@@ -16,7 +16,7 @@ import {
   GripVertical, Trash2, Plus, Loader2, ChevronRight,
 } from "lucide-react";
 
-const DS_PASSWORD = "harvard-ds-2026";
+const DS_PASSWORD = "lunr";
 
 // ── Password Gate ─────────────────────────────────────────────────────────────
 function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
@@ -37,7 +37,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
     <div
       style={{
         minHeight: "100vh",
-        background: "oklch(0.975 0.004 80)",
+        background: "oklch(0.985 0.01 240)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -49,22 +49,22 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
           <div
             style={{
               width: 48, height: 48, borderRadius: "50%",
-              background: "oklch(0.95 0.04 264)",
+              background: "oklch(0.97 0.02 13.9)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            <Lock size={20} style={{ color: "oklch(0.48 0.18 264)" }} />
+            <Lock size={20} style={{ color: "oklch(0.514 0.2 13.9)" }} />
           </div>
           <h1
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700, fontSize: 22,
-              color: "oklch(0.18 0.012 260)", margin: 0,
+              color: "oklch(0.145 0 0)", margin: 0,
             }}
           >
             Design System
           </h1>
-          <p style={{ fontSize: 13, color: "oklch(0.56 0.014 264)", margin: 0 }}>
+          <p style={{ fontSize: 13, color: "oklch(0.556 0 0)", margin: 0 }}>
             Internal reference · Harvard Poll Platform
           </p>
         </div>
@@ -73,7 +73,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
           style={{
             background: "#fff",
             borderRadius: 14,
-            border: "1px solid oklch(0.91 0.005 264)",
+            border: "1px solid oklch(0.922 0 0)",
             padding: "24px 24px 20px",
             boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
             display: "flex", flexDirection: "column", gap: 16,
@@ -99,7 +99,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
                   position: "absolute", right: 10, top: "50%",
                   transform: "translateY(-50%)",
                   background: "none", border: "none",
-                  color: "oklch(0.56 0.014 264)", cursor: "pointer",
+                  color: "oklch(0.556 0 0)", cursor: "pointer",
                   display: "flex", alignItems: "center",
                 }}
               >
@@ -115,7 +115,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
           <Button onClick={attempt} className="w-full">Enter</Button>
         </div>
 
-        <p style={{ textAlign: "center", fontSize: 11, color: "oklch(0.65 0.01 264)", margin: 0 }}>
+        <p style={{ textAlign: "center", fontSize: 11, color: "oklch(0.556 0 0)", margin: 0 }}>
           Not linked from the consumer app.
         </p>
       </div>
@@ -126,11 +126,11 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function SectionHeader({ title, description }: { title: string; description: string }) {
   return (
-    <div style={{ borderBottom: "1px solid oklch(0.91 0.005 264)", paddingBottom: 14, marginBottom: 24 }}>
-      <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 22, color: "oklch(0.18 0.012 260)", margin: "0 0 4px" }}>
+    <div style={{ borderBottom: "1px solid oklch(0.922 0 0)", paddingBottom: 14, marginBottom: 24 }}>
+      <h2 style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 22, color: "oklch(0.145 0 0)", margin: "0 0 4px" }}>
         {title}
       </h2>
-      <p style={{ fontSize: 13, color: "oklch(0.56 0.014 264)", margin: 0, maxWidth: 560, lineHeight: 1.55 }}>
+      <p style={{ fontSize: 13, color: "oklch(0.556 0 0)", margin: 0, maxWidth: 560, lineHeight: 1.55 }}>
         {description}
       </p>
     </div>
@@ -141,14 +141,14 @@ function SubSection({ title, path, children }: { title: string; path: string; ch
   return (
     <div style={{ marginBottom: 32 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12 }}>
-        <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 15, color: "oklch(0.18 0.012 260)", margin: 0 }}>
+        <h3 style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 15, color: "oklch(0.145 0 0)", margin: 0 }}>
           {title}
         </h3>
-        <code style={{ fontSize: 10, fontFamily: "monospace", background: "oklch(0.95 0.003 264)", color: "oklch(0.56 0.014 264)", padding: "2px 7px", borderRadius: 5 }}>
+        <code style={{ fontSize: 10, fontFamily: "'Geist Mono', monospace", background: "oklch(0.95 0.003 264)", color: "oklch(0.556 0 0)", padding: "2px 7px", borderRadius: 5 }}>
           {path}
         </code>
       </div>
-      <div style={{ padding: 20, borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", background: "oklch(0.975 0.004 80)" }}>
+      <div style={{ padding: 20, borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "oklch(0.985 0.01 240)" }}>
         {children}
       </div>
     </div>
@@ -163,7 +163,7 @@ function Swatch({ label, token, value, light = false }: { label: string; token: 
       title={`Copy ${token}`}
       style={{
         display: "flex", flexDirection: "column", overflow: "hidden",
-        borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)",
+        borderRadius: 12, border: "1px solid oklch(0.922 0 0)",
         background: "#fff", cursor: "pointer", textAlign: "left",
         transition: "box-shadow 0.15s",
       }}
@@ -179,9 +179,9 @@ function Swatch({ label, token, value, light = false }: { label: string; token: 
         )}
       </div>
       <div style={{ padding: "10px 10px 12px" }}>
-        <p style={{ fontSize: 11, fontWeight: 600, color: "oklch(0.18 0.012 260)", margin: "0 0 2px" }}>{label}</p>
-        <p style={{ fontSize: 9.5, fontFamily: "monospace", color: "oklch(0.56 0.014 264)", margin: "0 0 1px" }}>{token}</p>
-        <p style={{ fontSize: 9, fontFamily: "monospace", color: "oklch(0.65 0.01 264)", margin: 0 }}>{value}</p>
+        <p style={{ fontSize: 11, fontWeight: 600, color: "oklch(0.145 0 0)", margin: "0 0 2px" }}>{label}</p>
+        <p style={{ fontSize: 9.5, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", margin: "0 0 1px" }}>{token}</p>
+        <p style={{ fontSize: 9, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", margin: 0 }}>{value}</p>
       </div>
     </button>
   );
@@ -189,10 +189,10 @@ function Swatch({ label, token, value, light = false }: { label: string; token: 
 
 function TypeRow({ label, meta, sample, style: s }: { label: string; meta: string; sample: string; style: React.CSSProperties }) {
   return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 20, padding: "16px 0", borderBottom: "1px solid oklch(0.91 0.005 264)" }}>
+    <div style={{ display: "flex", alignItems: "baseline", gap: 20, padding: "16px 0", borderBottom: "1px solid oklch(0.922 0 0)" }}>
       <div style={{ width: 140, flexShrink: 0 }}>
-        <p style={{ fontSize: 11, fontWeight: 600, color: "oklch(0.56 0.014 264)", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 2px" }}>{label}</p>
-        <p style={{ fontSize: 9.5, fontFamily: "monospace", color: "oklch(0.65 0.01 264)", margin: 0 }}>{meta}</p>
+        <p style={{ fontSize: 11, fontWeight: 600, color: "oklch(0.556 0 0)", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 2px" }}>{label}</p>
+        <p style={{ fontSize: 9.5, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", margin: 0 }}>{meta}</p>
       </div>
       <p style={{ margin: 0, ...s }}>{sample}</p>
     </div>
@@ -202,9 +202,9 @@ function TypeRow({ label, meta, sample, style: s }: { label: string; meta: strin
 function SpacingRow({ name, px, rem }: { name: string; px: number; rem: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "6px 0" }}>
-      <span style={{ width: 32, fontSize: 11, fontFamily: "monospace", color: "oklch(0.56 0.014 264)", flexShrink: 0 }}>{name}</span>
+      <span style={{ width: 32, fontSize: 11, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", flexShrink: 0 }}>{name}</span>
       <div style={{ width: px, height: 18, background: "oklch(0.48 0.18 264 / 0.18)", borderRadius: 3, flexShrink: 0 }} />
-      <span style={{ fontSize: 11, color: "oklch(0.65 0.01 264)" }}>{rem} · {px}px</span>
+      <span style={{ fontSize: 11, color: "oklch(0.556 0 0)" }}>{rem} · {px}px</span>
     </div>
   );
 }
@@ -212,21 +212,21 @@ function SpacingRow({ name, px, rem }: { name: string; px: number; rem: string }
 function RadiusRow({ name, token, value }: { name: string; token: string; value: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "6px 0" }}>
-      <span style={{ width: 80, fontSize: 11, fontFamily: "monospace", color: "oklch(0.56 0.014 264)", flexShrink: 0 }}>{name}</span>
+      <span style={{ width: 80, fontSize: 11, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", flexShrink: 0 }}>{name}</span>
       <div style={{ width: 56, height: 36, background: "oklch(0.48 0.18 264 / 0.12)", border: "1.5px solid oklch(0.48 0.18 264 / 0.25)", borderRadius: `var(${token})`, flexShrink: 0 }} />
-      <span style={{ fontSize: 11, fontFamily: "monospace", color: "oklch(0.65 0.01 264)" }}>{token} · {value}</span>
+      <span style={{ fontSize: 11, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)" }}>{token} · {value}</span>
     </div>
   );
 }
 
 function PatternCard({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
   return (
-    <div style={{ borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", background: "#fff", overflow: "hidden" }}>
-      <div style={{ padding: "14px 16px", borderBottom: "1px solid oklch(0.91 0.005 264)" }}>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.18 0.012 260)", margin: "0 0 3px" }}>{title}</p>
-        <p style={{ fontSize: 11.5, color: "oklch(0.56 0.014 264)", margin: 0, lineHeight: 1.5 }}>{description}</p>
+    <div style={{ borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "#fff", overflow: "hidden" }}>
+      <div style={{ padding: "14px 16px", borderBottom: "1px solid oklch(0.922 0 0)" }}>
+        <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: "0 0 3px" }}>{title}</p>
+        <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0, lineHeight: 1.5 }}>{description}</p>
       </div>
-      <div style={{ padding: 16, background: "oklch(0.975 0.004 80)" }}>{children}</div>
+      <div style={{ padding: 16, background: "oklch(0.985 0.01 240)" }}>{children}</div>
     </div>
   );
 }
@@ -234,18 +234,17 @@ function PatternCard({ title, description, children }: { title: string; descript
 // ── Main Design System ────────────────────────────────────────────────────────
 function DesignSystemContent() {
   const colors = [
-    { label: "Primary (Indigo)", token: "--indigo", value: "oklch(0.48 0.18 264)", light: false },
-    { label: "Indigo Light", token: "--indigo-light", value: "oklch(0.95 0.04 264)", light: true },
-    { label: "Crimson (Launch)", token: "--crimson", value: "oklch(0.52 0.22 10)", light: false },
-    { label: "Crimson Hover", token: "--crimson-hover", value: "oklch(0.46 0.22 10)", light: false },
+    { label: "Primary (Crimson)", token: "--primary", value: "oklch(0.514 0.2 13.9)", light: false },
+    { label: "Crimson Hover", token: "--crimson-hover", value: "oklch(0.44 0.2 13.9)", light: false },
+    { label: "Crimson Light", token: "--crimson-light", value: "oklch(0.97 0.04 13.9)", light: true },
     { label: "Violet (AI)", token: "--violet", value: "oklch(0.52 0.22 290)", light: false },
     { label: "Violet Light", token: "--violet-light", value: "oklch(0.96 0.04 290)", light: true },
-    { label: "Background", token: "--background", value: "oklch(0.975 0.004 80)", light: true },
-    { label: "Foreground", token: "--foreground", value: "oklch(0.18 0.012 260)", light: false },
+    { label: "Background", token: "--background", value: "ooklch(0.205 0 0)", light: true },
+    { label: "Foreground", token: "--foreground", value: "oklch(0.145 0 0)", light: false },
     { label: "Card", token: "--card", value: "oklch(1 0 0)", light: true },
     { label: "Muted", token: "--muted", value: "oklch(0.95 0.003 264)", light: true },
-    { label: "Muted Foreground", token: "--muted-foreground", value: "oklch(0.56 0.014 264)", light: false },
-    { label: "Border", token: "--border", value: "oklch(0.91 0.005 264)", light: true },
+    { label: "Muted Foreground", token: "--muted-foreground", value: "oklch(0.556 0 0)", light: false },
+    { label: "Border", token: "--border", value: "oklch(0.922 0 0)", light: true },
     { label: "Destructive", token: "--destructive", value: "oklch(0.57 0.22 27)", light: false },
   ];
 
@@ -270,36 +269,36 @@ function DesignSystemContent() {
   ];
 
   const questionTypes = [
-    { type: "Short Text", icon: <Type size={18} />, color: "oklch(0.48 0.18 264)", bg: "oklch(0.95 0.04 264)", desc: "Open-ended written response", token: "short_text" },
+    { type: "Short Text", icon: <Type size={18} />, color: "oklch(0.514 0.2 13.9)", bg: "oklch(0.97 0.04 13.9)", desc: "Open-ended written response", token: "short_text" },
     { type: "Multiple Choice", icon: <ListChecks size={18} />, color: "oklch(0.52 0.22 290)", bg: "oklch(0.96 0.04 290)", desc: "Select from defined options", token: "multiple_choice" },
     { type: "File Upload", icon: <Paperclip size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.96 0.04 160)", desc: "Students submit a file", token: "file_upload" },
     { type: "Star Rating", icon: <Star size={18} />, color: "oklch(0.62 0.18 60)", bg: "oklch(0.97 0.04 60)", desc: "1–5 star rating scale", token: "rating" },
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "oklch(0.975 0.004 80)", paddingBottom: 80 }}>
+    <div style={{ minHeight: "100vh", background: "oklch(0.985 0.01 240)", paddingBottom: 80 }}>
       {/* Header */}
       <header
         style={{
           position: "sticky", top: 0, zIndex: 50,
-          background: "#fff", borderBottom: "1px solid oklch(0.91 0.005 264)",
+          background: "#fff", borderBottom: "1px solid oklch(0.922 0 0)",
           padding: "14px 32px",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
         }}
       >
         <div>
-          <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 18, color: "oklch(0.18 0.012 260)", margin: "0 0 2px" }}>
-            Harvard Poll — Design System
-          </h1>
-          <p style={{ fontSize: 11.5, color: "oklch(0.56 0.014 264)", margin: 0 }}>
+          <h1 style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 18, color: "oklch(0.145 0 0)", margin: "0 0 2px" }}>
+Harvard Poll — Design System
+        </h1>
+          <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0 }}>
             Internal reference · Not consumer-facing
           </p>
         </div>
         <span
           style={{
-            fontSize: 11, fontFamily: "monospace",
-            background: "oklch(0.95 0.04 264)", color: "oklch(0.48 0.18 264)",
+            fontSize: 11, fontFamily: "'Geist Mono', monospace",
+            background: "oklch(0.97 0.02 13.9)", color: "oklch(0.514 0.2 13.9)",
             padding: "4px 12px", borderRadius: 20, fontWeight: 600,
           }}
         >
@@ -314,15 +313,15 @@ function DesignSystemContent() {
           <SectionHeader title="Foundations" description="The core design decisions that govern every visual element in the product." />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
             {[
-              { title: "Primary Color", desc: "Indigo (oklch 0.48 0.18 264) for all primary interactive elements. Crimson (oklch 0.52 0.22 10) is reserved exclusively for the Launch Session CTA — nowhere else.", accent: "oklch(0.48 0.18 264)" },
-              { title: "Typography", desc: "DM Sans 700 for all headings and labels. Inter 400/500 for body text. Never use a single weight for the entire interface.", accent: "oklch(0.18 0.012 260)" },
+              { title: "Primary Color", desc: "Indigo (oklch 0.48 0.18 264) for all primary interactive elements. Crimson (oklch 0.52 0.22 10) is reserved exclusively for the Launch Session CTA — nowhere else.", accent: "oklch(0.514 0.2 13.9)" },
+              { title: "Typography", desc: "DM Sans 700 for all headings and labels. Inter 400/500 for body text. Never use a single weight for the entire interface.", accent: "oklch(0.145 0 0)" },
               { title: "Radius System", desc: "Base radius is 12px (--radius-lg). All components use calc() offsets from this base. Never hardcode pixel values for border radius.", accent: "oklch(0.52 0.22 290)" },
             ].map((f) => (
-              <div key={f.title} style={{ borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", background: "#fff", overflow: "hidden" }}>
+              <div key={f.title} style={{ borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "#fff", overflow: "hidden" }}>
                 <div style={{ height: 4, background: f.accent }} />
                 <div style={{ padding: "14px 16px" }}>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.18 0.012 260)", margin: "0 0 5px" }}>{f.title}</p>
-                  <p style={{ fontSize: 11.5, color: "oklch(0.56 0.014 264)", margin: 0, lineHeight: 1.55 }}>{f.desc}</p>
+                  <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: "0 0 5px" }}>{f.title}</p>
+                  <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0, lineHeight: 1.55 }}>{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -335,10 +334,10 @@ function DesignSystemContent() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
             {colors.map((c) => <Swatch key={c.token} {...c} />)}
           </div>
-          <div style={{ marginTop: 14, padding: "14px 16px", borderRadius: 10, background: "oklch(0.95 0.003 264)", border: "1px solid oklch(0.91 0.005 264)", fontSize: 12, color: "oklch(0.35 0.015 264)", lineHeight: 1.7 }}>
+          <div style={{ marginTop: 14, padding: "14px 16px", borderRadius: 10, background: "oklch(0.95 0.003 264)", border: "1px solid oklch(0.922 0 0)", fontSize: 12, color: "oklch(0.205 0 0)", lineHeight: 1.7 }}>
             <strong style={{ display: "block", marginBottom: 4, fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.07em" }}>Usage Rules</strong>
-            · <strong>Indigo</strong> is the primary color. Use for buttons, links, active states, focus rings.<br />
-            · <strong>Crimson</strong> is reserved for the Launch Session button only. Do not use elsewhere.<br />
+            · <strong>Crimson</strong> is the primary color. Use for buttons, links, active states, focus rings.<br />
+            · Crimson connects directly to the Harvard brand — use it consistently across all primary actions.<br />
             · <strong>Violet</strong> is the AI feature color. Use only for AI-related UI elements.<br />
             · <strong>Destructive</strong> is for irreversible actions: delete, end session, remove.
           </div>
@@ -347,20 +346,20 @@ function DesignSystemContent() {
         {/* ── Typography ── */}
         <section style={{ marginBottom: 56 }}>
           <SectionHeader title="Typography" description="Two font families, each with a specific role. DM Sans for structure, Inter for readability." />
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", padding: "0 24px" }}>
-            <TypeRow label="Display Heading" meta="DM Sans · 700 · 32px" sample="Session Builder" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 32, color: "oklch(0.18 0.012 260)" }} />
-            <TypeRow label="Heading 2" meta="DM Sans · 700 · 22px" sample="Add a Question" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 22, color: "oklch(0.18 0.012 260)" }} />
-            <TypeRow label="Heading 3" meta="DM Sans · 600 · 16px" sample="Quick Presets" style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 16, color: "oklch(0.18 0.012 260)" }} />
-            <TypeRow label="Body" meta="Inter · 400 · 14px" sample="Choose a question type from the sidebar, use a preset, or generate questions automatically with AI." style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: 14, color: "oklch(0.18 0.012 260)", lineHeight: 1.6 }} />
-            <TypeRow label="Small / Label" meta="Inter · 500 · 11px · caps" sample="ADD A QUESTION" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: 11, textTransform: "uppercase" as const, letterSpacing: "0.09em", color: "oklch(0.56 0.014 264)" }} />
-            <TypeRow label="Mono / Code" meta="monospace · 13px · codes" sample="23EAJB · short_text · oklch(0.48 0.18 264)" style={{ fontFamily: "monospace", fontSize: 13, color: "oklch(0.48 0.18 264)" }} />
+          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid oklch(0.922 0 0)", padding: "0 24px" }}>
+            <TypeRow label="Display Heading" meta="DM Sans · 700 · 32px" sample="Session Builder" style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 32, color: "oklch(0.145 0 0)" }} />
+            <TypeRow label="Heading 2" meta="DM Sans · 700 · 22px" sample="Add a Question" style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 22, color: "oklch(0.145 0 0)" }} />
+            <TypeRow label="Heading 3" meta="DM Sans · 600 · 16px" sample="Quick Presets" style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 16, color: "oklch(0.145 0 0)" }} />
+            <TypeRow label="Body" meta="Inter · 400 · 14px" sample="Choose a question type from the sidebar, use a preset, or generate questions automatically with AI." style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: "oklch(0.145 0 0)", lineHeight: 1.6 }} />
+            <TypeRow label="Small / Label" meta="Inter · 500 · 11px · caps" sample="ADD A QUESTION" style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 500, fontSize: 11, textTransform: "uppercase" as const, letterSpacing: "0.09em", color: "oklch(0.556 0 0)" }} />
+            <TypeRow label="Mono / Code" meta="monospace · 13px · codes" sample="23EAJB · short_text · oklch(0.514 0.2 13.9)" style={{ fontFamily: "'Geist Mono', monospace", fontSize: 13, color: "oklch(0.514 0.2 13.9)" }} />
           </div>
         </section>
 
         {/* ── Spacing ── */}
         <section style={{ marginBottom: 56 }}>
           <SectionHeader title="Spacing" description="Tailwind's 4px base unit. Prefer multiples of 4. Internal padding: 4–6. Section gaps: 8–12. Page margins: 16–20." />
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", padding: "16px 24px" }}>
+          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid oklch(0.922 0 0)", padding: "16px 24px" }}>
             {spacing.map((s) => <SpacingRow key={s.name} {...s} />)}
           </div>
         </section>
@@ -368,7 +367,7 @@ function DesignSystemContent() {
         {/* ── Border Radius ── */}
         <section style={{ marginBottom: 56 }}>
           <SectionHeader title="Border Radius" description="All radius values derive from --radius (12px base). Use named tokens, never hardcode." />
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", padding: "16px 24px" }}>
+          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid oklch(0.922 0 0)", padding: "16px 24px" }}>
             {radii.map((r) => <RadiusRow key={r.name} {...r} />)}
           </div>
         </section>
@@ -393,7 +392,7 @@ function DesignSystemContent() {
                   padding: "9px 22px", borderRadius: 10, border: "none",
                   background: "linear-gradient(135deg, oklch(0.52 0.22 10) 0%, oklch(0.44 0.22 10) 100%)",
                   color: "#fff", fontSize: 14, fontWeight: 700,
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Geist', system-ui, sans-serif",
                   boxShadow: "0 2px 10px oklch(0.52 0.22 10 / 0.3)", cursor: "pointer",
                 }}
                 onClick={() => toast.info("Launch Session clicked")}
@@ -406,7 +405,7 @@ function DesignSystemContent() {
                   padding: "9px 16px", borderRadius: 9, border: "none",
                   background: "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
                   color: "#fff", fontSize: 13, fontWeight: 700,
-                  fontFamily: "'DM Sans', sans-serif", cursor: "pointer",
+                  fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                 }}
                 onClick={() => toast.success("AI generation triggered")}
               >
@@ -426,7 +425,7 @@ function DesignSystemContent() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <Label>Session Code</Label>
-                <Input placeholder="23EAJB" style={{ fontFamily: "monospace", letterSpacing: "0.12em", fontWeight: 700 }} />
+                <Input placeholder="23EAJB" style={{ fontFamily: "'Geist Mono', monospace", letterSpacing: "0.12em", fontWeight: 700 }} />
               </div>
             </div>
           </SubSection>
@@ -444,7 +443,7 @@ function DesignSystemContent() {
               <Badge variant="secondary">Secondary</Badge>
               <Badge variant="outline">Outline</Badge>
               <Badge variant="destructive">Destructive</Badge>
-              <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.95 0.04 264)", color: "oklch(0.48 0.18 264)", padding: "3px 8px", borderRadius: 20 }}>3Q</span>
+              <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.97 0.02 13.9)", color: "oklch(0.514 0.2 13.9)", padding: "3px 8px", borderRadius: 20 }}>3Q</span>
               <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.96 0.04 290)", color: "oklch(0.52 0.22 290)", padding: "3px 8px", borderRadius: 20 }}>AI</span>
             </div>
           </SubSection>
@@ -455,15 +454,15 @@ function DesignSystemContent() {
           <SectionHeader title="Question Types" description="The four question types. Each has a canonical type string, icon, and color. Use these consistently." />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
             {questionTypes.map((qt) => (
-              <div key={qt.type} style={{ borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", background: "#fff", padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+              <div key={qt.type} style={{ borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "#fff", padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 9, background: qt.bg, display: "flex", alignItems: "center", justifyContent: "center", color: qt.color }}>
                   {qt.icon}
                 </div>
                 <div>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.18 0.012 260)", margin: "0 0 3px" }}>{qt.type}</p>
-                  <p style={{ fontSize: 11, color: "oklch(0.56 0.014 264)", margin: 0 }}>{qt.desc}</p>
+                  <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: "0 0 3px" }}>{qt.type}</p>
+                  <p style={{ fontSize: 11, color: "oklch(0.556 0 0)", margin: 0 }}>{qt.desc}</p>
                 </div>
-                <code style={{ fontSize: 10, fontFamily: "monospace", background: "oklch(0.95 0.003 264)", color: "oklch(0.56 0.014 264)", padding: "3px 8px", borderRadius: 5, display: "block" }}>
+                <code style={{ fontSize: 10, fontFamily: "'Geist Mono', monospace", background: "oklch(0.95 0.003 264)", color: "oklch(0.556 0 0)", padding: "3px 8px", borderRadius: 5, display: "block" }}>
                   {qt.token}
                 </code>
               </div>
@@ -479,10 +478,10 @@ function DesignSystemContent() {
               title="Empty States"
               description="Always include: a muted icon, a short heading, a one-sentence explanation, and at least one actionable CTA. Never leave a blank canvas with only descriptive text."
             >
-              <div style={{ borderRadius: 10, border: "2px dashed oklch(0.91 0.005 264)", padding: "24px 16px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <div style={{ borderRadius: 10, border: "2px dashed oklch(0.922 0 0)", padding: "24px 16px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                 <div style={{ fontSize: 28, opacity: 0.25 }}>🗂️</div>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.18 0.012 260)", margin: 0 }}>No questions yet</p>
-                <p style={{ fontSize: 11.5, color: "oklch(0.56 0.014 264)", margin: 0 }}>Add a question or use a preset to get started.</p>
+                <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: 0 }}>No questions yet</p>
+                <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0 }}>Add a question or use a preset to get started.</p>
                 <Button size="sm" style={{ marginTop: 4 }}><Plus size={13} /> Add Question</Button>
               </div>
             </PatternCard>
@@ -498,20 +497,20 @@ function DesignSystemContent() {
                   { label: "Launch & share", sub: "Students join with the code.", pending: true },
                 ].map((s, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, position: "relative" }}>
-                    {i < 2 && <div style={{ position: "absolute", left: 13, top: 28, width: 2, height: 24, background: "oklch(0.91 0.005 264)" }} />}
+                    {i < 2 && <div style={{ position: "absolute", left: 13, top: 28, width: 2, height: 24, background: "oklch(0.922 0 0)" }} />}
                     <div style={{
                       width: 28, height: 28, borderRadius: "50%", flexShrink: 0, position: "relative", zIndex: 1,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: 11, fontWeight: 700,
-                      background: s.done ? "oklch(0.92 0.08 160)" : s.active ? "oklch(0.48 0.18 264)" : "oklch(0.95 0.003 264)",
-                      color: s.done ? "oklch(0.38 0.14 160)" : s.active ? "#fff" : "oklch(0.56 0.014 264)",
+                      background: s.done ? "oklch(0.92 0.08 160)" : s.active ? "oklch(0.514 0.2 13.9)" : "oklch(0.95 0.003 264)",
+                      color: s.done ? "oklch(0.38 0.14 160)" : s.active ? "#fff" : "oklch(0.556 0 0)",
                       boxShadow: s.active ? "0 0 0 4px oklch(0.48 0.18 264 / 0.15)" : "none",
                     }}>
                       {s.done ? <CheckCircle2 size={14} /> : s.active ? i + 1 : <Circle size={11} />}
                     </div>
                     <div style={{ paddingBottom: i < 2 ? 20 : 0, paddingTop: 2 }}>
-                      <p style={{ fontSize: 12, fontWeight: 600, color: s.pending ? "oklch(0.65 0.01 264)" : "oklch(0.18 0.012 260)", margin: "0 0 1px" }}>{s.label}</p>
-                      <p style={{ fontSize: 11, color: "oklch(0.65 0.01 264)", margin: 0 }}>{s.sub}</p>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: s.pending ? "oklch(0.88 0.04 13.9)" : "oklch(0.145 0 0)", margin: "0 0 1px" }}>{s.label}</p>
+                      <p style={{ fontSize: 11, color: "oklch(0.556 0 0)", margin: 0 }}>{s.sub}</p>
                     </div>
                   </div>
                 ))}
@@ -524,10 +523,10 @@ function DesignSystemContent() {
             >
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {["What should we START doing?", "What should we STOP doing?"].map((q, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, border: "1px solid oklch(0.91 0.005 264)", background: "#fff" }}>
-                    <GripVertical size={15} style={{ color: "oklch(0.75 0.01 264)", cursor: "grab", flexShrink: 0 }} />
-                    <span style={{ fontSize: 10, fontFamily: "monospace", color: "oklch(0.65 0.01 264)", flexShrink: 0 }}>Q{i + 1}</span>
-                    <span style={{ fontSize: 12, color: "oklch(0.18 0.012 260)", flex: 1 }}>{q}</span>
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 9, border: "1px solid oklch(0.922 0 0)", background: "#fff" }}>
+                    <GripVertical size={15} style={{ color: "oklch(0.708 0 0)", cursor: "grab", flexShrink: 0 }} />
+                    <span style={{ fontSize: 10, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", flexShrink: 0 }}>Q{i + 1}</span>
+                    <span style={{ fontSize: 12, color: "oklch(0.145 0 0)", flex: 1 }}>{q}</span>
                   </div>
                 ))}
               </div>
@@ -550,9 +549,9 @@ function DesignSystemContent() {
         <section style={{ marginBottom: 56 }}>
           <SectionHeader title="Voice & Tone" description="How the product speaks to professors and students. Concise, action-oriented, never passive." />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            <div style={{ borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", background: "#fff", overflow: "hidden" }}>
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid oklch(0.91 0.005 264)", background: "oklch(0.96 0.05 160)" }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, color: "oklch(0.35 0.14 160)", margin: 0 }}>Do</p>
+            <div style={{ borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "#fff", overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid oklch(0.922 0 0)", background: "oklch(0.96 0.05 160)" }}>
+                <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 13, color: "oklch(0.35 0.14 160)", margin: 0 }}>Do</p>
               </div>
               <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
                 {[
@@ -564,14 +563,14 @@ function DesignSystemContent() {
                 ].map((s) => (
                   <div key={s} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
                     <CheckCircle2 size={14} style={{ color: "oklch(0.52 0.18 160)", flexShrink: 0, marginTop: 1 }} />
-                    <span style={{ fontSize: 12.5, color: "oklch(0.18 0.012 260)" }}>{s}</span>
+                    <span style={{ fontSize: 12.5, color: "oklch(0.145 0 0)" }}>{s}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{ borderRadius: 12, border: "1px solid oklch(0.91 0.005 264)", background: "#fff", overflow: "hidden" }}>
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid oklch(0.91 0.005 264)", background: "oklch(0.97 0.04 27)" }}>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, color: "oklch(0.57 0.22 27)", margin: 0 }}>Don't</p>
+            <div style={{ borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "#fff", overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid oklch(0.922 0 0)", background: "oklch(0.97 0.04 27)" }}>
+                <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 13, color: "oklch(0.57 0.22 27)", margin: 0 }}>Don't</p>
               </div>
               <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
                 {[
@@ -583,7 +582,7 @@ function DesignSystemContent() {
                 ].map((s) => (
                   <div key={s} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
                     <div style={{ width: 14, height: 14, borderRadius: "50%", border: "2px solid oklch(0.57 0.22 27)", flexShrink: 0, marginTop: 1 }} />
-                    <span style={{ fontSize: 12.5, color: "oklch(0.65 0.01 264)", textDecoration: "line-through" }}>{s}</span>
+                    <span style={{ fontSize: 12.5, color: "oklch(0.556 0 0)", textDecoration: "line-through" }}>{s}</span>
                   </div>
                 ))}
               </div>
@@ -592,9 +591,9 @@ function DesignSystemContent() {
         </section>
 
         {/* Footer */}
-        <footer style={{ borderTop: "1px solid oklch(0.91 0.005 264)", paddingTop: 24, textAlign: "center" }}>
-          <p style={{ fontSize: 11.5, color: "oklch(0.65 0.01 264)", margin: "0 0 3px" }}>Harvard Poll Platform — Design System</p>
-          <p style={{ fontSize: 11, fontFamily: "monospace", color: "oklch(0.75 0.01 264)", margin: 0 }}>
+        <footer style={{ borderTop: "1px solid oklch(0.922 0 0)", paddingTop: 24, textAlign: "center" }}>
+          <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: "0 0 3px" }}>Harvard Poll Platform — Design System</p>
+          <p style={{ fontSize: 11, fontFamily: "'Geist Mono', monospace", color: "oklch(0.708 0 0)", margin: 0 }}>
             Internal use only · src/app/design-system/page.tsx
           </p>
         </footer>

@@ -116,15 +116,15 @@ function Topbar({
             onBlur={() => setEditing(false)}
             onKeyDown={(e) => e.key === "Enter" && setEditing(false)}
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: 17,
-              color: "oklch(0.18 0.012 260)",
-              border: "1.5px solid oklch(0.48 0.18 264)",
+              color: "oklch(0.145 0 0)",
+              border: "1.5px solid oklch(0.514 0.2 13.9)",
               borderRadius: 8,
               padding: "2px 8px",
               outline: "none",
-              background: "oklch(0.97 0.02 264)",
+              background: "oklch(0.97 0.02 13.9)",
               minWidth: 180,
             }}
           />
@@ -135,10 +135,10 @@ function Topbar({
               display: "flex",
               alignItems: "center",
               gap: 6,
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: 17,
-              color: "oklch(0.18 0.012 260)",
+              color: "oklch(0.145 0 0)",
               background: "none",
               border: "none",
               padding: "2px 4px",
@@ -167,9 +167,9 @@ function Topbar({
           <span
             style={{
               fontWeight: 700,
-              color: "oklch(0.48 0.18 264)",
+              color: "oklch(0.514 0.2 13.9)",
               letterSpacing: "0.1em",
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
             }}
           >
             23EAJB
@@ -184,15 +184,15 @@ function Topbar({
           style={{
             padding: "8px 18px",
             borderRadius: 10,
-            border: "1.5px solid oklch(0.91 0.005 264)",
+            border: "1.5px solid oklch(0.922 0 0)",
             background: "#fff",
-            color: "oklch(0.35 0.01 264)",
+            color: "oklch(0.205 0 0)",
             fontSize: 13,
             fontWeight: 500,
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Geist', system-ui, sans-serif",
             transition: "border-color 0.15s, background 0.15s",
           }}
-          className="hover:border-[oklch(0.48_0.18_264)] hover:bg-[oklch(0.97_0.02_264)] hover:text-[oklch(0.48_0.18_264)] transition-all"
+          className="hover:border-[oklch(0.514_0.2_13.9)] hover:bg-[oklch(0.97_0.02_13.9)] hover:text-[oklch(0.514_0.2_13.9)] transition-all"
         >
           Save Draft
         </button>
@@ -205,12 +205,12 @@ function Topbar({
             padding: "9px 22px",
             borderRadius: 10,
             border: "none",
-            background: "linear-gradient(135deg, oklch(0.52 0.22 10) 0%, oklch(0.44 0.22 10) 100%)",
+            background: "linear-gradient(135deg, oklch(0.514 0.2 13.9) 0%, oklch(0.44 0.2 13.9) 100%)",
             color: "#fff",
             fontSize: 14,
             fontWeight: 700,
-            fontFamily: "'DM Sans', sans-serif",
-            boxShadow: "0 2px 10px oklch(0.52 0.22 10 / 0.3)",
+            fontFamily: "'Geist', system-ui, sans-serif",
+            boxShadow: "0 2px 10px oklch(0.514 0.2 13.9 / 0.3)",
             transition: "opacity 0.15s, box-shadow 0.15s",
           }}
           className="hover:opacity-90 hover:shadow-lg transition-all"
@@ -263,7 +263,7 @@ function Sidebar({
           <Sparkles size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
           <span
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: 14,
               color: "oklch(0.38 0.18 290)",
@@ -293,7 +293,7 @@ function Sidebar({
             color: "#fff",
             fontSize: 13,
             fontWeight: 700,
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Geist', system-ui, sans-serif",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -343,15 +343,15 @@ function Sidebar({
                   gap: 7,
                   padding: "14px 8px",
                   borderRadius: 12,
-                  border: "1.5px solid oklch(0.91 0.005 264)",
-                  background: "oklch(0.985 0.002 264)",
+                  border: "1.5px solid oklch(0.922 0 0)",
+                  background: "oklch(0.97 0.02 13.9)",
                   fontSize: 12,
                   fontWeight: 500,
-                  fontFamily: "'Inter', sans-serif",
-                  color: "oklch(0.35 0.01 264)",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  color: "oklch(0.205 0 0)",
                   transition: "all 0.15s",
                 }}
-                className="hover:border-[oklch(0.48_0.18_264)] hover:bg-[oklch(0.97_0.03_264)] hover:text-[oklch(0.48_0.18_264)] hover:shadow-sm transition-all"
+                className="hover:border-[oklch(0.514_0.2_13.9)] hover:bg-[oklch(0.97_0.02_13.9)] hover:text-[oklch(0.514_0.2_13.9)] hover:shadow-sm transition-all"
               >
                 <span style={{ color: meta.color }}>{meta.icon}</span>
                 {type}
@@ -386,12 +386,12 @@ function Sidebar({
                 gap: 10,
                 padding: "10px 12px",
                 borderRadius: 10,
-                border: "1.5px solid oklch(0.91 0.005 264)",
-                background: "oklch(0.985 0.002 264)",
+                border: "1.5px solid oklch(0.922 0 0)",
+                background: "oklch(0.985 0 0)",
                 fontSize: 13,
                 fontWeight: 500,
-                fontFamily: "'Inter', sans-serif",
-                color: "oklch(0.35 0.01 264)",
+                fontFamily: "'Geist', system-ui, sans-serif",
+                color: "oklch(0.205 0 0)",
                 transition: "all 0.15s",
                 textAlign: "left",
               }}
@@ -532,7 +532,7 @@ function OnboardingSteps({
             <div style={{ paddingBottom: i < steps.length - 1 ? 22 : 0, paddingTop: 3 }}>
               <p
                 style={{
-                  fontFamily: "'DM Sans', sans-serif",
+                  fontFamily: "'Geist', system-ui, sans-serif",
                   fontWeight: 600,
                   fontSize: 14,
                   color: step.active || step.done ? "oklch(0.18 0.012 260)" : "oklch(0.65 0.01 264)",
@@ -567,7 +567,7 @@ function OnboardingSteps({
           textDecoration: "underline",
           whiteSpace: "nowrap",
           marginTop: 2,
-          fontFamily: "'Inter', sans-serif",
+          fontFamily: "'Geist', system-ui, sans-serif",
         }}
         className="hover:text-[oklch(0.48_0.18_264)] transition-colors"
       >
@@ -607,10 +607,10 @@ function EmptyState({
       <div style={{ fontSize: 38, opacity: 0.25, lineHeight: 1 }}>🗂️</div>
       <p
         style={{
-          fontFamily: "'DM Sans', sans-serif",
+          fontFamily: "'Geist', system-ui, sans-serif",
           fontWeight: 700,
           fontSize: 16,
-          color: "oklch(0.35 0.01 264)",
+          color: "oklch(0.205 0 0)",
           margin: 0,
         }}
       >
@@ -641,7 +641,7 @@ function EmptyState({
             color: "#fff",
             fontSize: 13,
             fontWeight: 700,
-            fontFamily: "'DM Sans', sans-serif",
+            fontFamily: "'Geist', system-ui, sans-serif",
             boxShadow: "0 2px 8px oklch(0.52 0.22 290 / 0.25)",
           }}
           className="hover:opacity-90 transition-opacity"
@@ -654,12 +654,12 @@ function EmptyState({
           style={{
             padding: "9px 20px",
             borderRadius: 10,
-            border: "1.5px solid oklch(0.91 0.005 264)",
+            border: "1.5px solid oklch(0.922 0 0)",
             background: "#fff",
-            color: "oklch(0.35 0.01 264)",
+            color: "oklch(0.205 0 0)",
             fontSize: 13,
             fontWeight: 500,
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Geist', system-ui, sans-serif",
           }}
           className="hover:border-[oklch(0.48_0.18_264)] hover:text-[oklch(0.48_0.18_264)] transition-all"
         >
@@ -687,7 +687,7 @@ function QuestionCard({
       style={{
         background: "#fff",
         borderRadius: 14,
-        border: "1.5px solid oklch(0.91 0.005 264)",
+        border: "1.5px solid oklch(0.922 0 0)",
         padding: "16px 18px",
         display: "flex",
         alignItems: "flex-start",
@@ -736,7 +736,7 @@ function QuestionCard({
             letterSpacing: "0.08em",
             color: meta.color,
             margin: "0 0 4px",
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Geist', system-ui, sans-serif",
           }}
         >
           {question.type}
@@ -745,10 +745,10 @@ function QuestionCard({
           style={{
             fontSize: 14,
             fontWeight: 500,
-            color: "oklch(0.18 0.012 260)",
+            color: "oklch(0.145 0 0)",
             margin: 0,
             lineHeight: 1.5,
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'Geist', system-ui, sans-serif",
           }}
         >
           {question.text}
@@ -762,7 +762,7 @@ function QuestionCard({
               background: "oklch(0.94 0.003 264)",
               color: "oklch(0.56 0.01 264)",
               fontWeight: 500,
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
             }}
           >
             Q{index + 1}
@@ -818,7 +818,7 @@ function AddQuestionModal({
         <DialogHeader>
           <DialogTitle
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               display: "flex",
               alignItems: "center",
               gap: 8,
@@ -836,8 +836,8 @@ function AddQuestionModal({
             style={{
               fontSize: 13,
               fontWeight: 600,
-              color: "oklch(0.35 0.01 264)",
-              fontFamily: "'Inter', sans-serif",
+              color: "oklch(0.205 0 0)",
+              fontFamily: "'Geist', system-ui, sans-serif",
             }}
           >
             Question text
@@ -867,14 +867,13 @@ function AddQuestionModal({
             onClick={() => text.trim() && onConfirm(text.trim())}
             disabled={!text.trim()}
             style={{
-              background: "oklch(0.48 0.18 264)",
+              background: "oklch(0.514 0.2 13.9)",
               color: "#fff",
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
             }}
           >
-            Add Question
-          </Button>
+            Add Question          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -913,7 +912,7 @@ function MagicModal({
         <DialogHeader>
           <DialogTitle
             style={{
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontSize: 17,
               display: "flex",
               alignItems: "center",
@@ -930,8 +929,8 @@ function MagicModal({
             style={{
               fontSize: 13,
               fontWeight: 600,
-              color: "oklch(0.35 0.01 264)",
-              fontFamily: "'Inter', sans-serif",
+              color: "oklch(0.205 0 0)",
+              fontFamily: "'Geist', system-ui, sans-serif",
             }}
           >
             Paste your lecture notes, topic, or learning objectives
@@ -971,7 +970,7 @@ function MagicModal({
             style={{
               background: "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
               color: "#fff",
-              fontFamily: "'DM Sans', sans-serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
@@ -1117,7 +1116,7 @@ export default function Home() {
                   color: "oklch(0.62 0.01 264)",
                   fontSize: 13,
                   fontWeight: 500,
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "'Geist', system-ui, sans-serif",
                   transition: "all 0.15s",
                   marginTop: 4,
                 }}

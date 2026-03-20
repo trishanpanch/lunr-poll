@@ -1,8 +1,14 @@
 /* ── Design Philosophy: Structured Clarity / Swiss Information Design ──
-   DM Sans 700 for headings, Inter 400/500 for body.
-   Indigo (#5B5FC7) primary, Crimson (#C0185A) for launch CTA only.
-   Fixed sidebar + document canvas. Step tracker onboarding.
-   Warm off-white (#F7F6F3) background. Zero decoration.
+   SOURCE OF TRUTH: These tokens match harvard-poll/src/app/globals.css exactly.
+   Any token change here must be pushed to the GitHub repo via: pnpm run sync-ds
+
+   Primary:     Crimson  oklch(0.514 0.2 13.9)   — all primary actions
+   AI Accent:   Violet   oklch(0.52 0.22 290)     — AI generation UI only
+   Destructive: Red-org  oklch(0.577 0.245 27.325) — delete / end session
+   Background:  Slate-50 oklch(0.985 0.01 240)    — page background
+
+   Fonts: Geist Sans (UI body), Geist Mono (codes/values), Playfair Display (display headings)
+   Radius base: 10px (--radius-lg)
 */
 
 @import "tailwindcss";
@@ -15,6 +21,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -34,38 +43,86 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "DM Sans", system-ui, sans-serif;
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
+  --font-serif: "Playfair Display", Georgia, serif;
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.975 0.004 80);
-  --foreground: oklch(0.18 0.012 260);
+  /* ── Radius ── */
+  --radius: 0.625rem; /* 10px base — matches harvard-poll */
+
+  /* ── Semantic tokens — identical to harvard-poll globals.css ── */
+  --background: oklch(0.985 0.01 240);       /* slate-50ish */
+  --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.012 260);
+  --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.012 260);
-  --primary: oklch(0.48 0.18 264);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.514 0.2 13.9);          /* crimson / rose-700 */
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.003 264);
-  --secondary-foreground: oklch(0.35 0.015 264);
-  --muted: oklch(0.95 0.003 264);
-  --muted-foreground: oklch(0.56 0.014 264);
-  --accent: oklch(0.95 0.003 264);
-  --accent-foreground: oklch(0.18 0.012 260);
-  --destructive: oklch(0.57 0.22 27);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.91 0.005 264);
-  --input: oklch(0.91 0.005 264);
-  --ring: oklch(0.48 0.18 264);
-  /* Custom tokens */
-  --crimson: oklch(0.52 0.22 10);
-  --crimson-hover: oklch(0.46 0.22 10);
-  --indigo: oklch(0.48 0.18 264);
-  --indigo-light: oklch(0.95 0.04 264);
-  --violet: oklch(0.52 0.22 290);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.514 0.2 13.9);
+
+  /* ── Chart colors ── */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+
+  /* ── Sidebar ── */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* ── Custom named tokens (use these in components) ── */
+  --crimson: oklch(0.514 0.2 13.9);
+  --crimson-hover: oklch(0.44 0.2 13.9);
+  --crimson-light: oklch(0.97 0.04 13.9);
+  --violet: oklch(0.52 0.22 290);            /* AI accent only */
   --violet-light: oklch(0.96 0.04 290);
+  --violet-hover: oklch(0.46 0.22 290);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.6 0.18 13.9);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6 0.18 13.9);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -75,11 +132,8 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: "Inter", system-ui, sans-serif;
+    font-family: "Geist", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: "DM Sans", system-ui, sans-serif;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -110,11 +164,11 @@
   /* ── Custom scrollbar ── */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: oklch(0.85 0.005 264); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: oklch(0.85 0 0); border-radius: 3px; }
 
   /* ── Card entrance animation ── */
   @keyframes card-in {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
   }
   .card-enter { animation: card-in 0.18s ease-out both; }
