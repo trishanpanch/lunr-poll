@@ -35,6 +35,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { trpc } from "@/lib/trpc";
+import { Link as LinkIcon } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type QuestionType = "Short Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False";
@@ -1387,9 +1389,34 @@ function AiPanel({
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+  const [urlLoading, setUrlLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollBodyRef = useRef<HTMLDivElement>(null);
+
+  const fetchUrlMutation = trpc.session.fetchUrl.useMutation({
+    onSuccess: (data) => {
+      setContent((prev) => prev + (prev ? "\n\n" : "") + data.text);
+      setUrlInput("");
+      setUrlLoading(false);
+      toast.success("Page content extracted");
+      scrollPanelToBottom();
+    },
+    onError: (err) => {
+      setUrlLoading(false);
+      toast.error(err.message || "Failed to fetch URL");
+    },
+  });
+
+  const handleFetchUrl = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    let url = trimmed;
+    if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+    setUrlLoading(true);
+    fetchUrlMutation.mutate({ url });
+  };
 
   const scrollPanelToBottom = () => {
     requestAnimationFrame(() => {
@@ -1639,6 +1666,73 @@ function AiPanel({
                     <span style={{ color: "oklch(0.65 0 0)", fontSize: 11 }}>TXT, PDF, DOCX supported</span>
                   </span>
                   <input ref={fileInputRef} type="file" accept=".txt,.pdf,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+                </div>
+
+                {/* URL input */}
+                <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+                  <div style={{ flex: 1, position: "relative" }}>
+                    <LinkIcon
+                      size={13}
+                      style={{
+                        position: "absolute",
+                        left: 9,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "oklch(0.65 0 0)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                    <input
+                      type="url"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleFetchUrl()}
+                      placeholder="Paste a URL to extract text…"
+                      disabled={urlLoading || loading}
+                      style={{
+                        width: "100%",
+                        height: 34,
+                        paddingLeft: 28,
+                        paddingRight: 10,
+                        borderRadius: 8,
+                        border: "1.5px solid oklch(0.88 0 0)",
+                        fontSize: 12,
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        color: "oklch(0.205 0 0)",
+                        background: "#fff",
+                        outline: "none",
+                        boxSizing: "border-box",
+                        transition: "border-color 0.15s",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.88 0 0)"; }}
+                    />
+                  </div>
+                  <button
+                    onClick={handleFetchUrl}
+                    disabled={!urlInput.trim() || urlLoading || loading}
+                    style={{
+                      height: 34,
+                      padding: "0 12px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: !urlInput.trim() || urlLoading || loading
+                        ? "oklch(0.88 0 0)"
+                        : "oklch(0.52 0.22 290)",
+                      color: !urlInput.trim() || urlLoading || loading ? "oklch(0.6 0 0)" : "#fff",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      cursor: !urlInput.trim() || urlLoading || loading ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 5,
+                      flexShrink: 0,
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {urlLoading ? <Loader2 size={12} className="animate-spin" /> : "Fetch"}
+                  </button>
                 </div>
 
                 <p style={{ margin: "0 0 6px", fontSize: 11.5, fontWeight: 600, color: "oklch(0.65 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center" }}>or paste text</p>
