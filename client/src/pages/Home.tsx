@@ -79,10 +79,16 @@ function uid() {
 function Topbar({
   sessionName,
   onNameChange,
+  onNameSave,
+  sessionCode,
+  isUntitled,
   onLaunch,
 }: {
   sessionName: string;
   onNameChange: (v: string) => void;
+  onNameSave: (name: string) => void;
+  sessionCode: string;
+  isUntitled: boolean;
   onLaunch: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -91,6 +97,11 @@ function Topbar({
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
+
+  const commitName = () => {
+    setEditing(false);
+    onNameSave(sessionName);
+  };
 
   return (
     <header
@@ -115,18 +126,18 @@ function Topbar({
             ref={inputRef}
             value={sessionName}
             onChange={(e) => onNameChange(e.target.value)}
-            onBlur={() => setEditing(false)}
-            onKeyDown={(e) => e.key === "Enter" && setEditing(false)}
+            onBlur={commitName}
+            onKeyDown={(e) => e.key === "Enter" && commitName()}
             style={{
               fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: 17,
               color: "oklch(0.145 0 0)",
-              border: "1.5px solid oklch(0.514 0.2 13.9)",
+              border: "1.5px solid oklch(0.45 0.22 264)",
               borderRadius: 8,
               padding: "2px 8px",
               outline: "none",
-              background: "oklch(0.97 0.02 13.9)",
+              background: "oklch(0.97 0.02 264)",
               minWidth: 180,
             }}
           />
@@ -140,12 +151,13 @@ function Topbar({
               fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: 17,
-              color: "oklch(0.145 0 0)",
+              color: isUntitled ? "oklch(0.65 0.01 264)" : "oklch(0.145 0 0)",
               background: "none",
-              border: "none",
+              border: isUntitled ? "1.5px dashed oklch(0.82 0.01 264)" : "none",
               padding: "2px 4px",
               borderRadius: 6,
               cursor: "text",
+              animation: isUntitled ? "pulse-border 2s ease-in-out infinite" : "none",
             }}
             className="group hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors"
           >
@@ -162,19 +174,19 @@ function Topbar({
             fontSize: 12,
             color: "oklch(0.556 0 0)",
             paddingLeft: 4,
-            letterSpacing: "0.03em",
+            letterSpacing: "0.03em", marginTop: '-4px',
           }}
         >
           Code:{" "}
           <span
             style={{
               fontWeight: 700,
-              color: "oklch(0.514 0.2 13.9)",
+              color: "oklch(0.45 0.22 264)",
               letterSpacing: "0.1em",
               fontFamily: "'Geist', system-ui, sans-serif",
             }}
           >
-            23EAJB
+            {sessionCode}
           </span>
         </span>
       </div>
@@ -426,10 +438,12 @@ function Sidebar({
 function OnboardingSteps({
   hasQuestions,
   hasNamed,
+  sessionCode,
   onDismiss,
 }: {
   hasQuestions: boolean;
   hasNamed: boolean;
+  sessionCode: string;
   onDismiss: () => void;
 }) {
   const steps = [
@@ -450,7 +464,7 @@ function OnboardingSteps({
       sub: (
         <>
           Hit <strong>Launch Session</strong> — students join with code{" "}
-          <strong style={{ color: "oklch(0.55 0.2 250)", letterSpacing: "0.08em" }}>23EAJB</strong>.
+          <strong style={{ color: "oklch(0.55 0.2 250)", letterSpacing: "0.08em" }}>{sessionCode}</strong>.
         </>
       ),
       done: false,
@@ -679,10 +693,12 @@ function QuestionCard({
   question,
   index,
   onRemove,
+  iconNudge = 1,
 }: {
   question: Question;
   index: number;
   onRemove: () => void;
+  iconNudge?: number;
 }) {
   const meta = TYPE_META[question.type];
   return (
@@ -704,9 +720,10 @@ function QuestionCard({
       <div
         style={{
           color: "oklch(0.82 0.005 264)",
-          marginTop: 2,
+          marginTop: 3,
           cursor: "grab",
           flexShrink: 0,
+          alignSelf: "flex-start",
         }}
         title="Drag to reorder"
       >
@@ -716,16 +733,16 @@ function QuestionCard({
       {/* Type icon */}
       <div
         style={{
-          width: 34,
-          height: 34,
-          borderRadius: 9,
+          width: 28,
+          height: 28,
+          borderRadius: 7,
           background: `${meta.color}18`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
           color: meta.color,
-          marginTop: 0,
+          marginTop: iconNudge,
           alignSelf: "flex-start",
         }}
       >
@@ -966,7 +983,7 @@ function AddQuestionModal({
             onClick={() => text.trim() && onConfirm(text.trim())}
             disabled={!text.trim()}
             style={{
-              background: "oklch(0.514 0.2 13.9)",
+              background: "oklch(0.45 0.22 264)",
               color: "#fff",
               fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
@@ -1087,11 +1104,31 @@ function MagicModal({
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function Home() {
-  const [sessionName, setSessionName] = useState("Untitled Session");
+  // Session name — persisted in localStorage, only "saved" on blur/Enter
+  const [sessionName, setSessionName] = useState(
+    () => localStorage.getItem("lunr_session_name") || "Untitled Session"
+  );
+  const [savedName, setSavedName] = useState(
+    () => localStorage.getItem("lunr_session_name") || "Untitled Session"
+  );
+  const hasNamed = savedName.trim() !== "Untitled Session" && savedName.trim() !== "";
+
+  // Dynamic session code — generated once and persisted
+  const [sessionCode] = useState(() => {
+    const stored = localStorage.getItem("lunr_session_code");
+    if (stored) return stored;
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const code = Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    localStorage.setItem("lunr_session_code", code);
+    return code;
+  });
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(
     () => localStorage.getItem("lunr_onboarding_done") !== "true"
   );
+
+  const iconNudge = -3;
 
   const handleLaunch = () => {
     localStorage.setItem("lunr_onboarding_done", "true");
@@ -1170,7 +1207,17 @@ export default function Home() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
-      <Topbar sessionName={sessionName} onNameChange={setSessionName} onLaunch={handleLaunch} />
+      <Topbar
+        sessionName={sessionName}
+        onNameChange={setSessionName}
+        onNameSave={(name) => {
+          setSavedName(name);
+          localStorage.setItem("lunr_session_name", name);
+        }}
+        sessionCode={sessionCode}
+        isUntitled={!hasNamed}
+        onLaunch={handleLaunch}
+      />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <Sidebar
@@ -1194,10 +1241,12 @@ export default function Home() {
           {showOnboarding && (
             <OnboardingSteps
               hasQuestions={questions.length > 0}
-              hasNamed={sessionName.trim() !== "Untitled Session" && sessionName.trim() !== ""}
+              hasNamed={hasNamed}
+              sessionCode={sessionCode}
               onDismiss={() => setShowOnboarding(false)}
             />
           )}
+
 
           {/* Questions */}
           {questions.length > 0 ? (
@@ -1208,6 +1257,7 @@ export default function Home() {
                   question={q}
                   index={i}
                   onRemove={() => removeQuestion(q.id)}
+                  iconNudge={iconNudge}
                 />
               ))}
               {/* Add more row */}

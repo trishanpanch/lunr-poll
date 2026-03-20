@@ -2,10 +2,11 @@
    SOURCE OF TRUTH: These tokens match harvard-poll/src/app/globals.css exactly.
    Any token change here must be pushed to the GitHub repo via: pnpm run sync-ds
 
-   Primary:     Crimson  oklch(0.514 0.2 13.9)   — all primary actions
+   Primary:     Indigo   oklch(0.45 0.22 264)     — all primary actions
+   Launch CTA:  Crimson  oklch(0.514 0.2 13.9)    — Launch Session button only
    AI Accent:   Violet   oklch(0.52 0.22 290)     — AI generation UI only
    Destructive: Red-org  oklch(0.577 0.245 27.325) — delete / end session
-   Background:  Slate-50 oklch(0.985 0.01 240)    — page background
+   Background:  #F9FAFC  oklch(0.982 0.0107 271.3) — page background
 
    Fonts: Geist Sans (UI body), Geist Mono (codes/values), Playfair Display (display headings)
    Radius base: 10px (--radius-lg)
@@ -59,7 +60,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.514 0.2 13.9);          /* crimson / rose-700 */
+  --primary: oklch(0.45 0.22 264);           /* indigo — all primary actions */
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -142,6 +143,11 @@
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: oklch(0.82 0.01 264); opacity: 1; }
+  50% { border-color: oklch(0.55 0.2 250); opacity: 0.7; }
 }
 
 @layer base {
