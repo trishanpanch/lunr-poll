@@ -25,7 +25,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   const [error, setError] = useState(false);
 
   const attempt = () => {
-    if (value === DS_PASSWORD) {
+    if (value.trim() === DS_PASSWORD) {
       onUnlock();
     } else {
       setError(true);
@@ -49,11 +49,11 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
           <div
             style={{
               width: 48, height: 48, borderRadius: "50%",
-              background: "oklch(0.97 0.02 13.9)",
+              background: "oklch(0.96 0.04 264)",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}
           >
-            <Lock size={20} style={{ color: "oklch(0.514 0.2 13.9)" }} />
+            <Lock size={20} style={{ color: "oklch(0.45 0.22 264)" }} />
           </div>
           <h1
             style={{
@@ -234,12 +234,13 @@ function PatternCard({ title, description, children }: { title: string; descript
 // ── Main Design System ────────────────────────────────────────────────────────
 function DesignSystemContent() {
   const colors = [
-    { label: "Primary (Crimson)", token: "--primary", value: "oklch(0.514 0.2 13.9)", light: false },
-    { label: "Crimson Hover", token: "--crimson-hover", value: "oklch(0.44 0.2 13.9)", light: false },
-    { label: "Crimson Light", token: "--crimson-light", value: "oklch(0.97 0.04 13.9)", light: true },
+    { label: "Indigo (Primary)", token: "--indigo", value: "oklch(0.45 0.22 264)", light: false },
+    { label: "Indigo Hover", token: "--indigo-hover", value: "oklch(0.38 0.22 264)", light: false },
+    { label: "Indigo Light", token: "--indigo-light", value: "oklch(0.96 0.04 264)", light: true },
+    { label: "Crimson (Launch only)", token: "--crimson", value: "oklch(0.514 0.2 13.9)", light: false },
     { label: "Violet (AI)", token: "--violet", value: "oklch(0.52 0.22 290)", light: false },
     { label: "Violet Light", token: "--violet-light", value: "oklch(0.96 0.04 290)", light: true },
-    { label: "Background", token: "--background", value: "ooklch(0.205 0 0)", light: true },
+    { label: "Background", token: "--background", value: "oklch(0.982 0.0107 271.3)", light: true },
     { label: "Foreground", token: "--foreground", value: "oklch(0.145 0 0)", light: false },
     { label: "Card", token: "--card", value: "oklch(1 0 0)", light: true },
     { label: "Muted", token: "--muted", value: "oklch(0.95 0.003 264)", light: true },
@@ -269,7 +270,7 @@ function DesignSystemContent() {
   ];
 
   const questionTypes = [
-    { type: "Short Text", icon: <Type size={18} />, color: "oklch(0.514 0.2 13.9)", bg: "oklch(0.97 0.04 13.9)", desc: "Open-ended written response", token: "short_text" },
+    { type: "Short Text", icon: <Type size={18} />, color: "oklch(0.45 0.22 264)", bg: "oklch(0.96 0.04 264)", desc: "Open-ended written response", token: "short_text" },
     { type: "Multiple Choice", icon: <ListChecks size={18} />, color: "oklch(0.52 0.22 290)", bg: "oklch(0.96 0.04 290)", desc: "Select from defined options", token: "multiple_choice" },
     { type: "File Upload", icon: <Paperclip size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.96 0.04 160)", desc: "Students submit a file", token: "file_upload" },
     { type: "Star Rating", icon: <Star size={18} />, color: "oklch(0.62 0.18 60)", bg: "oklch(0.97 0.04 60)", desc: "1–5 star rating scale", token: "rating" },
@@ -298,7 +299,7 @@ Harvard Poll — Design System
         <span
           style={{
             fontSize: 11, fontFamily: "'Geist Mono', monospace",
-            background: "oklch(0.97 0.02 13.9)", color: "oklch(0.514 0.2 13.9)",
+            background: "oklch(0.96 0.04 264)", color: "oklch(0.45 0.22 264)",
             padding: "4px 12px", borderRadius: 20, fontWeight: 600,
           }}
         >
@@ -313,7 +314,7 @@ Harvard Poll — Design System
           <SectionHeader title="Foundations" description="The core design decisions that govern every visual element in the product." />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
             {[
-              { title: "Primary Color", desc: "Indigo (oklch 0.48 0.18 264) for all primary interactive elements. Crimson (oklch 0.52 0.22 10) is reserved exclusively for the Launch Session CTA — nowhere else.", accent: "oklch(0.514 0.2 13.9)" },
+              { title: "Primary Color", desc: "Indigo (oklch 0.45 0.22 264) for all primary interactive elements — buttons, links, active states, focus rings. Crimson is reserved exclusively for the Launch Session CTA. One button, one color.", accent: "oklch(0.45 0.22 264)" },
               { title: "Typography", desc: "DM Sans 700 for all headings and labels. Inter 400/500 for body text. Never use a single weight for the entire interface.", accent: "oklch(0.145 0 0)" },
               { title: "Radius System", desc: "Base radius is 12px (--radius-lg). All components use calc() offsets from this base. Never hardcode pixel values for border radius.", accent: "oklch(0.52 0.22 290)" },
             ].map((f) => (
@@ -336,8 +337,8 @@ Harvard Poll — Design System
           </div>
           <div style={{ marginTop: 14, padding: "14px 16px", borderRadius: 10, background: "oklch(0.95 0.003 264)", border: "1px solid oklch(0.922 0 0)", fontSize: 12, color: "oklch(0.205 0 0)", lineHeight: 1.7 }}>
             <strong style={{ display: "block", marginBottom: 4, fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.07em" }}>Usage Rules</strong>
-            · <strong>Crimson</strong> is the primary color. Use for buttons, links, active states, focus rings.<br />
-            · Crimson connects directly to the Harvard brand — use it consistently across all primary actions.<br />
+            · <strong>Indigo</strong> is the primary color. Use for all buttons, links, active states, and focus rings.<br />
+            · <strong>Crimson</strong> is reserved for the <em>Launch Session</em> button only. Do not use it anywhere else.<br />
             · <strong>Violet</strong> is the AI feature color. Use only for AI-related UI elements.<br />
             · <strong>Destructive</strong> is for irreversible actions: delete, end session, remove.
           </div>
@@ -352,7 +353,7 @@ Harvard Poll — Design System
             <TypeRow label="Heading 3" meta="DM Sans · 600 · 16px" sample="Quick Presets" style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 16, color: "oklch(0.145 0 0)" }} />
             <TypeRow label="Body" meta="Inter · 400 · 14px" sample="Choose a question type from the sidebar, use a preset, or generate questions automatically with AI." style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 400, fontSize: 14, color: "oklch(0.145 0 0)", lineHeight: 1.6 }} />
             <TypeRow label="Small / Label" meta="Inter · 500 · 11px · caps" sample="ADD A QUESTION" style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 500, fontSize: 11, textTransform: "uppercase" as const, letterSpacing: "0.09em", color: "oklch(0.556 0 0)" }} />
-            <TypeRow label="Mono / Code" meta="monospace · 13px · codes" sample="23EAJB · short_text · oklch(0.514 0.2 13.9)" style={{ fontFamily: "'Geist Mono', monospace", fontSize: 13, color: "oklch(0.514 0.2 13.9)" }} />
+            <TypeRow label="Mono / Code" meta="monospace · 13px · codes" sample="23EAJB · short_text · oklch(0.45 0.22 264)" style={{ fontFamily: "'Geist Mono', monospace", fontSize: 13, color: "oklch(0.45 0.22 264)" }} />
           </div>
         </section>
 
@@ -443,7 +444,7 @@ Harvard Poll — Design System
               <Badge variant="secondary">Secondary</Badge>
               <Badge variant="outline">Outline</Badge>
               <Badge variant="destructive">Destructive</Badge>
-              <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.97 0.02 13.9)", color: "oklch(0.514 0.2 13.9)", padding: "3px 8px", borderRadius: 20 }}>3Q</span>
+              <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.96 0.04 264)", color: "oklch(0.45 0.22 264)", padding: "3px 8px", borderRadius: 20 }}>3Q</span>
               <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.96 0.04 290)", color: "oklch(0.52 0.22 290)", padding: "3px 8px", borderRadius: 20 }}>AI</span>
             </div>
           </SubSection>
@@ -502,14 +503,14 @@ Harvard Poll — Design System
                       width: 28, height: 28, borderRadius: "50%", flexShrink: 0, position: "relative", zIndex: 1,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       fontSize: 11, fontWeight: 700,
-                      background: s.done ? "oklch(0.92 0.08 160)" : s.active ? "oklch(0.514 0.2 13.9)" : "oklch(0.95 0.003 264)",
+                      background: s.done ? "oklch(0.92 0.08 160)" : s.active ? "oklch(0.45 0.22 264)" : "oklch(0.95 0.003 264)",
                       color: s.done ? "oklch(0.38 0.14 160)" : s.active ? "#fff" : "oklch(0.556 0 0)",
                       boxShadow: s.active ? "0 0 0 4px oklch(0.48 0.18 264 / 0.15)" : "none",
                     }}>
                       {s.done ? <CheckCircle2 size={14} /> : s.active ? i + 1 : <Circle size={11} />}
                     </div>
                     <div style={{ paddingBottom: i < 2 ? 20 : 0, paddingTop: 2 }}>
-                      <p style={{ fontSize: 12, fontWeight: 600, color: s.pending ? "oklch(0.88 0.04 13.9)" : "oklch(0.145 0 0)", margin: "0 0 1px" }}>{s.label}</p>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: s.pending ? "oklch(0.75 0.04 264)" : "oklch(0.145 0 0)", margin: "0 0 1px" }}>{s.label}</p>
                       <p style={{ fontSize: 11, color: "oklch(0.556 0 0)", margin: 0 }}>{s.sub}</p>
                     </div>
                   </div>
@@ -602,9 +603,19 @@ Harvard Poll — Design System
   );
 }
 
+const DS_STORAGE_KEY = "lunr_ds_unlocked";
+
 // ── Page Entry Point ──────────────────────────────────────────────────────────
 export default function DesignSystemPage() {
-  const [unlocked, setUnlocked] = useState(false);
-  if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
+  const [unlocked, setUnlocked] = useState(() => {
+    try { return localStorage.getItem(DS_STORAGE_KEY) === "1"; } catch { return false; }
+  });
+
+  const handleUnlock = () => {
+    try { localStorage.setItem(DS_STORAGE_KEY, "1"); } catch {}
+    setUnlocked(true);
+  };
+
+  if (!unlocked) return <PasswordGate onUnlock={handleUnlock} />;
   return <DesignSystemContent />;
 }

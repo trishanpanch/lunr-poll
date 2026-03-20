@@ -3,7 +3,7 @@
    Any token change here must be pushed to the GitHub repo via: pnpm run sync-ds
 
    Primary:     Indigo   oklch(0.45 0.22 264)     — all primary actions
-   Launch CTA:  Crimson  oklch(0.514 0.2 13.9)    — Launch Session button only
+   Launch CTA:  Crimson  oklch(0.514 0.2 13.9)    — Launch Session button ONLY (one place)
    AI Accent:   Violet   oklch(0.52 0.22 290)     — AI generation UI only
    Destructive: Red-org  oklch(0.577 0.245 27.325) — delete / end session
    Background:  #F9FAFC  oklch(0.982 0.0107 271.3) — page background
@@ -54,7 +54,7 @@
   --radius: 0.625rem; /* 10px base — matches harvard-poll */
 
   /* ── Semantic tokens — identical to harvard-poll globals.css ── */
-  --background: oklch(0.982 0.0107 271.3);        /* warm off-white */
+  --background: oklch(0.9849 0.0029 264.5);        /* #F9FAFC */
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -93,16 +93,20 @@
 
   /* ── Custom named tokens (use these in components) ── */
 
-  /* Crimson — primary CTAs only (Launch, Add Question, Save)
-     Do NOT use for hover, focus rings, or secondary states.
-     Crimson reads as high-stakes; keep it reserved for intent. */
+  /* Indigo — primary color for all UI actions, buttons, links, and interactive states.
+     Use for primary buttons, active states, focus rings on primary elements,
+     and any interactive affordance that isn't AI (violet) or Launch (crimson). */
+  --indigo: oklch(0.45 0.22 264);
+  --indigo-hover: oklch(0.38 0.22 264);
+  --indigo-light: oklch(0.96 0.04 264);
+
+  /* Crimson — RESERVED exclusively for the "Launch Session" button.
+     Do NOT use for any other element. One button, one color. */
   --crimson: oklch(0.514 0.2 13.9);
   --crimson-hover: oklch(0.44 0.2 13.9);
-  --crimson-light: oklch(0.97 0.04 13.9);
 
-  /* Blue — hover states, focus rings, links, secondary interactions
-     Use wherever crimson would be misread as an error or warning.
-     Conveys interactivity without urgency. */
+  /* Blue — focus rings, links, secondary interactive states.
+     Conveys interactivity without urgency. Prefer --indigo for primary actions. */
   --blue: oklch(0.55 0.2 250);
   --blue-hover: oklch(0.48 0.22 250);
   --blue-light: oklch(0.96 0.04 250);
@@ -143,6 +147,11 @@
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+@keyframes step-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px oklch(0.55 0.2 250 / 0.22); }
+  50% { box-shadow: 0 0 0 6px oklch(0.55 0.2 250 / 0.08); }
 }
 
 @keyframes pulse-border {

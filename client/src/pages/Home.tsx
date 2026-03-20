@@ -4,12 +4,13 @@
    Step tracker onboarding, 2×2 question type grid, AI banner hero.
 */
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   Rocket, Sparkles, Type, ListChecks, Paperclip, Star,
   RotateCcw, GripVertical, X, ChevronRight, CheckCircle2,
-  Circle, Pencil
+  Circle, Pencil, ArrowLeft
 } from "lucide-react";
 import {
   Dialog,
@@ -18,6 +19,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -33,6 +44,8 @@ interface Question {
   icon: React.ReactNode;
   text: string;
   color: string;
+  options?: string[]; // Multiple Choice answer options
+  correctIndex?: number; // Index of the correct answer for Multiple Choice
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
@@ -83,6 +96,10 @@ function Topbar({
   sessionCode,
   isUntitled,
   onLaunch,
+  hasQuestions,
+  onBack,
+  onSaveDraft,
+  isDirty,
 }: {
   sessionName: string;
   onNameChange: (v: string) => void;
@@ -90,6 +107,10 @@ function Topbar({
   sessionCode: string;
   isUntitled: boolean;
   onLaunch: () => void;
+  hasQuestions: boolean;
+  onBack: () => void;
+  onSaveDraft: () => void;
+  isDirty: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -119,8 +140,23 @@ function Topbar({
         boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
       }}
     >
-      {/* Left: session name + code */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {/* Left: back button + session name + code */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <button
+          onClick={onBack}
+          title="Back to My Sessions"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 34, height: 34, borderRadius: 9,
+            background: "none", border: "1.5px solid oklch(0.922 0 0)",
+            color: "oklch(0.45 0 0)", cursor: "pointer", flexShrink: 0,
+            transition: "all 0.15s",
+          }}
+          className="hover:bg-[oklch(0.982_0.0107_271.3)] hover:border-[oklch(0.88_0.04_264)] hover:text-[oklch(0.45_0.22_264)] transition-all"
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {editing ? (
           <input
             ref={inputRef}
@@ -153,11 +189,10 @@ function Topbar({
               fontSize: 17,
               color: isUntitled ? "oklch(0.65 0.01 264)" : "oklch(0.145 0 0)",
               background: "none",
-              border: isUntitled ? "1.5px dashed oklch(0.82 0.01 264)" : "none",
+              border: "none",
               padding: "2px 4px",
               borderRadius: 6,
               cursor: "text",
-              animation: isUntitled ? "pulse-border 2s ease-in-out infinite" : "none",
             }}
             className="group hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors"
           >
@@ -183,35 +218,39 @@ function Topbar({
               fontWeight: 700,
               color: "oklch(0.45 0.22 264)",
               letterSpacing: "0.1em",
-              fontFamily: "'Geist', system-ui, sans-serif",
+              fontFamily: "'Geist Mono', monospace",
             }}
           >
             {sessionCode}
           </span>
         </span>
       </div>
+      </div>
 
       {/* Right: actions */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <button
-          onClick={() => toast.success("Draft saved")}
+          onClick={onSaveDraft}
           style={{
             padding: "8px 18px",
             borderRadius: 10,
-            border: "1.5px solid oklch(0.922 0 0)",
-            background: "#fff",
-            color: "oklch(0.205 0 0)",
+            border: isDirty ? "1.5px solid oklch(0.88 0.04 264)" : "1.5px solid oklch(0.922 0 0)",
+            background: isDirty ? "oklch(0.96 0.04 264)" : "#fff",
+            color: isDirty ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
             fontSize: 13,
-            fontWeight: 500,
+            fontWeight: isDirty ? 600 : 500,
             fontFamily: "'Geist', system-ui, sans-serif",
-            transition: "border-color 0.15s, background 0.15s",
+            transition: "all 0.15s",
+            cursor: "pointer",
           }}
           className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all"
         >
-          Save Draft
+          {isDirty ? "Save Draft" : "Saved"}
         </button>
         <button
           onClick={onLaunch}
+          disabled={!hasQuestions}
+          title={!hasQuestions ? "Add at least one question to launch" : undefined}
           style={{
             display: "flex",
             alignItems: "center",
@@ -219,15 +258,18 @@ function Topbar({
             padding: "9px 22px",
             borderRadius: 10,
             border: "none",
-            background: "linear-gradient(135deg, oklch(0.514 0.2 13.9) 0%, oklch(0.44 0.2 13.9) 100%)",
-            color: "#fff",
+            background: hasQuestions
+              ? "linear-gradient(135deg, oklch(0.514 0.2 13.9) 0%, oklch(0.44 0.2 13.9) 100%)"
+              : "oklch(0.88 0 0)",
+            color: hasQuestions ? "#fff" : "oklch(0.6 0 0)",
             fontSize: 14,
             fontWeight: 700,
             fontFamily: "'Geist', system-ui, sans-serif",
-            boxShadow: "0 2px 10px oklch(0.514 0.2 13.9 / 0.3)",
-            transition: "opacity 0.15s, box-shadow 0.15s",
+            boxShadow: hasQuestions ? "0 2px 10px oklch(0.514 0.2 13.9 / 0.3)" : "none",
+            transition: "opacity 0.15s, box-shadow 0.15s, background 0.2s, color 0.2s",
+            cursor: hasQuestions ? "pointer" : "not-allowed",
           }}
-          className="hover:opacity-90 hover:shadow-lg transition-all"
+          className={hasQuestions ? "hover:opacity-90 hover:shadow-lg transition-all" : ""}
         >
           <Rocket size={15} />
           Launch Session
@@ -413,19 +455,6 @@ function Sidebar({
             >
               <span style={{ color: "oklch(0.55 0.2 250)", opacity: 0.8 }}>{preset.icon}</span>
               <span style={{ flex: 1 }}>{preset.name}</span>
-              <span
-                style={{
-                  fontSize: 10,
-                  background: "oklch(0.982 0.0107 271.3)",
-                  color: "oklch(0.55 0.2 250)",
-                  padding: "2px 7px",
-                  borderRadius: 20,
-                  fontWeight: 700,
-                  letterSpacing: "0.04em",
-                }}
-              >
-                {preset.count}Q
-              </span>
             </button>
           ))}
         </div>
@@ -464,7 +493,7 @@ function OnboardingSteps({
       sub: (
         <>
           Hit <strong>Launch Session</strong> — students join with code{" "}
-          <strong style={{ color: "oklch(0.55 0.2 250)", letterSpacing: "0.08em" }}>{sessionCode}</strong>.
+          <strong style={{ color: "oklch(0.45 0.22 264)", letterSpacing: "0.08em", fontFamily: "'Geist Mono', monospace" }}>{sessionCode}</strong>.
         </>
       ),
       done: false,
@@ -531,7 +560,8 @@ function OnboardingSteps({
                   ? {
                       background: "oklch(0.55 0.2 250)",
                       color: "#fff",
-                      boxShadow: "0 0 0 4px oklch(0.55 0.2 250 / 0.18)",
+                      boxShadow: "0 0 0 3px oklch(0.55 0.2 250 / 0.22)",
+                      animation: "step-ring-pulse 1.8s ease-in-out infinite",
                     }
                   : { background: "oklch(0.96 0.01 250)", color: "oklch(0.56 0.08 250)" }),
               }}
@@ -693,14 +723,36 @@ function QuestionCard({
   question,
   index,
   onRemove,
+  onUpdate,
   iconNudge = 1,
 }: {
   question: Question;
   index: number;
   onRemove: () => void;
+  onUpdate: (text: string) => void;
   iconNudge?: number;
 }) {
   const meta = TYPE_META[question.type];
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(question.text);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const startEdit = () => {
+    setDraft(question.text);
+    setEditing(true);
+    setTimeout(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.select();
+    }, 0);
+  };
+
+  const commitEdit = () => {
+    const trimmed = draft.trim();
+    if (trimmed && trimmed !== question.text) onUpdate(trimmed);
+    else setDraft(question.text);
+    setEditing(false);
+  };
+
   return (
     <div
       className="card-enter hover:shadow-md transition-all"
@@ -764,18 +816,87 @@ function QuestionCard({
         >
           {question.type}
         </p>
-        <p
-          style={{
-            fontSize: 14,
-            fontWeight: 500,
-            color: "oklch(0.145 0 0)",
-            margin: 0,
-            lineHeight: 1.5,
-            fontFamily: "'Geist', system-ui, sans-serif",
-          }}
-        >
-          {question.text}
-        </p>
+        {editing ? (
+          <textarea
+            ref={textareaRef}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commitEdit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); commitEdit(); }
+              if (e.key === "Escape") { setDraft(question.text); setEditing(false); }
+            }}
+            rows={2}
+            style={{
+              width: "100%",
+              fontSize: 14,
+              fontWeight: 500,
+              color: "oklch(0.145 0 0)",
+              lineHeight: 1.5,
+              fontFamily: "'Geist', system-ui, sans-serif",
+              border: "1.5px solid oklch(0.45 0.22 264)",
+              borderRadius: 8,
+              padding: "6px 8px",
+              resize: "none",
+              outline: "none",
+              background: "oklch(0.97 0.02 264 / 0.4)",
+              boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
+            }}
+          />
+        ) : (
+          <p
+            onClick={startEdit}
+            title="Click to edit"
+            style={{
+              fontSize: 14,
+              fontWeight: 500,
+              color: "oklch(0.145 0 0)",
+              margin: 0,
+              lineHeight: 1.5,
+              fontFamily: "'Geist', system-ui, sans-serif",
+              cursor: "text",
+              borderRadius: 6,
+              padding: "2px 4px",
+              marginLeft: -4,
+              transition: "background 0.12s",
+            }}
+            className="hover:bg-[oklch(0.97_0.02_264_/_0.4)]"
+          >
+            {question.text}
+          </p>
+        )}
+        {/* Multiple Choice options preview */}
+        {question.type === "Multiple Choice" && question.options && question.options.length > 0 && (
+          <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 5 }}>
+            {question.options.map((opt, i) => {
+              const isCorrect = question.correctIndex === i;
+              return (
+                <span
+                  key={i}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    fontSize: 11.5,
+                    padding: "3px 9px",
+                    borderRadius: 20,
+                    background: isCorrect ? "oklch(0.92 0.08 160)" : "oklch(0.96 0.04 290)",
+                    color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.38 0.18 290)",
+                    fontWeight: 500,
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                    border: isCorrect ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.04 290)",
+                  }}
+                >
+                  {isCorrect
+                    ? <CheckCircle2 size={11} />
+                    : <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 10, fontWeight: 700 }}>{String.fromCharCode(65 + i)}</span>
+                  }
+                  {opt}
+                </span>
+              );
+            })}
+          </div>
+        )}
         <div style={{ marginTop: 8 }}>
           <span
             style={{
@@ -840,9 +961,11 @@ const SUGGESTIONS: Record<QuestionType, string[]> = {
   ],
   "Star Rating": [
     "How confident do you feel about today's material?",
-    "Rate your understanding of the concept covered today.",
-    "How engaging did you find today's lecture?",
+    "Rate your overall understanding of today's lecture.",
+    "How engaging did you find today's class?",
     "How well do you feel prepared for the upcoming exam?",
+    "How clear was the explanation of today's main concept?",
+    "Rate the pace of today's lecture.",
   ],
 };
 
@@ -855,15 +978,31 @@ function AddQuestionModal({
   open: boolean;
   type: QuestionType | null;
   onClose: () => void;
-  onConfirm: (text: string) => void;
+  onConfirm: (text: string, options?: string[], correctIndex?: number) => void;
 }) {
   const [text, setText] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [options, setOptions] = useState<string[]>(["", ""]);
+  const [correctIndex, setCorrectIndex] = useState<number | null>(null);
   const meta = type ? TYPE_META[type] : null;
   const suggestions = type ? SUGGESTIONS[type] : [];
+  const isMultipleChoice = type === "Multiple Choice";
+  const filledOptions = options.map((o, i) => ({ text: o, idx: i })).filter((o) => o.text.trim() !== "");
+  const canSubmit = text.trim() !== "" && (!isMultipleChoice || (filledOptions.length >= 2 && correctIndex !== null));
+
+  const addOption = () => setOptions((prev) => [...prev, ""]);
+  const updateOption = (i: number, val: string) => setOptions((prev) => prev.map((o, idx) => idx === i ? val : o));
+  const removeOption = (i: number) => setOptions((prev) => prev.filter((_, idx) => idx !== i));
+
+  const optionRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (open) { setText(""); setShowSuggestions(false); }
+    if (open) {
+      setText("");
+      setShowSuggestions(false);
+      setOptions(["", ""]);
+      setCorrectIndex(null);
+    }
   }, [open]);
 
   return (
@@ -899,7 +1038,15 @@ function AddQuestionModal({
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="e.g. What was the main takeaway from today's lecture?"
+            placeholder={
+              type === "Star Rating"
+                ? "e.g. How confident do you feel about today's material?"
+                : type === "Multiple Choice"
+                ? "e.g. Which of the following best describes the concept covered today?"
+                : type === "File Upload"
+                ? "e.g. Upload a photo of your completed worksheet."
+                : "e.g. What was the main takeaway from today's lecture?"
+            }
             rows={3}
             style={{ borderRadius: 10, fontSize: 14, resize: "none" }}
             autoFocus
@@ -931,9 +1078,7 @@ function AddQuestionModal({
               transition: "all 0.12s",
             }}
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
+            <Sparkles size={12} />
             {showSuggestions ? "Hide suggestions" : "Show common questions"}
           </button>
 
@@ -974,14 +1119,141 @@ function AddQuestionModal({
               ))}
             </div>
           )}
+
+          {/* Multiple Choice options editor */}
+          {isMultipleChoice && (
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
+                <Label style={{ fontSize: 13, fontWeight: 600, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>Answer options</Label>
+                <span style={{ fontSize: 11, fontWeight: 400, color: "oklch(0.556 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>(min. 2)</span>
+              </div>
+              {options.map((opt, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {/* Correct answer radio */}
+                  <button
+                    type="button"
+                    onClick={() => setCorrectIndex(correctIndex === i ? null : i)}
+                    title={correctIndex === i ? "Unmark correct answer" : "Mark as correct answer"}
+                    style={{
+                      width: 22, height: 22, borderRadius: "50%",
+                      border: correctIndex === i ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid oklch(0.88 0 0)",
+                      background: correctIndex === i ? "oklch(0.92 0.08 160)" : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      flexShrink: 0, fontSize: 10, fontWeight: 700,
+                      color: correctIndex === i ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
+                      fontFamily: "'Geist Mono', monospace",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                      padding: 0,
+                    }}
+                  >
+                    {correctIndex === i ? <CheckCircle2 size={13} /> : String.fromCharCode(65 + i)}
+                  </button>
+                  <input
+                    ref={(el) => { optionRefs.current[i] = el; }}
+                    type="text"
+                    value={opt}
+                    onChange={(e) => updateOption(i, e.target.value)}
+                    placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (i === options.length - 1) {
+                          addOption();
+                          setTimeout(() => optionRefs.current[i + 1]?.focus(), 0);
+                        } else {
+                          optionRefs.current[i + 1]?.focus();
+                        }
+                      }
+                      if (e.key === "Backspace" && opt === "" && options.length > 2) {
+                        e.preventDefault();
+                        removeOption(i);
+                        setTimeout(() => optionRefs.current[Math.max(0, i - 1)]?.focus(), 0);
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      height: 34,
+                      padding: "0 10px",
+                      borderRadius: 8,
+                      border: "1.5px solid oklch(0.922 0 0)",
+                      fontSize: 13,
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      color: "oklch(0.205 0 0)",
+                      background: "#fff",
+                      outline: "none",
+                      transition: "border-color 0.15s, box-shadow 0.15s",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px oklch(0.52 0.22 290 / 0.12)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = "oklch(0.922 0 0)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  />
+                  {options.length > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => removeOption(i)}
+                      style={{
+                        background: "none", border: "none", cursor: "pointer",
+                        color: "oklch(0.75 0.01 264)", display: "flex",
+                        alignItems: "center", padding: 4, borderRadius: 6,
+                        flexShrink: 0,
+                      }}
+                      className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.52_0.22_10)] transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  addOption();
+                  setTimeout(() => optionRefs.current[options.length]?.focus(), 0);
+                }}
+                style={{
+                  marginTop: 2,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "oklch(0.52 0.22 290)",
+                  background: "oklch(0.96 0.04 290)",
+                  border: "1px solid oklch(0.88 0.04 290)",
+                  borderRadius: 7,
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  alignSelf: "flex-start",
+                }}
+                className="hover:opacity-80 transition-opacity"
+              >
+                + Add option
+              </button>
+              {filledOptions.length < 2 && (
+                <p style={{ fontSize: 11.5, color: "oklch(0.577 0.245 27.325)", margin: 0, fontFamily: "'Geist', system-ui, sans-serif" }}>
+                  Add at least 2 options to continue.
+                </p>
+              )}
+              <p style={{ fontSize: 11, color: correctIndex === null ? "oklch(0.577 0.245 27.325)" : "oklch(0.52 0.18 160)", margin: "2px 0 0", fontFamily: "'Geist', system-ui, sans-serif" }}>
+                {correctIndex === null ? "Select the correct answer." : "Correct answer marked."}
+              </p>
+            </div>
+          )}
         </div>
         <DialogFooter style={{ gap: 8 }}>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
           <Button
-            onClick={() => text.trim() && onConfirm(text.trim())}
-            disabled={!text.trim()}
+            onClick={() => canSubmit && onConfirm(text.trim(), isMultipleChoice ? filledOptions.map(o => o.text) : undefined, isMultipleChoice && correctIndex !== null ? correctIndex : undefined)}
+            disabled={!canSubmit}
             style={{
               background: "oklch(0.45 0.22 264)",
               color: "#fff",
@@ -1123,22 +1395,104 @@ export default function Home() {
     return code;
   });
 
-  const [questions, setQuestions] = useState<Question[]>([]);
+  // Restore questions from the last saved draft for this session code
+  const [questions, setQuestions] = useState<Question[]>(() => {
+    try {
+      const code = localStorage.getItem("lunr_session_code");
+      if (!code) return [];
+      const raw = localStorage.getItem(`lunr_questions_${code}`);
+      if (!raw) return [];
+      // Restore serialised questions — re-attach icons from TYPE_META
+      const parsed = JSON.parse(raw) as Omit<Question, "icon">[];
+      return parsed.map((q) => ({
+        ...q,
+        icon: TYPE_META[q.type as QuestionType]?.icon ?? null,
+      }));
+    } catch {
+      return [];
+    }
+  });
   const [showOnboarding, setShowOnboarding] = useState(
     () => localStorage.getItem("lunr_onboarding_done") !== "true"
   );
 
   const iconNudge = -3;
 
+  const [, navigate] = useLocation();
+
+  // Auto-persist questions whenever they change
+  useEffect(() => {
+    const serialisable = questions.map(({ icon: _icon, ...rest }) => rest);
+    localStorage.setItem(`lunr_questions_${sessionCode}`, JSON.stringify(serialisable));
+  }, [questions, sessionCode]);
+
+  // Track whether there are unsaved changes (questions added or name changed)
+  const [savedDraft, setSavedDraft] = useState(false);
+  const isDirty = (questions.length > 0 || hasNamed) && !savedDraft;
+
+  // Unsaved-changes dialog
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
+  const [pendingNav, setPendingNav] = useState<string | null>(null);
+
+  const handleSaveDraft = () => {
+    const session = {
+      id: sessionCode,
+      name: savedName || "Untitled Session",
+      code: sessionCode,
+      questionCount: questions.length,
+      status: "draft" as const,
+      createdAt: Date.now(),
+      questionTypes: questions.map((q) => q.type),
+    };
+    // Write directly into the sessions list so it shows in My Sessions
+    try {
+      const existing = JSON.parse(localStorage.getItem("lunr_sessions") || "[]") as typeof session[];
+      const idx = existing.findIndex((s) => s.id === sessionCode);
+      if (idx >= 0) {
+        existing[idx] = session;
+      } else {
+        existing.unshift(session);
+      }
+      localStorage.setItem("lunr_sessions", JSON.stringify(existing));
+    } catch {
+      localStorage.setItem("lunr_sessions", JSON.stringify([session]));
+    }
+    setSavedDraft(true);
+    toast.success("Draft saved");
+  };
+
+  const handleBack = () => {
+    if (isDirty) {
+      setPendingNav("/sessions");
+      setLeaveDialogOpen(true);
+    } else {
+      navigate("/sessions");
+    }
+  };
+
   const handleLaunch = () => {
     localStorage.setItem("lunr_onboarding_done", "true");
     setShowOnboarding(false);
-    toast.info("Launching session…");
+    // Save this session as a pending session for the Sessions dashboard
+    const session = {
+      id: sessionCode, // use code as stable id
+      name: savedName || "Untitled Session",
+      code: sessionCode,
+      questionCount: questions.length,
+      status: "draft",
+      createdAt: Date.now(),
+      questionTypes: questions.map((q) => q.type),
+    };
+    localStorage.setItem("lunr_pending_session", JSON.stringify(session));
+    navigate("/sessions");
   };
 
   // Add modal
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addModalType, setAddModalType] = useState<QuestionType | null>(null);
+
+  // Type picker overlay
+  const [typePickerOpen, setTypePickerOpen] = useState(false);
 
   // Magic modal
   const [magicOpen, setMagicOpen] = useState(false);
@@ -1148,12 +1502,12 @@ export default function Home() {
     setAddModalOpen(true);
   };
 
-  const confirmAdd = (text: string) => {
+  const confirmAdd = (text: string, options?: string[], correctIndex?: number) => {
     if (!addModalType) return;
     const meta = TYPE_META[addModalType];
     setQuestions((prev) => [
       ...prev,
-      { id: uid(), type: addModalType, icon: meta.icon, text, color: meta.color },
+      { id: uid(), type: addModalType, icon: meta.icon, text, color: meta.color, options, correctIndex },
     ]);
     setAddModalOpen(false);
     toast.success(`${addModalType} question added`);
@@ -1213,10 +1567,15 @@ export default function Home() {
         onNameSave={(name) => {
           setSavedName(name);
           localStorage.setItem("lunr_session_name", name);
+          setSavedDraft(false); // name change marks dirty again
         }}
         sessionCode={sessionCode}
         isUntitled={!hasNamed}
         onLaunch={handleLaunch}
+        hasQuestions={questions.length > 0}
+        onBack={handleBack}
+        onSaveDraft={handleSaveDraft}
+        isDirty={isDirty}
       />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
@@ -1257,12 +1616,13 @@ export default function Home() {
                   question={q}
                   index={i}
                   onRemove={() => removeQuestion(q.id)}
+                  onUpdate={(text) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, text } : item))}
                   iconNudge={iconNudge}
                 />
               ))}
               {/* Add more row */}
               <button
-                onClick={() => openAddType("Short Text")}
+                onClick={() => setTypePickerOpen(true)}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -1287,11 +1647,97 @@ export default function Home() {
           ) : (
             <EmptyState
               onMagic={() => setMagicOpen(true)}
-              onManual={() => openAddType("Short Text")}
+              onManual={() => setTypePickerOpen(true)}
             />
           )}
         </main>
       </div>
+
+      {/* Question Type Picker Overlay */}
+      {typePickerOpen && (
+        <div
+          onClick={() => setTypePickerOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: 18,
+              padding: "28px 28px 24px",
+              width: 380,
+              boxShadow: "0 8px 40px rgba(0,0,0,0.18)",
+              fontFamily: "'Geist', system-ui, sans-serif",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "oklch(0.205 0 0)" }}>Choose question type</p>
+              <button
+                onClick={() => setTypePickerOpen(false)}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.556 0 0)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
+                className="hover:bg-[oklch(0.96_0_0)] transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {(Object.keys(TYPE_META) as QuestionType[]).map((type) => {
+                const meta = TYPE_META[type];
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      setTypePickerOpen(false);
+                      openAddType(type);
+                    }}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      gap: 8,
+                      padding: "16px 14px",
+                      borderRadius: 12,
+                      border: "1.5px solid oklch(0.922 0 0)",
+                      background: "oklch(0.985 0 0)",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.15s",
+                    }}
+                    className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:shadow-sm transition-all"
+                  >
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 34,
+                        height: 34,
+                        borderRadius: 8,
+                        background: meta.color + "18",
+                        color: meta.color,
+                      }}
+                    >
+                      {meta.icon}
+                    </span>
+                    <div>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>{type}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "oklch(0.556 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>{meta.desc}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       <AddQuestionModal
@@ -1305,6 +1751,49 @@ export default function Home() {
         onClose={() => setMagicOpen(false)}
         onGenerate={handleMagicGenerate}
       />
+
+      {/* Unsaved Changes Dialog */}
+      <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>
+        <AlertDialogContent style={{ borderRadius: 16, maxWidth: 420 }}>
+          <AlertDialogHeader>
+            <AlertDialogTitle style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 17 }}>
+              Leave without saving?
+            </AlertDialogTitle>
+            <AlertDialogDescription style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 14 }}>
+              You have unsaved changes. Save as a draft to keep your work, or leave and lose your progress.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter style={{ gap: 8, flexDirection: "column", alignItems: "stretch" }}>
+            <AlertDialogCancel style={{ fontFamily: "'Geist', system-ui, sans-serif" }}>
+              Keep editing
+            </AlertDialogCancel>
+            <Button
+              variant="outline"
+              onClick={() => {
+                handleSaveDraft();
+                setLeaveDialogOpen(false);
+                if (pendingNav) navigate(pendingNav);
+              }}
+              style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600 }}
+            >
+              Save draft &amp; leave
+            </Button>
+            <AlertDialogAction
+              onClick={() => {
+                setLeaveDialogOpen(false);
+                if (pendingNav) navigate(pendingNav);
+              }}
+              style={{
+                background: "oklch(0.577 0.245 27.325)",
+                fontFamily: "'Geist', system-ui, sans-serif",
+                fontWeight: 600,
+              }}
+            >
+              Leave anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
