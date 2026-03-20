@@ -1390,33 +1390,22 @@ function AiPanel({
   const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [urlInput, setUrlInput] = useState("");
-  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlChips, setUrlChips] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollBodyRef = useRef<HTMLDivElement>(null);
 
-  const fetchUrlMutation = trpc.session.fetchUrl.useMutation({
-    onSuccess: (data) => {
-      setContent((prev) => prev + (prev ? "\n\n" : "") + data.text);
-      setUrlInput("");
-      setUrlLoading(false);
-      toast.success("Page content extracted");
-      scrollPanelToBottom();
-    },
-    onError: (err) => {
-      setUrlLoading(false);
-      toast.error(err.message || "Failed to fetch URL");
-    },
-  });
-
-  const handleFetchUrl = () => {
+  const handleAddUrl = () => {
     const trimmed = urlInput.trim();
     if (!trimmed) return;
     let url = trimmed;
     if (!/^https?:\/\//i.test(url)) url = "https://" + url;
-    setUrlLoading(true);
-    fetchUrlMutation.mutate({ url });
+    if (!urlChips.includes(url)) setUrlChips((prev) => [...prev, url]);
+    setUrlInput("");
   };
+
+  const removeUrlChip = (url: string) =>
+    setUrlChips((prev) => prev.filter((u) => u !== url));
 
   const scrollPanelToBottom = () => {
     requestAnimationFrame(() => {
@@ -1433,6 +1422,8 @@ function AiPanel({
       setContent("");
       setGenerated([]);
       setLoading(false);
+      setUrlChips([]);
+      setUrlInput("");
     }
   }, [open]);
 
@@ -1462,7 +1453,7 @@ function AiPanel({
   };
 
   const generate = async () => {
-    if (!content.trim() || loading) return;
+    if ((!content.trim() && urlChips.length === 0) || loading) return;
     setLoading(true);
     setGenerated([]);
 
@@ -1476,6 +1467,7 @@ function AiPanel({
           content: content.slice(0, 8000),
           count,
           types: typeList,
+          urls: urlChips.length > 0 ? urlChips : undefined,
         }),
       });
 
@@ -1668,71 +1660,114 @@ function AiPanel({
                   <input ref={fileInputRef} type="file" accept=".txt,.pdf,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
                 </div>
 
-                {/* URL input */}
-                <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-                  <div style={{ flex: 1, position: "relative" }}>
-                    <LinkIcon
-                      size={13}
+                {/* URL chip input */}
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <div style={{ flex: 1, position: "relative" }}>
+                      <LinkIcon
+                        size={13}
+                        style={{
+                          position: "absolute",
+                          left: 9,
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          color: "oklch(0.65 0 0)",
+                          pointerEvents: "none",
+                        }}
+                      />
+                      <input
+                        type="url"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleAddUrl()}
+                        placeholder="Add a URL as source…"
+                        disabled={loading}
+                        style={{
+                          width: "100%",
+                          height: 34,
+                          paddingLeft: 28,
+                          paddingRight: 10,
+                          borderRadius: 8,
+                          border: "1.5px solid oklch(0.88 0 0)",
+                          fontSize: 12,
+                          fontFamily: "'Geist', system-ui, sans-serif",
+                          color: "oklch(0.205 0 0)",
+                          background: "#fff",
+                          outline: "none",
+                          boxSizing: "border-box",
+                          transition: "border-color 0.15s",
+                        }}
+                        onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)"; }}
+                        onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.88 0 0)"; }}
+                      />
+                    </div>
+                    <button
+                      onClick={handleAddUrl}
+                      disabled={!urlInput.trim() || loading}
                       style={{
-                        position: "absolute",
-                        left: 9,
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        color: "oklch(0.65 0 0)",
-                        pointerEvents: "none",
-                      }}
-                    />
-                    <input
-                      type="url"
-                      value={urlInput}
-                      onChange={(e) => setUrlInput(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleFetchUrl()}
-                      placeholder="Paste a URL to extract text…"
-                      disabled={urlLoading || loading}
-                      style={{
-                        width: "100%",
                         height: 34,
-                        paddingLeft: 28,
-                        paddingRight: 10,
+                        padding: "0 12px",
                         borderRadius: 8,
-                        border: "1.5px solid oklch(0.88 0 0)",
+                        border: "none",
+                        background: !urlInput.trim() || loading ? "oklch(0.88 0 0)" : "oklch(0.52 0.22 290)",
+                        color: !urlInput.trim() || loading ? "oklch(0.6 0 0)" : "#fff",
                         fontSize: 12,
+                        fontWeight: 700,
                         fontFamily: "'Geist', system-ui, sans-serif",
-                        color: "oklch(0.205 0 0)",
-                        background: "#fff",
-                        outline: "none",
-                        boxSizing: "border-box",
-                        transition: "border-color 0.15s",
+                        cursor: !urlInput.trim() || loading ? "not-allowed" : "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 5,
+                        flexShrink: 0,
+                        transition: "all 0.15s",
                       }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)"; }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.88 0 0)"; }}
-                    />
+                    >
+                      Add
+                    </button>
                   </div>
-                  <button
-                    onClick={handleFetchUrl}
-                    disabled={!urlInput.trim() || urlLoading || loading}
-                    style={{
-                      height: 34,
-                      padding: "0 12px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: !urlInput.trim() || urlLoading || loading
-                        ? "oklch(0.88 0 0)"
-                        : "oklch(0.52 0.22 290)",
-                      color: !urlInput.trim() || urlLoading || loading ? "oklch(0.6 0 0)" : "#fff",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      fontFamily: "'Geist', system-ui, sans-serif",
-                      cursor: !urlInput.trim() || urlLoading || loading ? "not-allowed" : "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 5,
-                      flexShrink: 0,
-                      transition: "all 0.15s",
-                    }}
-                  >
-                    {urlLoading ? <Loader2 size={12} className="animate-spin" /> : "Fetch"}
-                  </button>
+                  {/* URL chips */}
+                  {urlChips.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 7 }}>
+                      {urlChips.map((chip) => (
+                        <div
+                          key={chip}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
+                            padding: "3px 8px 3px 7px",
+                            borderRadius: 20,
+                            background: "oklch(0.96 0.04 290)",
+                            border: "1px solid oklch(0.88 0.04 290)",
+                            fontSize: 11,
+                            fontFamily: "'Geist', system-ui, sans-serif",
+                            color: "oklch(0.38 0.18 290)",
+                            maxWidth: 220,
+                          }}
+                        >
+                          <LinkIcon size={10} style={{ flexShrink: 0 }} />
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {chip.replace(/^https?:\/\/(www\.)?/, "")}
+                          </span>
+                          <button
+                            onClick={() => removeUrlChip(chip)}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              color: "oklch(0.52 0.18 290)",
+                              display: "flex",
+                              alignItems: "center",
+                              padding: 0,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <X size={10} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <p style={{ margin: "0 0 6px", fontSize: 11.5, fontWeight: 600, color: "oklch(0.65 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center" }}>or paste text</p>

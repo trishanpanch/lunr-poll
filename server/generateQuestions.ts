@@ -1,5 +1,23 @@
 import { Router, Request, Response } from "express";
 import { invokeLLM } from "./_core/llm";
+import * as cheerio from "cheerio";
+
+async function fetchUrlText(url: string): Promise<string> {
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; SessionBuilder/1.0)" },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) return "";
+    const html = await res.text();
+    const $ = cheerio.load(html);
+    $("script, style, noscript, nav, footer, header, aside, [role=navigation], [role=banner], [role=complementary]").remove();
+    const text = $("article").first().text() || $("main").first().text() || $("body").text();
+    return text.replace(/\s+/g, " ").trim().slice(0, 6000);
+  } catch {
+    return "";
+  }
+}
 
 const router = Router();
 
@@ -10,6 +28,7 @@ interface GenerateRequest {
   content: string;
   count: number;
   types: QuestionType[];
+  urls?: string[];
 }
 
 interface GeneratedQuestion {
@@ -21,16 +40,32 @@ interface GeneratedQuestion {
 }
 
 router.post("/api/generate-questions", async (req: Request, res: Response) => {
-  const { content, count, types } = req.body as GenerateRequest;
+  const { content, count, types, urls } = req.body as GenerateRequest;
 
-  if (!content || typeof content !== "string" || content.trim().length === 0) {
-    return res.status(400).json({ error: "content is required" });
+  if ((!content || content.trim().length === 0) && (!urls || urls.length === 0)) {
+    return res.status(400).json({ error: "content or at least one URL is required" });
   }
   if (!count || typeof count !== "number" || count < 1 || count > 20) {
     return res.status(400).json({ error: "count must be between 1 and 20" });
   }
   if (!types || !Array.isArray(types) || types.length === 0) {
     return res.status(400).json({ error: "types array is required" });
+  }
+
+  // Fetch URL content server-side and merge with pasted content
+  let combinedContent = (content || "").trim();
+  if (urls && urls.length > 0) {
+    const urlTexts = await Promise.all(urls.map(fetchUrlText));
+    const urlContent = urlTexts.filter(Boolean).join("\n\n");
+    if (urlContent) {
+      combinedContent = combinedContent
+        ? combinedContent + "\n\n" + urlContent
+        : urlContent;
+    }
+  }
+
+  if (!combinedContent) {
+    return res.status(400).json({ error: "Could not extract any content from the provided sources" });
   }
 
   // Build a distribution plan — spread selected types evenly across the count
@@ -69,7 +104,7 @@ JSON schema for each item:
 
   const userPrompt = `Source material:
 ---
-${content.slice(0, 8000)}
+${combinedContent.slice(0, 8000)}
 ---
 
 Generate exactly ${count} questions following this plan:
