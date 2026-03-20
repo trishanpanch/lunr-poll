@@ -1436,79 +1436,27 @@ function AiPanel({
     setLoading(true);
     setGenerated([]);
 
-    const apiKey = import.meta.env.VITE_FRONTEND_FORGE_API_KEY as string;
-    const apiBase = (import.meta.env.VITE_FRONTEND_FORGE_API_URL as string) || "https://forge.manus.ai";
-
     const typeList = Array.from(selectedTypes);
 
-    // Build a distribution plan so types are spread evenly across the requested count
-    const typePlan: QuestionType[] = [];
-    for (let i = 0; i < count; i++) typePlan.push(typeList[i % typeList.length]);
-
-    const typeInstructions = typePlan.map((t, i) => {
-      if (t === "Multiple Choice") return `Question ${i + 1}: type "Multiple Choice" — provide exactly 4 answer options ("options" array), mark the correct one in "correctAnswer" (must match one option exactly)`;
-      if (t === "True / False") return `Question ${i + 1}: type "True / False" — "correctAnswer" must be exactly "True" or "False"`;
-      if (t === "Star Rating") return `Question ${i + 1}: type "Star Rating" — ask students to rate something specific from the content on a 1–5 scale`;
-      if (t === "File Upload") return `Question ${i + 1}: type "File Upload" — ask students to upload something directly related to the content`;
-      return `Question ${i + 1}: type "Short Text" — open-ended question requiring a written answer grounded in the content`;
-    }).join("\n");
-
-    const systemPrompt = `You are an expert educator who creates precise, content-specific classroom questions.
-Your job: read the provided source material and extract ${count} specific knowledge atoms — concrete facts, definitions, relationships, or claims — then turn each into a question.
-
-CRITICAL RULES:
-- Every question MUST reference specific names, numbers, terms, or claims from the source material. Never write generic questions like "What was the main takeaway?" or "Summarize today's content."
-- If the text mentions a specific person, date, formula, law, or term — use it in the question.
-- Multiple Choice: the 3 wrong options must be plausible but clearly incorrect based on the text.
-- True / False: the statement must be directly verifiable from the text (not opinion).
-- Return ONLY a valid JSON array. No markdown, no explanation, no code fences.
-
-JSON schema for each item:
-{ "type": "Short Text" | "Multiple Choice" | "True / False" | "Star Rating" | "File Upload", "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only) }`;
-
-    const userPrompt = `Source material:
----
-${content.slice(0, 8000)}
----
-
-Generate exactly ${count} questions following this plan:
-${typeInstructions}
-
-Return ONLY the JSON array.`;
-
     try {
-      const res = await fetch(`${apiBase}/v1/chat/completions`, {
+      const res = await fetch("/api/generate-questions", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "claude-sonnet-4-5",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          max_tokens: 2000,
-          temperature: 0.4,
+          content: content.slice(0, 8000),
+          count,
+          types: typeList,
         }),
       });
 
-      if (!res.ok) throw new Error(`API error ${res.status}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error || `Server error ${res.status}`);
+      }
 
-      const data = await res.json();
-      const raw: string = data.choices?.[0]?.message?.content ?? "";
+      const data = await res.json() as { questions: Array<{ type: string; text: string; options?: string[]; correctAnswer?: string }> };
 
-      // Strip any accidental markdown code fences
-      const cleaned = raw.replace(/^```[\w]*\n?/m, "").replace(/\n?```$/m, "").trim();
-      const parsed: Array<{
-        type: string;
-        text: string;
-        options?: string[];
-        correctAnswer?: string;
-      }> = JSON.parse(cleaned);
-
-      const pool: AiGenQuestion[] = parsed
+      const pool: AiGenQuestion[] = data.questions
         .filter((q) => q.text && q.type)
         .map((q) => ({
           type: q.type as QuestionType,
