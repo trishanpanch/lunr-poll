@@ -1373,10 +1373,12 @@ type AiGenQuestion = {
 function AiPanel({
   open,
   onClose,
+  onOpen,
   onAddQuestions,
 }: {
   open: boolean;
   onClose: () => void;
+  onOpen: () => void;
   onAddQuestions: (qs: Question[]) => void;
 }) {
   const [content, setContent] = useState("");
@@ -1548,29 +1550,30 @@ function AiPanel({
           borderLeft: "1px solid oklch(0.922 0 0)",
         }}
       >
-        {/* Tab handle — always visible, pulls drawer open */}
+        {/* Tab handle — top-right, always visible, toggles drawer */}
         <button
-          onClick={open ? onClose : undefined}
+          onClick={open ? onClose : onOpen}
           style={{
             position: "absolute",
-            left: -36,
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: 36,
-            height: 80,
-            background: "#fff",
+            left: -44,
+            top: 16,
+            width: 44,
+            height: 36,
+            background: open ? "oklch(0.96 0.04 290)" : "#fff",
             border: "1px solid oklch(0.922 0 0)",
             borderRight: "none",
             borderRadius: "10px 0 0 10px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            gap: 5,
             cursor: "pointer",
-            boxShadow: "-2px 0 8px rgba(0,0,0,0.06)",
+            boxShadow: "-2px 2px 8px rgba(0,0,0,0.07)",
+            transition: "background 0.15s",
           }}
-          title={open ? "Close AI panel" : "Open AI panel"}
+          title={open ? "Close AI panel" : "Generate with AI"}
         >
-          <Sparkles size={15} style={{ color: "oklch(0.52 0.22 290)" }} />
+          <Sparkles size={13} style={{ color: "oklch(0.52 0.22 290)", flexShrink: 0 }} />
         </button>
 
         <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
@@ -2283,6 +2286,7 @@ export default function Home() {
       <AiPanel
         open={aiPanelOpen}
         onClose={() => setAiPanelOpen(false)}
+        onOpen={() => setAiPanelOpen(true)}
         onAddQuestions={handleAiAddQuestions}
       />
 

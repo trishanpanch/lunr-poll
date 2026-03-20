@@ -24,3 +24,4 @@
 - [x] Change "Add another question" button icon from ChevronRight to Plus
 - [x] Change Changelog tag badge font to monospace (Geist Mono)
 - [x] AI preview cards — text cut off — question text textarea, MC option inputs, and model answer textarea all clip content; fix with auto-height textareas and wrapping inputs
+- [x] AI drawer tab — tab doesn't open the drawer; also move tab from vertical-center to top of the panel
