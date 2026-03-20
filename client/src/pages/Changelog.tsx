@@ -283,6 +283,7 @@ export default function Changelog() {
                 background: "oklch(0.95 0.04 264)",
                 padding: "4px 12px",
                 borderRadius: 20,
+                fontFamily: "'Geist Mono', monospace",
               }}
             >
               Changelog
@@ -404,6 +405,7 @@ export default function Changelog() {
                       background: "oklch(0.94 0 0)",
                       padding: "2px 8px",
                       borderRadius: 20,
+                      fontFamily: "'Geist Mono', monospace",
                     }}
                   >
                     {group.items.length} update{group.items.length !== 1 ? "s" : ""}

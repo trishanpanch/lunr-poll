@@ -1367,6 +1367,7 @@ type AiGenQuestion = {
   selected: boolean;
   options?: string[];       // Multiple Choice
   correctAnswer?: string;  // Multiple Choice (option text) or True / False ("True"/"False")
+  modelAnswer?: string;    // Short Text model answer
 };
 
 function AiPanel({
@@ -1454,7 +1455,7 @@ function AiPanel({
         throw new Error((err as { error?: string }).error || `Server error ${res.status}`);
       }
 
-      const data = await res.json() as { questions: Array<{ type: string; text: string; options?: string[]; correctAnswer?: string }> };
+      const data = await res.json() as { questions: Array<{ type: string; text: string; options?: string[]; correctAnswer?: string; modelAnswer?: string }> };
 
       const pool: AiGenQuestion[] = data.questions
         .filter((q) => q.text && q.type)
@@ -1464,6 +1465,7 @@ function AiPanel({
           selected: true,
           options: q.options,
           correctAnswer: q.correctAnswer,
+          modelAnswer: q.modelAnswer,
         }));
 
       if (pool.length === 0) throw new Error("No questions returned");
@@ -1478,6 +1480,9 @@ function AiPanel({
 
   const toggleSelect = (i: number) =>
     setGenerated((prev) => prev.map((q, idx) => idx === i ? { ...q, selected: !q.selected } : q));
+
+  const updateGenerated = (i: number, patch: Partial<AiGenQuestion>) =>
+    setGenerated((prev) => prev.map((q, idx) => idx === i ? { ...q, ...patch } : q));
 
   const addSelected = () => {
     const toAdd: Question[] = generated
@@ -1510,20 +1515,64 @@ function AiPanel({
   const selectedCount = generated.filter((q) => q.selected).length;
 
   return (
-    <div
-      style={{
-        width: open ? 340 : 0,
-        minWidth: open ? 340 : 0,
-        overflow: "hidden",
-        transition: "width 0.3s ease, min-width 0.3s ease",
-        borderLeft: open ? "1px solid oklch(0.922 0 0)" : "none",
-        background: "#fff",
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-      }}
-    >
+    <>
+      {/* Backdrop */}
       {open && (
+        <div
+          onClick={onClose}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.25)",
+            zIndex: 200,
+            backdropFilter: "blur(2px)",
+            WebkitBackdropFilter: "blur(2px)",
+          }}
+        />
+      )}
+
+      {/* Drawer panel */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          right: open ? 0 : -360,
+          width: 360,
+          height: "100dvh",
+          background: "#fff",
+          boxShadow: open ? "-4px 0 32px rgba(0,0,0,0.14)" : "none",
+          zIndex: 201,
+          display: "flex",
+          flexDirection: "column",
+          transition: "right 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease",
+          borderLeft: "1px solid oklch(0.922 0 0)",
+        }}
+      >
+        {/* Tab handle — always visible, pulls drawer open */}
+        <button
+          onClick={open ? onClose : undefined}
+          style={{
+            position: "absolute",
+            left: -36,
+            top: "50%",
+            transform: "translateY(-50%)",
+            width: 36,
+            height: 80,
+            background: "#fff",
+            border: "1px solid oklch(0.922 0 0)",
+            borderRight: "none",
+            borderRadius: "10px 0 0 10px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "-2px 0 8px rgba(0,0,0,0.06)",
+          }}
+          title={open ? "Close AI panel" : "Open AI panel"}
+        >
+          <Sparkles size={15} style={{ color: "oklch(0.52 0.22 290)" }} />
+        </button>
+
         <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
           {/* Header */}
           <div style={{
@@ -1686,7 +1735,6 @@ function AiPanel({
                     return (
                       <div
                         key={i}
-                        onClick={() => toggleSelect(i)}
                         style={{
                           display: "flex",
                           alignItems: "flex-start",
@@ -1695,24 +1743,68 @@ function AiPanel({
                           borderRadius: 10,
                           border: `1.5px solid ${q.selected ? meta.color + "60" : "oklch(0.922 0 0)"}`,
                           background: q.selected ? meta.color + "08" : "oklch(0.985 0 0)",
-                          cursor: "pointer",
                           transition: "all 0.15s",
                         }}
                       >
-                        <div style={{
-                          width: 22, height: 22, borderRadius: 6,
-                          background: q.selected ? meta.color + "20" : "oklch(0.93 0 0)",
-                          color: q.selected ? meta.color : "oklch(0.75 0 0)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          flexShrink: 0, marginTop: 1,
-                        }}>
+                        {/* Checkbox — clicking it toggles selection */}
+                        <div
+                          onClick={() => toggleSelect(i)}
+                          style={{
+                            width: 22, height: 22, borderRadius: 6,
+                            background: q.selected ? meta.color + "20" : "oklch(0.93 0 0)",
+                            color: q.selected ? meta.color : "oklch(0.75 0 0)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            flexShrink: 0, marginTop: 1, cursor: "pointer",
+                          }}
+                        >
                           {q.selected ? <CheckCircle2 size={13} /> : <Circle size={13} />}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: meta.color, marginBottom: 3 }}>
                             {meta.icon} {q.type}
                           </span>
-                          <p style={{ margin: "0 0 6px", fontSize: 12.5, color: "oklch(0.205 0 0)", lineHeight: 1.5, fontFamily: "'Geist', system-ui, sans-serif" }}>{q.text}</p>
+                          {/* Inline-editable question text — auto-height */}
+                          <textarea
+                            value={q.text}
+                            onChange={(e) => {
+                              updateGenerated(i, { text: e.target.value });
+                              // auto-height
+                              e.target.style.height = "auto";
+                              e.target.style.height = e.target.scrollHeight + "px";
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            rows={1}
+                            style={{
+                              display: "block",
+                              width: "100%",
+                              margin: "0 0 6px",
+                              fontSize: 12.5,
+                              color: "oklch(0.205 0 0)",
+                              lineHeight: 1.5,
+                              fontFamily: "'Geist', system-ui, sans-serif",
+                              background: "transparent",
+                              border: "1px solid transparent",
+                              borderRadius: 6,
+                              padding: "2px 4px",
+                              resize: "none",
+                              overflow: "hidden",
+                              outline: "none",
+                              boxSizing: "border-box",
+                              transition: "border-color 0.15s, background 0.15s",
+                              height: "auto",
+                            }}
+                            ref={(el) => {
+                              if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+                            }}
+                            onFocus={(e) => {
+                              e.currentTarget.style.borderColor = meta.color + "80";
+                              e.currentTarget.style.background = "#fff";
+                            }}
+                            onBlur={(e) => {
+                              e.currentTarget.style.borderColor = "transparent";
+                              e.currentTarget.style.background = "transparent";
+                            }}
+                          />
                           {/* Multiple Choice: show options */}
                           {q.type === "Multiple Choice" && q.options && (
                             <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -1728,23 +1820,121 @@ function AiPanel({
                                   }}>
                                     {String.fromCharCode(65 + oi)}
                                   </span>
-                                  <span style={{ fontSize: 11, color: opt === q.correctAnswer ? "oklch(0.38 0.14 160)" : "oklch(0.4 0 0)", fontWeight: opt === q.correctAnswer ? 600 : 400 }}>{opt}</span>
+                                  {/* Inline-editable option text — wrapping textarea */}
+                                  <textarea
+                                    value={opt}
+                                    rows={1}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => {
+                                      const newOptions = [...(q.options ?? [])];
+                                      const wasCorrect = opt === q.correctAnswer;
+                                      newOptions[oi] = e.target.value;
+                                      updateGenerated(i, {
+                                        options: newOptions,
+                                        correctAnswer: wasCorrect ? e.target.value : q.correctAnswer,
+                                      });
+                                      e.target.style.height = "auto";
+                                      e.target.style.height = e.target.scrollHeight + "px";
+                                    }}
+                                    style={{
+                                      flex: 1,
+                                      fontSize: 11,
+                                      color: opt === q.correctAnswer ? "oklch(0.38 0.14 160)" : "oklch(0.4 0 0)",
+                                      fontWeight: opt === q.correctAnswer ? 600 : 400,
+                                      fontFamily: "'Geist', system-ui, sans-serif",
+                                      background: "transparent",
+                                      border: "1px solid transparent",
+                                      borderRadius: 4,
+                                      padding: "1px 4px",
+                                      outline: "none",
+                                      resize: "none",
+                                      overflow: "hidden",
+                                      lineHeight: 1.45,
+                                      height: "auto",
+                                      transition: "border-color 0.15s, background 0.15s",
+                                    }}
+                                    ref={(el) => {
+                                      if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+                                    }}
+                                    onFocus={(e) => {
+                                      e.currentTarget.style.borderColor = "oklch(0.52 0.18 160 / 0.5)";
+                                      e.currentTarget.style.background = "#fff";
+                                    }}
+                                    onBlur={(e) => {
+                                      e.currentTarget.style.borderColor = "transparent";
+                                      e.currentTarget.style.background = "transparent";
+                                    }}
+                                  />
                                   {opt === q.correctAnswer && <CheckCircle2 size={10} style={{ color: "oklch(0.52 0.18 160)", flexShrink: 0 }} />}
                                 </div>
                               ))}
                             </div>
                           )}
-                          {/* True / False: show correct answer */}
+                          {/* True / False: show correct answer badge (click to toggle) */}
                           {q.type === "True / False" && q.correctAnswer && (
-                            <span style={{
-                              display: "inline-flex", alignItems: "center", gap: 4,
-                              fontSize: 10, fontWeight: 700,
-                              background: q.correctAnswer === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.97 0.04 27)",
-                              color: q.correctAnswer === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.57 0.22 27)",
-                              padding: "2px 7px", borderRadius: 20,
-                            }}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateGenerated(i, { correctAnswer: q.correctAnswer === "True" ? "False" : "True" });
+                              }}
+                              title="Click to toggle correct answer"
+                              style={{
+                                display: "inline-flex", alignItems: "center", gap: 4,
+                                fontSize: 10, fontWeight: 700,
+                                background: q.correctAnswer === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.97 0.04 27)",
+                                color: q.correctAnswer === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.57 0.22 27)",
+                                padding: "2px 7px", borderRadius: 20,
+                                border: "none", cursor: "pointer",
+                                transition: "all 0.15s",
+                              }}
+                            >
                               Answer: {q.correctAnswer}
-                            </span>
+                            </button>
+                          )}
+                          {/* Short Text: show model answer — auto-height */}
+                          {q.type === "Short Text" && q.modelAnswer && (
+                            <div style={{ marginTop: 5 }}>
+                              <span style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "oklch(0.48 0.18 264)", display: "block", marginBottom: 2 }}>Model Answer</span>
+                              <textarea
+                                value={q.modelAnswer}
+                                onChange={(e) => {
+                                  updateGenerated(i, { modelAnswer: e.target.value });
+                                  e.target.style.height = "auto";
+                                  e.target.style.height = e.target.scrollHeight + "px";
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                rows={1}
+                                style={{
+                                  display: "block",
+                                  width: "100%",
+                                  fontSize: 11,
+                                  color: "oklch(0.38 0.18 264)",
+                                  lineHeight: 1.5,
+                                  fontFamily: "'Geist', system-ui, sans-serif",
+                                  background: "oklch(0.96 0.03 264 / 0.4)",
+                                  border: "1px solid oklch(0.88 0.04 264)",
+                                  borderRadius: 6,
+                                  padding: "4px 6px",
+                                  resize: "none",
+                                  overflow: "hidden",
+                                  outline: "none",
+                                  boxSizing: "border-box",
+                                  height: "auto",
+                                  transition: "border-color 0.15s, background 0.15s",
+                                }}
+                                ref={(el) => {
+                                  if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+                                }}
+                                onFocus={(e) => {
+                                  e.currentTarget.style.borderColor = "oklch(0.45 0.22 264)";
+                                  e.currentTarget.style.background = "oklch(0.97 0.02 264)";
+                                }}
+                                onBlur={(e) => {
+                                  e.currentTarget.style.borderColor = "oklch(0.88 0.04 264)";
+                                  e.currentTarget.style.background = "oklch(0.96 0.03 264 / 0.4)";
+                                }}
+                              />
+                            </div>
                           )}
                         </div>
                       </div>
@@ -1812,13 +2002,37 @@ function AiPanel({
             )}
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function generateCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 }
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function Home() {
+  // If lunr_new_session flag is set, clear all builder state and start fresh
+  const [sessionCode] = useState(() => {
+    const isNew = localStorage.getItem("lunr_new_session") === "true";
+    if (isNew) {
+      localStorage.removeItem("lunr_new_session");
+      const code = generateCode();
+      localStorage.setItem("lunr_session_code", code);
+      localStorage.setItem("lunr_session_name", "Untitled Session");
+      localStorage.removeItem(`lunr_questions_${code}`);
+      return code;
+    }
+    const stored = localStorage.getItem("lunr_session_code");
+    if (stored) return stored;
+    const code = generateCode();
+    localStorage.setItem("lunr_session_code", code);
+    return code;
+  });
+
   // Session name — persisted in localStorage, only "saved" on blur/Enter
   const [sessionName, setSessionName] = useState(
     () => localStorage.getItem("lunr_session_name") || "Untitled Session"
@@ -1827,16 +2041,6 @@ export default function Home() {
     () => localStorage.getItem("lunr_session_name") || "Untitled Session"
   );
   const hasNamed = savedName.trim() !== "Untitled Session" && savedName.trim() !== "";
-
-  // Dynamic session code — generated once and persisted
-  const [sessionCode] = useState(() => {
-    const stored = localStorage.getItem("lunr_session_code");
-    if (stored) return stored;
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    const code = Array.from({ length: 5 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-    localStorage.setItem("lunr_session_code", code);
-    return code;
-  });
 
   // Restore questions from the last saved draft for this session code
   const [questions, setQuestions] = useState<Question[]>(() => {
@@ -2073,13 +2277,14 @@ export default function Home() {
           )}
         </main>
 
-        {/* AI Right Panel */}
-        <AiPanel
-          open={aiPanelOpen}
-          onClose={() => setAiPanelOpen(false)}
-          onAddQuestions={handleAiAddQuestions}
-        />
       </div>
+
+      {/* AI Drawer — fixed overlay with backdrop */}
+      <AiPanel
+        open={aiPanelOpen}
+        onClose={() => setAiPanelOpen(false)}
+        onAddQuestions={handleAiAddQuestions}
+      />
 
       {/* Question Type Picker Overlay */}
       {typePickerOpen && (

@@ -2,14 +2,14 @@
 
 ## Bugs
 - [x] AI generation 401 error — VITE_FRONTEND_FORGE_API_KEY is invalid; needs backend proxy route using BUILT_IN_FORGE_API_KEY
-- [ ] Session state not cleared on new session — old name/code/questions persist when leaving without saving and starting a new session
+- [x] Session state not cleared on new session — old name/code/questions persist when leaving without saving and starting a new session
 
 ## Features
-- [ ] AI panel → collapsible drawer — convert the Generate with AI sidebar into a slide-in drawer with a tab handle and backdrop overlay
+- [x] AI panel → collapsible drawer — convert the Generate with AI sidebar into a slide-in drawer with a tab handle and backdrop overlay
 
 ## Polish
-- [ ] Changelog mono font — apply monospace font to the "Changelog" header pill and "N updates" count badges (tag badges already done)
-- [ ] Changelog should not visually affect the Design System page — confirm styles are fully scoped and do not bleed across routes
+- [x] Changelog mono font — apply monospace font to the "Changelog" header pill and "N updates" count badges (tag badges already done)
+- [x] Changelog should not visually affect the Design System page — confirm styles are fully scoped and do not bleed across routes (all styles are inline, no shared CSS imports)
 - [ ] Favicon in dashboard view — clarify which dashboard (Manus UI vs. My Sessions vs. browser tab) and fix the wrong icon
 
 ## Completed
@@ -23,3 +23,4 @@
 - [x] Show MC options and TF answer inline in AI panel preview cards
 - [x] Change "Add another question" button icon from ChevronRight to Plus
 - [x] Change Changelog tag badge font to monospace (Geist Mono)
+- [x] AI preview cards — text cut off — question text textarea, MC option inputs, and model answer textarea all clip content; fix with auto-height textareas and wrapping inputs

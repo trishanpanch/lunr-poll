@@ -17,6 +17,7 @@ interface GeneratedQuestion {
   text: string;
   options?: string[];
   correctAnswer?: string;
+  modelAnswer?: string;
 }
 
 router.post("/api/generate-questions", async (req: Request, res: Response) => {
@@ -61,9 +62,10 @@ CRITICAL RULES:
 - Multiple Choice: the 3 wrong options must be plausible but clearly incorrect based on the text.
 - True / False: the statement must be directly verifiable from the text (not opinion).
 - Return ONLY a valid JSON array. No markdown, no explanation, no code fences.
+- For Short Text questions, include a "modelAnswer" field with a concise ideal answer (1–3 sentences) grounded in the source material.
 
 JSON schema for each item:
-{ "type": "Short Text" | "Multiple Choice" | "True / False" | "Star Rating" | "File Upload", "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only) }`;
+{ "type": "Short Text" | "Multiple Choice" | "True / False" | "Star Rating" | "File Upload", "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only), "modelAnswer": "string" (Short Text only) }`;
 
   const userPrompt = `Source material:
 ---

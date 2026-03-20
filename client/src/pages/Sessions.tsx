@@ -609,7 +609,7 @@ export default function Sessions() {
 
           {/* New Session */}
           <button
-            onClick={() => navigate("/session")}
+            onClick={() => { localStorage.setItem("lunr_new_session", "true"); navigate("/session"); }}
             style={{
               display: "flex", alignItems: "center", gap: 7,
               padding: "8px 18px", borderRadius: 10,
@@ -634,7 +634,7 @@ export default function Sessions() {
         )}
 
         {filtered.length === 0 && sessions.length === 0 ? (
-          <EmptyState onNew={() => navigate("/session")} />
+          <EmptyState onNew={() => { localStorage.setItem("lunr_new_session", "true"); navigate("/session"); }} />
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: "center", padding: "60px 24px", color: "oklch(0.6 0 0)", fontSize: 14 }}>
             No sessions match your search.
