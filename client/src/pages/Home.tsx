@@ -425,23 +425,25 @@ function Sidebar({
 // ── Onboarding Steps ────────────────────────────────────────────────────────
 function OnboardingSteps({
   hasQuestions,
+  hasNamed,
   onDismiss,
 }: {
   hasQuestions: boolean;
+  hasNamed: boolean;
   onDismiss: () => void;
 }) {
   const steps = [
     {
       label: "Name your session",
-      sub: "Click the title in the top-left to rename it anytime.",
-      done: true,
-      active: false,
+      sub: "Click the title above to give your session a name.",
+      done: hasNamed,
+      active: !hasNamed,
     },
     {
       label: "Add your first question",
       sub: "Choose a type from the sidebar, use a preset, or generate with AI.",
       done: hasQuestions,
-      active: !hasQuestions,
+      active: hasNamed && !hasQuestions,
     },
     {
       label: "Launch & share with students",
@@ -452,7 +454,7 @@ function OnboardingSteps({
         </>
       ),
       done: false,
-      active: hasQuestions,
+      active: hasNamed && hasQuestions,
     },
   ];
 
@@ -1093,6 +1095,7 @@ export default function Home() {
           {showOnboarding && (
             <OnboardingSteps
               hasQuestions={questions.length > 0}
+              hasNamed={sessionName.trim() !== "Untitled Session" && sessionName.trim() !== ""}
               onDismiss={() => setShowOnboarding(false)}
             />
           )}
