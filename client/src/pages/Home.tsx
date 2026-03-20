@@ -725,6 +725,8 @@ function QuestionCard({
           justifyContent: "center",
           flexShrink: 0,
           color: meta.color,
+          marginTop: 0,
+          alignSelf: "flex-start",
         }}
       >
         {meta.icon}
@@ -798,6 +800,35 @@ function QuestionCard({
 }
 
 // ── Add Question Modal ──────────────────────────────────────────────────────
+const SUGGESTIONS: Record<QuestionType, string[]> = {
+  "Short Text": [
+    "What was the main takeaway from today's lecture?",
+    "In your own words, explain the concept we covered today.",
+    "What's one question you still have after today's class?",
+    "Describe a real-world example of what we discussed today.",
+    "What was the most surprising thing you learned today?",
+    "How does today's topic connect to something you already knew?",
+  ],
+  "Multiple Choice": [
+    "Which of the following best describes the concept covered today?",
+    "What is the correct definition of the key term from today's lecture?",
+    "Which example best illustrates the principle we discussed?",
+    "What would happen if the key variable in today's example changed?",
+  ],
+  "File Upload": [
+    "Upload a photo of your completed worksheet.",
+    "Submit your annotated diagram from today's activity.",
+    "Upload a short written reflection (1 paragraph) on today's topic.",
+    "Share a screenshot of your work from today's lab.",
+  ],
+  "Star Rating": [
+    "How confident do you feel about today's material?",
+    "Rate your understanding of the concept covered today.",
+    "How engaging did you find today's lecture?",
+    "How well do you feel prepared for the upcoming exam?",
+  ],
+};
+
 function AddQuestionModal({
   open,
   type,
@@ -810,10 +841,12 @@ function AddQuestionModal({
   onConfirm: (text: string) => void;
 }) {
   const [text, setText] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const meta = type ? TYPE_META[type] : null;
+  const suggestions = type ? SUGGESTIONS[type] : [];
 
   useEffect(() => {
-    if (open) setText("");
+    if (open) { setText(""); setShowSuggestions(false); }
   }, [open]);
 
   return (
@@ -858,7 +891,73 @@ function AddQuestionModal({
                 if (text.trim()) onConfirm(text.trim());
               }
             }}
-          />      </div>
+          />
+
+          {/* Suggestions toggle */}
+          <button
+            type="button"
+            onClick={() => setShowSuggestions((v) => !v)}
+            style={{
+              marginTop: 4,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              fontSize: 12,
+              fontWeight: 600,
+              color: "oklch(0.55 0.2 250)",
+              background: "oklch(0.96 0.04 250)",
+              border: "1px solid oklch(0.88 0.04 250)",
+              borderRadius: 7,
+              padding: "5px 10px",
+              cursor: "pointer",
+              fontFamily: "'Geist', system-ui, sans-serif",
+              transition: "all 0.12s",
+            }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            {showSuggestions ? "Hide suggestions" : "Show common questions"}
+          </button>
+
+          {/* Suggestions list */}
+          {showSuggestions && (
+            <div style={{
+              marginTop: 4,
+              border: "1px solid oklch(0.922 0 0)",
+              borderRadius: 10,
+              overflow: "hidden",
+              background: "oklch(0.982 0.0107 271.3)",
+            }}>
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => { setText(s); setShowSuggestions(false); }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "9px 12px",
+                    fontSize: 13,
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                    color: "oklch(0.25 0 0)",
+                    background: "transparent",
+                    border: "none",
+                    borderBottom: i < suggestions.length - 1 ? "1px solid oklch(0.922 0 0)" : "none",
+                    cursor: "pointer",
+                    lineHeight: 1.45,
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#fff"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <DialogFooter style={{ gap: 8 }}>
           <Button variant="outline" onClick={onClose}>
             Cancel
