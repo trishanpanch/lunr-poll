@@ -5,24 +5,26 @@ import { Route, Switch, useLocation, Link } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Landing from "./pages/Landing";
+import Join from "./pages/Join";
 import DesignSystemPage from "./pages/DesignSystem";
-import { Layers, LayoutDashboard } from "lucide-react";
+import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap } from "lucide-react";
+
+// Pages that should NOT show the bottom nav (they have their own nav)
+const STANDALONE_ROUTES = ["/", "/join"];
 
 // ── Bottom Tab Nav ────────────────────────────────────────────────────────────
 function BottomNav() {
   const [location] = useLocation();
 
+  // Hide on standalone pages
+  if (STANDALONE_ROUTES.includes(location)) return null;
+
   const tabs = [
-    {
-      href: "/",
-      label: "Session Builder",
-      icon: <LayoutDashboard size={18} />,
-    },
-    {
-      href: "/design-system",
-      label: "Design System",
-      icon: <Layers size={18} />,
-    },
+    { href: "/", label: "Home", icon: <HomeIcon size={16} /> },
+    { href: "/session", label: "Session Builder", icon: <LayoutDashboard size={16} /> },
+    { href: "/join", label: "Join Session", icon: <GraduationCap size={16} /> },
+    { href: "/design-system", label: "Design System", icon: <Layers size={16} /> },
   ];
 
   return (
@@ -54,7 +56,7 @@ function BottomNav() {
               display: "flex",
               alignItems: "center",
               gap: 7,
-              padding: "7px 20px",
+              padding: "7px 16px",
               borderRadius: 10,
               fontSize: 13,
               fontWeight: active ? 600 : 500,
@@ -77,12 +79,16 @@ function BottomNav() {
 
 // ── Router ────────────────────────────────────────────────────────────────────
 function Router() {
+  const [location] = useLocation();
+  const isStandalone = STANDALONE_ROUTES.includes(location);
+
   return (
     <>
-      {/* Add bottom padding so content isn't hidden behind the nav */}
-      <div style={{ paddingBottom: 64 }}>
+      <div style={{ paddingBottom: isStandalone ? 0 : 64 }}>
         <Switch>
-          <Route path="/" component={Home} />
+          <Route path="/" component={Landing} />
+          <Route path="/session" component={Home} />
+          <Route path="/join" component={Join} />
           <Route path="/design-system" component={DesignSystemPage} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
