@@ -1556,7 +1556,7 @@ function AiPanel({
           style={{
             position: "absolute",
             left: -44,
-            top: 16,
+            top: 80,
             width: 44,
             height: 36,
             background: open ? "oklch(0.96 0.04 290)" : "#fff",
