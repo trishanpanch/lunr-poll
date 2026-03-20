@@ -452,6 +452,7 @@ export default function Changelog() {
                               fontSize: 10,
                               fontWeight: 700,
                               letterSpacing: "0.05em",
+                              fontFamily: "'Geist Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace",
                               background: tagStyle.bg,
                               color: tagStyle.text,
                               padding: "2px 8px",
