@@ -53,7 +53,7 @@
   --radius: 0.625rem; /* 10px base — matches harvard-poll */
 
   /* ── Semantic tokens — identical to harvard-poll globals.css ── */
-  --background: oklch(0.985 0.01 240);       /* slate-50ish */
+  --background: oklch(0.982 0.0107 271.3);        /* warm off-white */
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -71,7 +71,7 @@
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.514 0.2 13.9);
+  --ring: oklch(0.55 0.2 250);            /* Blue — all focus rings use blue, not crimson */
 
   /* ── Chart colors ── */
   --chart-1: oklch(0.646 0.222 41.116);
@@ -91,12 +91,31 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* ── Custom named tokens (use these in components) ── */
+
+  /* Crimson — primary CTAs only (Launch, Add Question, Save)
+     Do NOT use for hover, focus rings, or secondary states.
+     Crimson reads as high-stakes; keep it reserved for intent. */
   --crimson: oklch(0.514 0.2 13.9);
   --crimson-hover: oklch(0.44 0.2 13.9);
   --crimson-light: oklch(0.97 0.04 13.9);
-  --violet: oklch(0.52 0.22 290);            /* AI accent only */
+
+  /* Blue — hover states, focus rings, links, secondary interactions
+     Use wherever crimson would be misread as an error or warning.
+     Conveys interactivity without urgency. */
+  --blue: oklch(0.55 0.2 250);
+  --blue-hover: oklch(0.48 0.22 250);
+  --blue-light: oklch(0.96 0.04 250);
+  --blue-focus-ring: oklch(0.55 0.2 250 / 0.2);
+
+  /* Violet — AI features only */
+  --violet: oklch(0.52 0.22 290);
   --violet-light: oklch(0.96 0.04 290);
   --violet-hover: oklch(0.46 0.22 290);
+
+  /* ── Elevation (shadow) tokens ── */
+  --shadow-card:  0 1px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);  /* resting cards, sidebar panels */
+  --shadow-hover: 0 4px 16px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05); /* hovered cards, focused inputs */
+  --shadow-modal: 0 16px 48px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08); /* dialogs, popovers, dropdowns */
 }
 
 .dark {
@@ -118,7 +137,7 @@
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.6 0.18 13.9);
+  --ring: oklch(0.55 0.2 250);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);

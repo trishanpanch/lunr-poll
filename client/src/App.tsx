@@ -61,9 +61,9 @@ function BottomNav() {
               fontFamily: "'Inter', sans-serif",
               textDecoration: "none",
               transition: "all 0.15s",
-              background: active ? "oklch(0.95 0.04 264)" : "transparent",
-              color: active ? "oklch(0.48 0.18 264)" : "oklch(0.56 0.014 264)",
-              border: active ? "1px solid oklch(0.88 0.06 264)" : "1px solid transparent",
+              background: active ? "oklch(0.982 0.0107 271.3)" : "transparent",
+              color: active ? "oklch(0.55 0.2 250)" : "oklch(0.556 0 0)",
+              border: active ? "1px solid oklch(0.88 0.04 250)" : "1px solid transparent",
             }}
           >
             {tab.icon}

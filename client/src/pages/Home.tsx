@@ -79,9 +79,11 @@ function uid() {
 function Topbar({
   sessionName,
   onNameChange,
+  onLaunch,
 }: {
   sessionName: string;
   onNameChange: (v: string) => void;
+  onLaunch: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -94,7 +96,7 @@ function Topbar({
     <header
       style={{
         background: "#fff",
-        borderBottom: "1px solid oklch(0.91 0.005 264)",
+        borderBottom: "1px solid oklch(0.922 0 0)",
         height: 64,
         display: "flex",
         alignItems: "center",
@@ -145,12 +147,12 @@ function Topbar({
               borderRadius: 6,
               cursor: "text",
             }}
-            className="group hover:bg-[oklch(0.96_0.01_264)] transition-colors"
+            className="group hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors"
           >
             {sessionName}
             <Pencil
               size={13}
-              style={{ color: "oklch(0.65 0.01 264)", opacity: 0 }}
+              style={{ color: "oklch(0.556 0 0)", opacity: 0 }}
               className="group-hover:opacity-100 transition-opacity"
             />
           </button>
@@ -158,7 +160,7 @@ function Topbar({
         <span
           style={{
             fontSize: 12,
-            color: "oklch(0.62 0.01 264)",
+            color: "oklch(0.556 0 0)",
             paddingLeft: 4,
             letterSpacing: "0.03em",
           }}
@@ -192,12 +194,12 @@ function Topbar({
             fontFamily: "'Geist', system-ui, sans-serif",
             transition: "border-color 0.15s, background 0.15s",
           }}
-          className="hover:border-[oklch(0.514_0.2_13.9)] hover:bg-[oklch(0.97_0.02_13.9)] hover:text-[oklch(0.514_0.2_13.9)] transition-all"
+          className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all"
         >
           Save Draft
         </button>
         <button
-          onClick={() => toast.info("Launching session…")}
+          onClick={onLaunch}
           style={{
             display: "flex",
             alignItems: "center",
@@ -239,7 +241,7 @@ function Sidebar({
         width: 280,
         minWidth: 280,
         background: "#fff",
-        borderRight: "1px solid oklch(0.91 0.005 264)",
+        borderRight: "1px solid oklch(0.922 0 0)",
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
@@ -316,7 +318,7 @@ function Sidebar({
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.09em",
-            color: "oklch(0.65 0.01 264)",
+            color: "oklch(0.556 0 0)",
             marginBottom: 10,
           }}
         >
@@ -344,14 +346,14 @@ function Sidebar({
                   padding: "14px 8px",
                   borderRadius: 12,
                   border: "1.5px solid oklch(0.922 0 0)",
-                  background: "oklch(0.97 0.02 13.9)",
+                  background: "oklch(0.985 0 0)",
                   fontSize: 12,
                   fontWeight: 500,
                   fontFamily: "'Geist', system-ui, sans-serif",
                   color: "oklch(0.205 0 0)",
                   transition: "all 0.15s",
                 }}
-                className="hover:border-[oklch(0.514_0.2_13.9)] hover:bg-[oklch(0.97_0.02_13.9)] hover:text-[oklch(0.514_0.2_13.9)] hover:shadow-sm transition-all"
+                className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
               >
                 <span style={{ color: meta.color }}>{meta.icon}</span>
                 {type}
@@ -369,7 +371,7 @@ function Sidebar({
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.09em",
-            color: "oklch(0.65 0.01 264)",
+            color: "oklch(0.556 0 0)",
             marginBottom: 10,
           }}
         >
@@ -395,15 +397,15 @@ function Sidebar({
                 transition: "all 0.15s",
                 textAlign: "left",
               }}
-              className="hover:border-[oklch(0.52_0.22_10)] hover:bg-[oklch(0.98_0.02_10)] hover:text-[oklch(0.52_0.22_10)] transition-all"
+              className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all"
             >
-              <span style={{ color: "oklch(0.52 0.22 10)", opacity: 0.8 }}>{preset.icon}</span>
+              <span style={{ color: "oklch(0.55 0.2 250)", opacity: 0.8 }}>{preset.icon}</span>
               <span style={{ flex: 1 }}>{preset.name}</span>
               <span
                 style={{
                   fontSize: 10,
-                  background: "oklch(0.95 0.04 10)",
-                  color: "oklch(0.52 0.22 10)",
+                  background: "oklch(0.982 0.0107 271.3)",
+                  color: "oklch(0.55 0.2 250)",
                   padding: "2px 7px",
                   borderRadius: 20,
                   fontWeight: 700,
@@ -446,7 +448,7 @@ function OnboardingSteps({
       sub: (
         <>
           Hit <strong>Launch Session</strong> — students join with code{" "}
-          <strong style={{ color: "oklch(0.48 0.18 264)", letterSpacing: "0.08em" }}>23EAJB</strong>.
+          <strong style={{ color: "oklch(0.55 0.2 250)", letterSpacing: "0.08em" }}>23EAJB</strong>.
         </>
       ),
       done: false,
@@ -459,7 +461,7 @@ function OnboardingSteps({
       style={{
         background: "#fff",
         borderRadius: 16,
-        border: "1px solid oklch(0.91 0.005 264)",
+        border: "1px solid oklch(0.922 0 0)",
         padding: "20px 24px",
         display: "flex",
         alignItems: "flex-start",
@@ -511,17 +513,17 @@ function OnboardingSteps({
                   ? { background: "oklch(0.92 0.1 160)", color: "oklch(0.38 0.18 160)" }
                   : step.active
                   ? {
-                      background: "oklch(0.48 0.18 264)",
+                      background: "oklch(0.55 0.2 250)",
                       color: "#fff",
-                      boxShadow: "0 0 0 4px oklch(0.48 0.18 264 / 0.15)",
+                      boxShadow: "0 0 0 4px oklch(0.55 0.2 250 / 0.18)",
                     }
-                  : { background: "oklch(0.94 0.003 264)", color: "oklch(0.65 0.01 264)" }),
+                  : { background: "oklch(0.96 0.01 250)", color: "oklch(0.56 0.08 250)" }),
               }}
             >
               {step.done ? (
                 <CheckCircle2 size={15} />
               ) : step.active ? (
-                <span style={{ fontFamily: "'DM Sans'", fontWeight: 700, fontSize: 13 }}>
+                <span style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 13 }}>
                   {i + 1}
                 </span>
               ) : (
@@ -535,7 +537,7 @@ function OnboardingSteps({
                   fontFamily: "'Geist', system-ui, sans-serif",
                   fontWeight: 600,
                   fontSize: 14,
-                  color: step.active || step.done ? "oklch(0.18 0.012 260)" : "oklch(0.65 0.01 264)",
+                  color: step.active || step.done ? "oklch(0.145 0 0)" : "oklch(0.556 0 0)",
                   margin: 0,
                   transition: "color 0.25s",
                 }}
@@ -545,7 +547,7 @@ function OnboardingSteps({
               <p
                 style={{
                   fontSize: 12,
-                  color: "oklch(0.56 0.01 264)",
+                  color: "oklch(0.556 0 0)",
                   margin: "3px 0 0",
                   lineHeight: 1.55,
                 }}
@@ -560,7 +562,7 @@ function OnboardingSteps({
         onClick={onDismiss}
         style={{
           fontSize: 12,
-          color: "oklch(0.65 0.01 264)",
+          color: "oklch(0.556 0 0)",
           background: "none",
           border: "none",
           cursor: "pointer",
@@ -569,7 +571,7 @@ function OnboardingSteps({
           marginTop: 2,
           fontFamily: "'Geist', system-ui, sans-serif",
         }}
-        className="hover:text-[oklch(0.48_0.18_264)] transition-colors"
+        className="hover:text-[oklch(0.55_0.2_250)] transition-colors"
       >
         Dismiss
       </button>
@@ -595,14 +597,14 @@ function EmptyState({
         justifyContent: "center",
         background: "#fff",
         borderRadius: 16,
-        border: "2px dashed oklch(0.88 0.005 264)",
+        border: "2px dashed oklch(0.88 0 0)",
         minHeight: 260,
         padding: 40,
         textAlign: "center",
         gap: 12,
         transition: "border-color 0.2s, background 0.2s",
       }}
-      className="hover:border-[oklch(0.48_0.18_264)] hover:bg-[oklch(0.985_0.01_264)] transition-all"
+      className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] transition-all"
     >
       <div style={{ fontSize: 38, opacity: 0.25, lineHeight: 1 }}>🗂️</div>
       <p
@@ -619,7 +621,7 @@ function EmptyState({
       <p
         style={{
           fontSize: 13,
-          color: "oklch(0.62 0.01 264)",
+          color: "oklch(0.556 0 0)",
           maxWidth: 300,
           lineHeight: 1.6,
           margin: 0,
@@ -661,7 +663,7 @@ function EmptyState({
             fontWeight: 500,
             fontFamily: "'Geist', system-ui, sans-serif",
           }}
-          className="hover:border-[oklch(0.48_0.18_264)] hover:text-[oklch(0.48_0.18_264)] transition-all"
+          className="hover:border-[oklch(0.55_0.2_250)] hover:text-[oklch(0.55_0.2_250)] transition-all"
         >
           + Add Manually
         </button>
@@ -759,8 +761,8 @@ function QuestionCard({
               fontSize: 11,
               padding: "3px 9px",
               borderRadius: 20,
-              background: "oklch(0.94 0.003 264)",
-              color: "oklch(0.56 0.01 264)",
+              background: "oklch(0.97 0 0)",
+              color: "oklch(0.556 0 0)",
               fontWeight: 500,
               fontFamily: "'Geist', system-ui, sans-serif",
             }}
@@ -854,11 +856,7 @@ function AddQuestionModal({
                 if (text.trim()) onConfirm(text.trim());
               }
             }}
-          />
-          <p style={{ fontSize: 11, color: "oklch(0.65 0.01 264)", margin: 0 }}>
-            Press ⌘Enter to add quickly
-          </p>
-        </div>
+          />      </div>
         <DialogFooter style={{ gap: 8 }}>
           <Button variant="outline" onClick={onClose}>
             Cancel
@@ -990,7 +988,15 @@ function MagicModal({
 export default function Home() {
   const [sessionName, setSessionName] = useState("Untitled Session");
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => localStorage.getItem("lunr_onboarding_done") !== "true"
+  );
+
+  const handleLaunch = () => {
+    localStorage.setItem("lunr_onboarding_done", "true");
+    setShowOnboarding(false);
+    toast.info("Launching session…");
+  };
 
   // Add modal
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -1063,7 +1069,7 @@ export default function Home() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
-      <Topbar sessionName={sessionName} onNameChange={setSessionName} />
+      <Topbar sessionName={sessionName} onNameChange={setSessionName} onLaunch={handleLaunch} />
 
       <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         <Sidebar
@@ -1113,14 +1119,14 @@ export default function Home() {
                   borderRadius: 12,
                   border: "1.5px dashed oklch(0.82 0.01 264)",
                   background: "transparent",
-                  color: "oklch(0.62 0.01 264)",
+                  color: "oklch(0.556 0 0)",
                   fontSize: 13,
                   fontWeight: 500,
                   fontFamily: "'Geist', system-ui, sans-serif",
                   transition: "all 0.15s",
                   marginTop: 4,
                 }}
-                className="hover:border-[oklch(0.48_0.18_264)] hover:text-[oklch(0.48_0.18_264)] hover:bg-[oklch(0.985_0.01_264)] transition-all"
+                className="hover:border-[oklch(0.55_0.2_250)] hover:text-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] transition-all"
               >
                 <ChevronRight size={15} />
                 Add another question

@@ -37,7 +37,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
     <div
       style={{
         minHeight: "100vh",
-        background: "oklch(0.985 0.01 240)",
+        background: "oklch(0.982 0.0107 271.3)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -148,7 +148,7 @@ function SubSection({ title, path, children }: { title: string; path: string; ch
           {path}
         </code>
       </div>
-      <div style={{ padding: 20, borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "oklch(0.985 0.01 240)" }}>
+      <div style={{ padding: 20, borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "oklch(0.982 0.0107 271.3)" }}>
         {children}
       </div>
     </div>
@@ -203,7 +203,7 @@ function SpacingRow({ name, px, rem }: { name: string; px: number; rem: string }
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "6px 0" }}>
       <span style={{ width: 32, fontSize: 11, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", flexShrink: 0 }}>{name}</span>
-      <div style={{ width: px, height: 18, background: "oklch(0.48 0.18 264 / 0.18)", borderRadius: 3, flexShrink: 0 }} />
+      <div style={{ width: px, height: 18, background: "oklch(0.55 0.2 250 / 0.18)", borderRadius: 3, flexShrink: 0 }} />
       <span style={{ fontSize: 11, color: "oklch(0.556 0 0)" }}>{rem} · {px}px</span>
     </div>
   );
@@ -213,7 +213,7 @@ function RadiusRow({ name, token, value }: { name: string; token: string; value:
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "6px 0" }}>
       <span style={{ width: 80, fontSize: 11, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)", flexShrink: 0 }}>{name}</span>
-      <div style={{ width: 56, height: 36, background: "oklch(0.48 0.18 264 / 0.12)", border: "1.5px solid oklch(0.48 0.18 264 / 0.25)", borderRadius: `var(${token})`, flexShrink: 0 }} />
+      <div style={{ width: 56, height: 36, background: "oklch(0.55 0.2 250 / 0.1)", border: "1.5px solid oklch(0.55 0.2 250 / 0.25)", borderRadius: `var(${token})`, flexShrink: 0 }} />
       <span style={{ fontSize: 11, fontFamily: "'Geist Mono', monospace", color: "oklch(0.556 0 0)" }}>{token} · {value}</span>
     </div>
   );
@@ -226,7 +226,7 @@ function PatternCard({ title, description, children }: { title: string; descript
         <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: "0 0 3px" }}>{title}</p>
         <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0, lineHeight: 1.5 }}>{description}</p>
       </div>
-      <div style={{ padding: 16, background: "oklch(0.985 0.01 240)" }}>{children}</div>
+      <div style={{ padding: 16, background: "oklch(0.982 0.0107 271.3)" }}>{children}</div>
     </div>
   );
 }
