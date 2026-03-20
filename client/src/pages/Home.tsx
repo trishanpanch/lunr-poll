@@ -2113,7 +2113,7 @@ export default function Home() {
                 }}
                 className="hover:border-[oklch(0.55_0.2_250)] hover:text-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] transition-all"
               >
-                <ChevronRight size={15} />
+                <PlusIcon size={15} />
                 Add another question
               </button>
             </div>

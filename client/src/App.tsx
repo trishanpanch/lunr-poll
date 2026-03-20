@@ -17,7 +17,6 @@ import { useState } from "react";
 function BottomNav() {
   const [location] = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-
   const tabs = [
     { href: "/", label: "Home", icon: <HomeIcon size={16} /> },
     { href: "/session", label: "Session Builder", icon: <LayoutDashboard size={16} /> },
@@ -27,6 +26,7 @@ function BottomNav() {
     { href: "/changelog", label: "Changelog", icon: <ScrollText size={16} /> },
   ];
 
+  // make sure to consider if you need authentication for certain routes
   return (
     <div
       style={{
