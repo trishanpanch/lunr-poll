@@ -12,8 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Eye, EyeOff, Lock, Copy, CheckCircle2, Circle,
-  Rocket, Sparkles, Type, ListChecks, Paperclip, Star,
-  GripVertical, Trash2, Plus, Loader2, ChevronRight,
+  Rocket, Sparkles, Type, ListChecks, Paperclip, Star, ToggleLeft,
+  GripVertical, Trash2, Plus, Loader2, ChevronRight, FolderOpen, BookOpen,
 } from "lucide-react";
 
 const DS_PASSWORD = "lunr";
@@ -234,19 +234,35 @@ function PatternCard({ title, description, children }: { title: string; descript
 // ── Main Design System ────────────────────────────────────────────────────────
 function DesignSystemContent() {
   const colors = [
+    // Primary
     { label: "Indigo (Primary)", token: "--indigo", value: "oklch(0.45 0.22 264)", light: false },
     { label: "Indigo Hover", token: "--indigo-hover", value: "oklch(0.38 0.22 264)", light: false },
     { label: "Indigo Light", token: "--indigo-light", value: "oklch(0.96 0.04 264)", light: true },
-    { label: "Crimson (Launch only)", token: "--crimson", value: "oklch(0.514 0.2 13.9)", light: false },
+    // AI accent
     { label: "Violet (AI)", token: "--violet", value: "oklch(0.52 0.22 290)", light: false },
+    { label: "Violet Hover", token: "--violet-hover", value: "oklch(0.46 0.22 290)", light: false },
     { label: "Violet Light", token: "--violet-light", value: "oklch(0.96 0.04 290)", light: true },
-    { label: "Background", token: "--background", value: "oklch(0.982 0.0107 271.3)", light: true },
-    { label: "Foreground", token: "--foreground", value: "oklch(0.145 0 0)", light: false },
+    // Reserved
+    { label: "Crimson (Launch only)", token: "--crimson", value: "oklch(0.514 0.2 13.9)", light: false },
+    // Success / Correct answer / Live status
+    { label: "Green (Success)", token: "--green", value: "oklch(0.52 0.18 160)", light: false },
+    { label: "Green Light", token: "--green-light", value: "oklch(0.92 0.08 160)", light: true },
+    { label: "Green Border", token: "--green-border", value: "oklch(0.82 0.1 160)", light: true },
+    // Warning / Draft status
+    { label: "Amber (Draft)", token: "--amber", value: "oklch(0.52 0.18 70)", light: false },
+    { label: "Amber Light", token: "--amber-light", value: "oklch(0.97 0.06 80)", light: true },
+    { label: "Amber Border", token: "--amber-border", value: "oklch(0.88 0.08 80)", light: true },
+    // Destructive / End session / Delete
+    { label: "Destructive", token: "--destructive", value: "oklch(0.577 0.245 27.325)", light: false },
+    { label: "Destructive Light", token: "--destructive-light", value: "oklch(0.97 0.04 27)", light: true },
+    // Neutral surfaces
+    { label: "Background", token: "--background", value: "oklch(0.9849 0.0029 264.5)", light: true },
     { label: "Card", token: "--card", value: "oklch(1 0 0)", light: true },
-    { label: "Muted", token: "--muted", value: "oklch(0.95 0.003 264)", light: true },
-    { label: "Muted Foreground", token: "--muted-foreground", value: "oklch(0.556 0 0)", light: false },
+    { label: "Muted", token: "--muted", value: "oklch(0.97 0 0)", light: true },
     { label: "Border", token: "--border", value: "oklch(0.922 0 0)", light: true },
-    { label: "Destructive", token: "--destructive", value: "oklch(0.57 0.22 27)", light: false },
+    // Text
+    { label: "Foreground", token: "--foreground", value: "oklch(0.145 0 0)", light: false },
+    { label: "Muted Foreground", token: "--muted-foreground", value: "oklch(0.556 0 0)", light: false },
   ];
 
   const radii = [
@@ -272,6 +288,7 @@ function DesignSystemContent() {
   const questionTypes = [
     { type: "Short Text", icon: <Type size={18} />, color: "oklch(0.45 0.22 264)", bg: "oklch(0.96 0.04 264)", desc: "Open-ended written response", token: "short_text" },
     { type: "Multiple Choice", icon: <ListChecks size={18} />, color: "oklch(0.52 0.22 290)", bg: "oklch(0.96 0.04 290)", desc: "Select from defined options", token: "multiple_choice" },
+    { type: "True / False", icon: <ToggleLeft size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.92 0.08 160)", desc: "Binary correct-answer question", token: "true_false" },
     { type: "File Upload", icon: <Paperclip size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.96 0.04 160)", desc: "Students submit a file", token: "file_upload" },
     { type: "Star Rating", icon: <Star size={18} />, color: "oklch(0.62 0.18 60)", bg: "oklch(0.97 0.04 60)", desc: "1–5 star rating scale", token: "rating" },
   ];
@@ -339,8 +356,10 @@ Harvard Poll — Design System
             <strong style={{ display: "block", marginBottom: 4, fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.07em" }}>Usage Rules</strong>
             · <strong>Indigo</strong> is the primary color. Use for all buttons, links, active states, and focus rings.<br />
             · <strong>Crimson</strong> is reserved for the <em>Launch Session</em> button only. Do not use it anywhere else.<br />
-            · <strong>Violet</strong> is the AI feature color. Use only for AI-related UI elements.<br />
-            · <strong>Destructive</strong> is for irreversible actions: delete, end session, remove.
+            · <strong>Violet</strong> is the AI feature color. Use for all AI-related UI — Generate button, AI panel header, question type pills, count selector selection states, and upload zone active state. All selection states inside the AI panel use <code>oklch(0.52 0.22 290)</code> border + <code>oklch(0.96 0.04 290)</code> background.<br />
+            · <strong>Green</strong> is for success states: correct answer indicators, Live session status badge, and the True answer selection.<br />
+            · <strong>Amber</strong> is for warning/pending states: Draft session status badge and validation hints awaiting user action.<br />
+            · <strong>Destructive</strong> is for irreversible actions: delete, end session, remove. Use the light variant for backgrounds, full value for text and borders.
           </div>
         </section>
 
@@ -452,8 +471,8 @@ Harvard Poll — Design System
 
         {/* ── Question Types ── */}
         <section style={{ marginBottom: 56 }}>
-          <SectionHeader title="Question Types" description="The four question types. Each has a canonical type string, icon, and color. Use these consistently." />
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+          <SectionHeader title="Question Types" description="Five question types. Each has a canonical type string, icon, and color. Use these consistently across all views." />
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
             {questionTypes.map((qt) => (
               <div key={qt.type} style={{ borderRadius: 12, border: "1px solid oklch(0.922 0 0)", background: "#fff", padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 9, background: qt.bg, display: "flex", alignItems: "center", justifyContent: "center", color: qt.color }}>
@@ -477,13 +496,23 @@ Harvard Poll — Design System
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <PatternCard
               title="Empty States"
-              description="Always include: a muted icon, a short heading, a one-sentence explanation, and at least one actionable CTA. Never leave a blank canvas with only descriptive text."
+              description="Professor-facing null states use a full-opacity emoji (not an icon box), a 15px 600-weight heading in foreground, and a 12px muted-foreground sentence. Always include one actionable CTA. The join-session screen follows the same emoji + text pattern."
             >
-              <div style={{ borderRadius: 10, border: "2px dashed oklch(0.922 0 0)", padding: "24px 16px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <div style={{ fontSize: 28, opacity: 0.25 }}>🗂️</div>
-                <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: 0 }}>No questions yet</p>
-                <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0 }}>Add a question or use a preset to get started.</p>
-                <Button size="sm" style={{ marginTop: 4 }}><Plus size={13} /> Add Question</Button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Session Builder null state */}
+                <div style={{ borderRadius: 10, border: "2px dashed oklch(0.922 0 0)", padding: "22px 16px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <div style={{ fontSize: 28 }}>🗂️</div>
+                  <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: 0 }}>No questions yet</p>
+                  <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0 }}>Add a question or use a preset to get started.</p>
+                  <Button size="sm" style={{ marginTop: 4 }}><Plus size={13} /> Add Question</Button>
+                </div>
+                {/* My Sessions null state */}
+                <div style={{ borderRadius: 10, border: "2px dashed oklch(0.922 0 0)", padding: "22px 16px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                  <div style={{ fontSize: 28 }}>📋</div>
+                  <p style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600, fontSize: 13, color: "oklch(0.145 0 0)", margin: 0 }}>No sessions yet</p>
+                  <p style={{ fontSize: 11.5, color: "oklch(0.556 0 0)", margin: 0 }}>Create your first session to get started.</p>
+                  <Button size="sm" style={{ marginTop: 4 }}><Plus size={13} /> New Session</Button>
+                </div>
               </div>
             </PatternCard>
 

@@ -221,7 +221,7 @@ function CopyDayButton({ day }: { day: ChangelogDay }) {
   return (
     <button
       onClick={handleCopy}
-      title="Copy for Google Chat"
+      title="Copy"
       style={{
         display: "flex",
         alignItems: "center",
@@ -242,7 +242,7 @@ function CopyDayButton({ day }: { day: ChangelogDay }) {
       }}
     >
       {copied ? <Check size={13} /> : <Copy size={13} />}
-      {copied ? "Copied!" : "Copy for Google Chat"}
+      {copied ? "Copied!" : "Copy"}
     </button>
   );
 }

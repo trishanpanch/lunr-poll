@@ -10,7 +10,8 @@ import { toast } from "sonner";
 import {
   Rocket, Sparkles, Type, ListChecks, Paperclip, Star,
   RotateCcw, GripVertical, X, ChevronRight, CheckCircle2,
-  Circle, Pencil, ArrowLeft
+  Circle, Pencil, ArrowLeft, ToggleLeft, Upload, FileText,
+  Loader2, Plus as PlusIcon, Trash2 as TrashIcon,
 } from "lucide-react";
 import {
   Dialog,
@@ -36,7 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type QuestionType = "Short Text" | "Multiple Choice" | "File Upload" | "Star Rating";
+type QuestionType = "Short Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False";
 
 interface Question {
   id: string;
@@ -46,13 +47,15 @@ interface Question {
   color: string;
   options?: string[]; // Multiple Choice answer options
   correctIndex?: number; // Index of the correct answer for Multiple Choice
+  tfAnswer?: "True" | "False"; // Correct answer for True / False questions
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
-  "Short Text":      { icon: <Type size={18} />,       color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
-  "Multiple Choice": { icon: <ListChecks size={18} />, color: "oklch(0.52 0.22 290)", desc: "Select from options" },
-  "File Upload":     { icon: <Paperclip size={18} />,  color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
-  "Star Rating":     { icon: <Star size={18} />,       color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
+  "Short Text":      { icon: <Type size={18} />,        color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
+  "Multiple Choice": { icon: <ListChecks size={18} />,  color: "oklch(0.52 0.22 290)", desc: "Select from options" },
+  "File Upload":     { icon: <Paperclip size={18} />,   color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
+  "Star Rating":     { icon: <Star size={18} />,        color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
+  "True / False":    { icon: <ToggleLeft size={18} />,  color: "oklch(0.42 0.14 60)",  desc: "True or false answer" },
 };
 
 const PRESETS = [
@@ -865,6 +868,31 @@ function QuestionCard({
             {question.text}
           </p>
         )}
+        {/* True / False answer display */}
+        {question.type === "True / False" && (
+          <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
+            {["True", "False"].map((label) => (
+              <span
+                key={label}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  fontSize: 11.5,
+                  padding: "3px 10px",
+                  borderRadius: 20,
+                  background: label === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.96 0.04 10)",
+                  color: label === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.42 0.14 10)",
+                  fontWeight: 600,
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  border: label === "True" ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.08 10)",
+                }}
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
         {/* Multiple Choice options preview */}
         {question.type === "Multiple Choice" && question.options && question.options.length > 0 && (
           <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 5 }}>
@@ -967,6 +995,7 @@ const SUGGESTIONS: Record<QuestionType, string[]> = {
     "How clear was the explanation of today's main concept?",
     "Rate the pace of today's lecture.",
   ],
+  "True / False": [],
 };
 
 function AddQuestionModal({
@@ -978,7 +1007,7 @@ function AddQuestionModal({
   open: boolean;
   type: QuestionType | null;
   onClose: () => void;
-  onConfirm: (text: string, options?: string[], correctIndex?: number) => void;
+  onConfirm: (text: string, options?: string[], correctIndex?: number, tfAnswer?: "True" | "False") => void;
 }) {
   const [text, setText] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -987,8 +1016,12 @@ function AddQuestionModal({
   const meta = type ? TYPE_META[type] : null;
   const suggestions = type ? SUGGESTIONS[type] : [];
   const isMultipleChoice = type === "Multiple Choice";
+  const isTrueFalse = type === "True / False";
+  const [tfAnswer, setTfAnswer] = useState<"True" | "False" | null>(null);
   const filledOptions = options.map((o, i) => ({ text: o, idx: i })).filter((o) => o.text.trim() !== "");
-  const canSubmit = text.trim() !== "" && (!isMultipleChoice || (filledOptions.length >= 2 && correctIndex !== null));
+  const canSubmit = text.trim() !== ""
+    && (!isMultipleChoice || (filledOptions.length >= 2 && correctIndex !== null))
+    && (!isTrueFalse || tfAnswer !== null);
 
   const addOption = () => setOptions((prev) => [...prev, ""]);
   const updateOption = (i: number, val: string) => setOptions((prev) => prev.map((o, idx) => idx === i ? val : o));
@@ -1002,6 +1035,7 @@ function AddQuestionModal({
       setShowSuggestions(false);
       setOptions(["", ""]);
       setCorrectIndex(null);
+      setTfAnswer(null);
     }
   }, [open]);
 
@@ -1045,6 +1079,8 @@ function AddQuestionModal({
                 ? "e.g. Which of the following best describes the concept covered today?"
                 : type === "File Upload"
                 ? "e.g. Upload a photo of your completed worksheet."
+                : type === "True / False"
+                ? "e.g. The concept covered today applies in real-world scenarios."
                 : "e.g. What was the main takeaway from today's lecture?"
             }
             rows={3}
@@ -1057,7 +1093,8 @@ function AddQuestionModal({
             }}
           />
 
-          {/* Suggestions toggle */}
+          {/* Suggestions toggle + list — hidden for True/False */}
+          {type !== "True / False" && (<>
           <button
             type="button"
             onClick={() => setShowSuggestions((v) => !v)}
@@ -1117,6 +1154,56 @@ function AddQuestionModal({
                   {s}
                 </button>
               ))}
+            </div>
+          )}
+          </>)}
+
+          {/* True / False answer selector */}
+          {isTrueFalse && (
+            <div style={{ marginTop: 10 }}>
+              <Label style={{ fontSize: 13, fontWeight: 600, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif", display: "block", marginBottom: 8 }}>
+                Correct answer
+              </Label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {(["True", "False"] as const).map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => setTfAnswer(label)}
+                    style={{
+                      flex: 1,
+                      padding: "10px 0",
+                      borderRadius: 10,
+                      border: tfAnswer === label
+                        ? "2px solid oklch(0.52 0.18 160)"
+                        : "1.5px solid oklch(0.88 0 0)",
+                      background: tfAnswer === label
+                        ? "oklch(0.92 0.08 160)"
+                        : "oklch(0.985 0 0)",
+                      color: tfAnswer === label
+                        ? "oklch(0.38 0.14 160)"
+                        : "oklch(0.45 0 0)",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                    }}
+                  >
+                    {tfAnswer === label && <CheckCircle2 size={14} />}
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {tfAnswer === null && (
+                <p style={{ fontSize: 11, color: "oklch(0.577 0.245 27.325)", margin: "6px 0 0", fontFamily: "'Geist', system-ui, sans-serif" }}>
+                  Select the correct answer.
+                </p>
+              )}
             </div>
           )}
 
@@ -1252,7 +1339,12 @@ function AddQuestionModal({
             Cancel
           </Button>
           <Button
-            onClick={() => canSubmit && onConfirm(text.trim(), isMultipleChoice ? filledOptions.map(o => o.text) : undefined, isMultipleChoice && correctIndex !== null ? correctIndex : undefined)}
+            onClick={() => canSubmit && onConfirm(
+              text.trim(),
+              isMultipleChoice ? filledOptions.map(o => o.text) : undefined,
+              isMultipleChoice && correctIndex !== null ? correctIndex : undefined,
+              isTrueFalse ? (tfAnswer ?? undefined) : undefined,
+            ) }
             disabled={!canSubmit}
             style={{
               background: "oklch(0.45 0.22 264)",
@@ -1268,109 +1360,404 @@ function AddQuestionModal({
   );
 }
 
-// ── Magic Modal ─────────────────────────────────────────────────────────────
-function MagicModal({
+// ── AI Panel ────────────────────────────────────────────────────────────────
+type AiGenQuestion = { type: QuestionType; text: string; selected: boolean };
+
+function AiPanel({
   open,
   onClose,
-  onGenerate,
+  onAddQuestions,
 }: {
   open: boolean;
   onClose: () => void;
-  onGenerate: (input: string) => void;
+  onAddQuestions: (qs: Question[]) => void;
 }) {
-  const [input, setInput] = useState("");
+  const [content, setContent] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<Set<QuestionType>>(new Set(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]));
+  const [count, setCount] = useState(3);
   const [loading, setLoading] = useState(false);
+  const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const scrollBodyRef = useRef<HTMLDivElement>(null);
+
+  const scrollPanelToBottom = () => {
+    requestAnimationFrame(() => {
+      if (scrollBodyRef.current) {
+        scrollBodyRef.current.scrollTop = scrollBodyRef.current.scrollHeight;
+      }
+    });
+  };
+
+  const scrollTextareaToBottom = scrollPanelToBottom;
 
   useEffect(() => {
-    if (open) { setInput(""); setLoading(false); }
+    if (!open) {
+      setContent("");
+      setGenerated([]);
+      setLoading(false);
+    }
   }, [open]);
 
-  const run = () => {
-    if (!input.trim() || loading) return;
+  const toggleType = (t: QuestionType) => {
+    setSelectedTypes((prev) => {
+      const next = new Set(prev);
+      if (next.has(t)) { if (next.size > 1) next.delete(t); }
+      else next.add(t);
+      return next;
+    });
+  };
+
+  const handleFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setContent((prev) => prev + (prev ? "\n\n" : "") + (e.target?.result as string));
+      scrollTextareaToBottom();
+    };
+    reader.readAsText(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  };
+
+  const SAMPLE_QUESTIONS: Record<QuestionType, string[]> = {
+    "Short Text": [
+      "In your own words, summarize the key concept from today's content.",
+      "What is one real-world application of what we covered today?",
+      "What question do you still have after today's session?",
+    ],
+    "Multiple Choice": [
+      "Which of the following best describes the main idea of the material?",
+      "What is the correct definition of the key term introduced today?",
+      "Which example best illustrates the principle we discussed?",
+    ],
+    "File Upload": [
+      "Upload a photo of your completed worksheet.",
+      "Submit your annotated diagram from today's activity.",
+    ],
+    "Star Rating": [
+      "How confident do you feel about today's material?",
+      "Rate your overall understanding of today's lecture.",
+    ],
+    "True / False": [
+      "The concept we covered today only applies in theoretical settings.",
+      "Today's case study is an example of the principle we defined in week 1.",
+      "The process we discussed today is reversible under standard conditions.",
+    ],
+  };
+
+  const generate = () => {
+    if (!content.trim() || loading) return;
     setLoading(true);
     setTimeout(() => {
-      onGenerate(input.trim());
+      const types = Array.from(selectedTypes);
+      const pool: AiGenQuestion[] = [];
+      for (let i = 0; i < count; i++) {
+        const t = types[i % types.length];
+        const samples = SAMPLE_QUESTIONS[t];
+        const text = samples[i % samples.length];
+        pool.push({ type: t, text, selected: true });
+      }
+      setGenerated(pool);
       setLoading(false);
     }, 1800);
   };
 
+  const toggleSelect = (i: number) =>
+    setGenerated((prev) => prev.map((q, idx) => idx === i ? { ...q, selected: !q.selected } : q));
+
+  const addSelected = () => {
+    const toAdd: Question[] = generated
+      .filter((q) => q.selected)
+      .map((q) => ({
+        id: uid(),
+        type: q.type,
+        icon: TYPE_META[q.type].icon,
+        text: q.text,
+        color: TYPE_META[q.type].color,
+      }));
+    onAddQuestions(toAdd);
+  };
+
+  const selectedCount = generated.filter((q) => q.selected).length;
+
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && !loading && onClose()}>
-      <DialogContent style={{ maxWidth: 460, borderRadius: 18 }}>
-        <DialogHeader>
-          <DialogTitle
-            style={{
-              fontFamily: "'Geist', system-ui, sans-serif",
-              fontSize: 17,
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              color: "oklch(0.38 0.18 290)",
-            }}
-          >
-            <Sparkles size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
-            Generate Questions with AI
-          </DialogTitle>
-        </DialogHeader>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <Label
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: "oklch(0.205 0 0)",
-              fontFamily: "'Geist', system-ui, sans-serif",
-            }}
-          >
-            Paste your lecture notes, topic, or learning objectives
-          </Label>
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g. Today we covered Newton's three laws of motion and their real-world applications in engineering…"
-            rows={5}
-            style={{ borderRadius: 10, fontSize: 14, resize: "none" }}
-            autoFocus
-            disabled={loading}
-          />
-        </div>
-        {loading && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              fontSize: 13,
-              color: "oklch(0.52 0.22 290)",
-              fontWeight: 500,
-            }}
-          >
-            <span className="spinner" />
-            Generating questions…
+    <div
+      style={{
+        width: open ? 340 : 0,
+        minWidth: open ? 340 : 0,
+        overflow: "hidden",
+        transition: "width 0.3s ease, min-width 0.3s ease",
+        borderLeft: open ? "1px solid oklch(0.922 0 0)" : "none",
+        background: "#fff",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+      }}
+    >
+      {open && (
+        <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+          {/* Header */}
+          <div style={{
+            padding: "16px 18px 14px",
+            borderBottom: "1px solid oklch(0.922 0 0)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            background: "linear-gradient(135deg, oklch(0.97 0.03 290) 0%, oklch(0.98 0.02 10) 100%)",
+            flexShrink: 0,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Sparkles size={16} style={{ color: "oklch(0.52 0.22 290)" }} />
+              <span style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: "oklch(0.38 0.18 290)" }}>
+                Generate with AI
+              </span>
+            </div>
+            <button
+              onClick={onClose}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.556 0 0)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
+              className="hover:bg-[oklch(0.93_0.03_290)] transition-colors"
+            >
+              <X size={15} />
+            </button>
           </div>
-        )}
-        <DialogFooter style={{ gap: 8 }}>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
-            Cancel
-          </Button>
-          <Button
-            onClick={run}
-            disabled={!input.trim() || loading}
-            style={{
-              background: "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
-              color: "#fff",
-              fontFamily: "'Geist', system-ui, sans-serif",
-              fontWeight: 700,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            <Sparkles size={14} />
-            Generate
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+
+          {/* Scrollable body */}
+          <div ref={scrollBodyRef} style={{ flex: 1, overflowY: "auto", padding: "18px 18px 0" }}>
+
+            {/* Upload / Paste area */}
+            {generated.length === 0 && (
+              <>
+                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                  Source material
+                </p>
+
+                {/* Drop zone */}
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    border: `1.5px dashed ${isDragging ? "oklch(0.52 0.22 290)" : "oklch(0.82 0.01 264)"}`,
+                    borderRadius: 10,
+                    padding: "14px 12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 6,
+                    cursor: "pointer",
+                    background: isDragging ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
+                    transition: "all 0.15s",
+                    marginBottom: 10,
+                  }}
+                  className="hover:border-[oklch(0.52_0.22_290)] hover:bg-[oklch(0.97_0.03_290)] transition-all"
+                >
+                  <Upload size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
+                  <span style={{ fontSize: 12, color: "oklch(0.45 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center", lineHeight: 1.4 }}>
+                    <strong>Drop a file</strong> or click to upload<br />
+                    <span style={{ color: "oklch(0.65 0 0)", fontSize: 11 }}>TXT, PDF, DOCX supported</span>
+                  </span>
+                  <input ref={fileInputRef} type="file" accept=".txt,.pdf,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+                </div>
+
+                <p style={{ margin: "0 0 6px", fontSize: 11.5, fontWeight: 600, color: "oklch(0.65 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center" }}>or paste text</p>
+
+                <Textarea
+                  ref={contentTextareaRef}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  onPaste={() => scrollTextareaToBottom()}
+                  placeholder="Paste your lecture notes, slides, or learning objectives here…"
+                  rows={6}
+                  style={{ borderRadius: 10, fontSize: 13, resize: "none", marginBottom: 16 }}
+                  disabled={loading}
+                />
+
+                {/* Question types */}
+                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                  Question types
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+                  {(Object.keys(TYPE_META) as QuestionType[]).map((t) => {
+                    const meta = TYPE_META[t];
+                    const active = selectedTypes.has(t);
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => toggleType(t)}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 5,
+                          padding: "5px 10px",
+                          borderRadius: 20,
+                          border: `1.5px solid ${active ? "oklch(0.52 0.22 290)" : "oklch(0.88 0 0)"}`,
+                          background: active ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
+                          color: active ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          fontFamily: "'Geist', system-ui, sans-serif",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        {meta.icon}
+                        {t}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Count */}
+                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                  Number of questions
+                </p>
+                <div style={{ display: "flex", gap: 6, marginBottom: 18 }}>
+                  {[2, 3, 5, 8].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setCount(n)}
+                      style={{
+                        width: 40, height: 36,
+                        borderRadius: 8,
+                        border: `1.5px solid ${count === n ? "oklch(0.52 0.22 290)" : "oklch(0.88 0 0)"}`,
+                        background: count === n ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
+                        color: count === n ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Generated preview */}
+            {generated.length > 0 && (
+              <>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+                    {generated.length} questions generated
+                  </p>
+                  <button
+                    onClick={() => { setGenerated([]); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "oklch(0.55 0.2 250)", fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600 }}
+                  >
+                    ← Regenerate
+                  </button>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                  {generated.map((q, i) => {
+                    const meta = TYPE_META[q.type];
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => toggleSelect(i)}
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 10,
+                          padding: "12px 12px",
+                          borderRadius: 10,
+                          border: `1.5px solid ${q.selected ? meta.color + "60" : "oklch(0.922 0 0)"}`,
+                          background: q.selected ? meta.color + "08" : "oklch(0.985 0 0)",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        <div style={{
+                          width: 22, height: 22, borderRadius: 6,
+                          background: q.selected ? meta.color + "20" : "oklch(0.93 0 0)",
+                          color: q.selected ? meta.color : "oklch(0.75 0 0)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          flexShrink: 0, marginTop: 1,
+                        }}>
+                          {q.selected ? <CheckCircle2 size={13} /> : <Circle size={13} />}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: meta.color, marginBottom: 3 }}>
+                            {meta.icon} {q.type}
+                          </span>
+                          <p style={{ margin: 0, fontSize: 12.5, color: "oklch(0.205 0 0)", lineHeight: 1.5, fontFamily: "'Geist', system-ui, sans-serif" }}>{q.text}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div style={{ padding: "14px 18px", borderTop: "1px solid oklch(0.922 0 0)", flexShrink: 0 }}>
+            {generated.length === 0 ? (
+              <button
+                onClick={generate}
+                disabled={!content.trim() || loading}
+                style={{
+                  width: "100%",
+                  padding: "10px 0",
+                  borderRadius: 10,
+                  border: "none",
+                  background: !content.trim() || loading
+                    ? "oklch(0.88 0 0)"
+                    : "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
+                  color: !content.trim() || loading ? "oklch(0.6 0 0)" : "#fff",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 7,
+                  cursor: !content.trim() || loading ? "not-allowed" : "pointer",
+                  transition: "all 0.15s",
+                  boxShadow: !content.trim() || loading ? "none" : "0 2px 10px oklch(0.52 0.22 290 / 0.28)",
+                }}
+              >
+                {loading ? <><Loader2 size={14} className="animate-spin" /> Generating…</> : <><Sparkles size={14} /> Generate Questions</>}
+              </button>
+            ) : (
+              <button
+                onClick={addSelected}
+                disabled={selectedCount === 0}
+                style={{
+                  width: "100%",
+                  padding: "10px 0",
+                  borderRadius: 10,
+                  border: "none",
+                  background: selectedCount === 0 ? "oklch(0.88 0 0)" : "oklch(0.45 0.22 264)",
+                  color: selectedCount === 0 ? "oklch(0.6 0 0)" : "#fff",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 7,
+                  cursor: selectedCount === 0 ? "not-allowed" : "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                <PlusIcon size={14} />
+                Add {selectedCount} Question{selectedCount !== 1 ? "s" : ""} to Session
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1494,8 +1881,8 @@ export default function Home() {
   // Type picker overlay
   const [typePickerOpen, setTypePickerOpen] = useState(false);
 
-  // Magic modal
-  const [magicOpen, setMagicOpen] = useState(false);
+  // AI panel
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
 
   const openAddType = (type: QuestionType) => {
     setAddModalType(type);
@@ -1525,33 +1912,10 @@ export default function Home() {
     toast.success(`"${preset.name}" preset added — ${newQs.length} question${newQs.length > 1 ? "s" : ""}`);
   };
 
-  const handleMagicGenerate = (input: string) => {
-    const generated: Question[] = [
-      {
-        id: uid(),
-        type: "Short Text",
-        icon: TYPE_META["Short Text"].icon,
-        text: "In your own words, summarize the key concept from today's content.",
-        color: TYPE_META["Short Text"].color,
-      },
-      {
-        id: uid(),
-        type: "Multiple Choice",
-        icon: TYPE_META["Multiple Choice"].icon,
-        text: "Which of the following best describes the main idea of the material?",
-        color: TYPE_META["Multiple Choice"].color,
-      },
-      {
-        id: uid(),
-        type: "Star Rating",
-        icon: TYPE_META["Star Rating"].icon,
-        text: "How confident do you feel about this topic after today's session?",
-        color: TYPE_META["Star Rating"].color,
-      },
-    ];
-    setQuestions((prev) => [...prev, ...generated]);
-    setMagicOpen(false);
-    toast.success("✨ 3 questions generated");
+  const handleAiAddQuestions = (newQs: Question[]) => {
+    setQuestions((prev) => [...prev, ...newQs]);
+    setAiPanelOpen(false);
+    toast.success(`✨ ${newQs.length} question${newQs.length !== 1 ? "s" : ""} added from AI`);
   };
 
   const removeQuestion = (id: string) => {
@@ -1582,7 +1946,7 @@ export default function Home() {
         <Sidebar
           onAddType={openAddType}
           onAddPreset={addPreset}
-          onOpenMagic={() => setMagicOpen(true)}
+          onOpenMagic={() => setAiPanelOpen(true)}
         />
 
         {/* Canvas */}
@@ -1594,6 +1958,7 @@ export default function Home() {
             display: "flex",
             flexDirection: "column",
             gap: 16,
+            transition: "margin-right 0.3s ease",
           }}
         >
           {/* Onboarding */}
@@ -1646,11 +2011,18 @@ export default function Home() {
             </div>
           ) : (
             <EmptyState
-              onMagic={() => setMagicOpen(true)}
+              onMagic={() => setAiPanelOpen(true)}
               onManual={() => setTypePickerOpen(true)}
             />
           )}
         </main>
+
+        {/* AI Right Panel */}
+        <AiPanel
+          open={aiPanelOpen}
+          onClose={() => setAiPanelOpen(false)}
+          onAddQuestions={handleAiAddQuestions}
+        />
       </div>
 
       {/* Question Type Picker Overlay */}
@@ -1746,11 +2118,7 @@ export default function Home() {
         onClose={() => setAddModalOpen(false)}
         onConfirm={confirmAdd}
       />
-      <MagicModal
-        open={magicOpen}
-        onClose={() => setMagicOpen(false)}
-        onGenerate={handleMagicGenerate}
-      />
+      {/* AI panel is rendered inline, not as a modal */}
 
       {/* Unsaved Changes Dialog */}
       <AlertDialog open={leaveDialogOpen} onOpenChange={setLeaveDialogOpen}>

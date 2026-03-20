@@ -96,18 +96,7 @@ export default function Join() {
 
           {/* Header */}
           <div style={{ textAlign: "center", marginBottom: 36 }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: 14,
-              background: BLUE_LIGHT,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              margin: "0 auto 20px",
-              color: BLUE,
-            }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                <path d="M6 12v5c3 3 9 3 12 0v-5" />
-              </svg>
-            </div>
+            <div style={{ fontSize: 48, lineHeight: 1, margin: "0 auto 20px" }}>🎓</div>
             <h1 style={{
               fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 800, fontSize: 28,

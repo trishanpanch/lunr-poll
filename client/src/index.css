@@ -5,6 +5,8 @@
    Primary:     Indigo   oklch(0.45 0.22 264)     — all primary actions
    Launch CTA:  Crimson  oklch(0.514 0.2 13.9)    — Launch Session button ONLY (one place)
    AI Accent:   Violet   oklch(0.52 0.22 290)     — AI generation UI only
+   Success:     Green    oklch(0.52 0.18 160)      — correct answers, Live badge, True selection
+   Warning:     Amber    oklch(0.52 0.18 70)       — Draft badge, pending validation
    Destructive: Red-org  oklch(0.577 0.245 27.325) — delete / end session
    Background:  #F9FAFC  oklch(0.982 0.0107 271.3) — page background
 
@@ -116,6 +118,21 @@
   --violet: oklch(0.52 0.22 290);
   --violet-light: oklch(0.96 0.04 290);
   --violet-hover: oklch(0.46 0.22 290);
+
+  /* Green — success / correct answer / Live session badge / True answer selection */
+  --green: oklch(0.52 0.18 160);
+  --green-hover: oklch(0.44 0.16 160);
+  --green-light: oklch(0.92 0.08 160);
+  --green-border: oklch(0.82 0.1 160);
+
+  /* Amber — warning / Draft session badge / pending validation */
+  --amber: oklch(0.52 0.18 70);
+  --amber-hover: oklch(0.44 0.16 70);
+  --amber-light: oklch(0.97 0.06 80);
+  --amber-border: oklch(0.88 0.08 80);
+
+  /* Destructive light — background tint for destructive zones */
+  --destructive-light: oklch(0.97 0.04 27);
 
   /* ── Elevation (shadow) tokens ── */
   --shadow-card:  0 1px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);  /* resting cards, sidebar panels */

@@ -141,12 +141,14 @@ function SessionCard({
   onDelete,
   onViewResults,
   onGoLive,
+  onEndSession,
 }: {
   session: StoredSession;
   onEdit: () => void;
   onDelete: () => void;
   onViewResults: () => void;
   onGoLive: () => void;
+  onEndSession: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -321,21 +323,39 @@ function SessionCard({
           </>
         )}
         {session.status === "live" && (
-          <button
-            onClick={onViewResults}
-            style={{
-              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              padding: "9px 14px", borderRadius: 10,
-              background: "oklch(0.94 0.08 160)",
-              border: "1.5px solid oklch(0.82 0.1 160)",
-              color: "oklch(0.38 0.14 160)", fontSize: 13, fontWeight: 600,
-              fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
-              transition: "all 0.15s",
-            }}
-            className="hover:bg-[oklch(0.9_0.1_160)] transition-colors"
-          >
-            <BarChart2 size={13} /> Live Results <ChevronRight size={14} />
-          </button>
+          <div style={{ display: "flex", gap: 8, flex: 1 }}>
+            <button
+              onClick={onViewResults}
+              style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                padding: "9px 14px", borderRadius: 10,
+                background: "oklch(0.94 0.08 160)",
+                border: "1.5px solid oklch(0.82 0.1 160)",
+                color: "oklch(0.38 0.14 160)", fontSize: 13, fontWeight: 600,
+                fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+              className="hover:bg-[oklch(0.9_0.1_160)] transition-colors"
+            >
+              <BarChart2 size={13} /> Live Results <ChevronRight size={14} />
+            </button>
+            <button
+              onClick={onEndSession}
+              title="End this session"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                padding: "9px 14px", borderRadius: 10,
+                background: "oklch(0.97 0.02 10)",
+                border: "1.5px solid oklch(0.88 0.06 10)",
+                color: "oklch(0.5 0.18 10)", fontSize: 13, fontWeight: 600,
+                fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
+                transition: "all 0.15s", whiteSpace: "nowrap",
+              }}
+              className="hover:bg-[oklch(0.94_0.04_10)] transition-colors"
+            >
+              End Session
+            </button>
+          </div>
         )}
         {session.status === "closed" && (
           <button
@@ -487,6 +507,14 @@ export default function Sessions() {
     });
   };
 
+  const handleEndSession = (id: string) => {
+    setSessions((prev) => {
+      const updated = prev.map((s) => s.id === id ? { ...s, status: "closed" as SessionStatus } : s);
+      saveSessions(updated);
+      return updated;
+    });
+  };
+
   const counts: Record<Filter, number> = {
     all: sessions.length,
     draft: sessions.filter((s) => s.status === "draft").length,
@@ -627,6 +655,7 @@ export default function Sessions() {
                 onDelete={() => handleDelete(session.id)}
                 onViewResults={() => {}}
                 onGoLive={() => handleGoLive(session.id)}
+                onEndSession={() => handleEndSession(session.id)}
               />
             ))}
           </div>
