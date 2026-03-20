@@ -1361,7 +1361,13 @@ function AddQuestionModal({
 }
 
 // ── AI Panel ────────────────────────────────────────────────────────────────
-type AiGenQuestion = { type: QuestionType; text: string; selected: boolean };
+type AiGenQuestion = {
+  type: QuestionType;
+  text: string;
+  selected: boolean;
+  options?: string[];       // Multiple Choice
+  correctAnswer?: string;  // Multiple Choice (option text) or True / False ("True"/"False")
+};
 
 function AiPanel({
   open,
@@ -1425,47 +1431,101 @@ function AiPanel({
     if (file) handleFile(file);
   };
 
-  const SAMPLE_QUESTIONS: Record<QuestionType, string[]> = {
-    "Short Text": [
-      "In your own words, summarize the key concept from today's content.",
-      "What is one real-world application of what we covered today?",
-      "What question do you still have after today's session?",
-    ],
-    "Multiple Choice": [
-      "Which of the following best describes the main idea of the material?",
-      "What is the correct definition of the key term introduced today?",
-      "Which example best illustrates the principle we discussed?",
-    ],
-    "File Upload": [
-      "Upload a photo of your completed worksheet.",
-      "Submit your annotated diagram from today's activity.",
-    ],
-    "Star Rating": [
-      "How confident do you feel about today's material?",
-      "Rate your overall understanding of today's lecture.",
-    ],
-    "True / False": [
-      "The concept we covered today only applies in theoretical settings.",
-      "Today's case study is an example of the principle we defined in week 1.",
-      "The process we discussed today is reversible under standard conditions.",
-    ],
-  };
-
-  const generate = () => {
+  const generate = async () => {
     if (!content.trim() || loading) return;
     setLoading(true);
-    setTimeout(() => {
-      const types = Array.from(selectedTypes);
-      const pool: AiGenQuestion[] = [];
-      for (let i = 0; i < count; i++) {
-        const t = types[i % types.length];
-        const samples = SAMPLE_QUESTIONS[t];
-        const text = samples[i % samples.length];
-        pool.push({ type: t, text, selected: true });
-      }
+    setGenerated([]);
+
+    const apiKey = import.meta.env.VITE_FRONTEND_FORGE_API_KEY as string;
+    const apiBase = (import.meta.env.VITE_FRONTEND_FORGE_API_URL as string) || "https://forge.manus.ai";
+
+    const typeList = Array.from(selectedTypes);
+
+    // Build a distribution plan so types are spread evenly across the requested count
+    const typePlan: QuestionType[] = [];
+    for (let i = 0; i < count; i++) typePlan.push(typeList[i % typeList.length]);
+
+    const typeInstructions = typePlan.map((t, i) => {
+      if (t === "Multiple Choice") return `Question ${i + 1}: type "Multiple Choice" — provide exactly 4 answer options ("options" array), mark the correct one in "correctAnswer" (must match one option exactly)`;
+      if (t === "True / False") return `Question ${i + 1}: type "True / False" — "correctAnswer" must be exactly "True" or "False"`;
+      if (t === "Star Rating") return `Question ${i + 1}: type "Star Rating" — ask students to rate something specific from the content on a 1–5 scale`;
+      if (t === "File Upload") return `Question ${i + 1}: type "File Upload" — ask students to upload something directly related to the content`;
+      return `Question ${i + 1}: type "Short Text" — open-ended question requiring a written answer grounded in the content`;
+    }).join("\n");
+
+    const systemPrompt = `You are an expert educator who creates precise, content-specific classroom questions.
+Your job: read the provided source material and extract ${count} specific knowledge atoms — concrete facts, definitions, relationships, or claims — then turn each into a question.
+
+CRITICAL RULES:
+- Every question MUST reference specific names, numbers, terms, or claims from the source material. Never write generic questions like "What was the main takeaway?" or "Summarize today's content."
+- If the text mentions a specific person, date, formula, law, or term — use it in the question.
+- Multiple Choice: the 3 wrong options must be plausible but clearly incorrect based on the text.
+- True / False: the statement must be directly verifiable from the text (not opinion).
+- Return ONLY a valid JSON array. No markdown, no explanation, no code fences.
+
+JSON schema for each item:
+{ "type": "Short Text" | "Multiple Choice" | "True / False" | "Star Rating" | "File Upload", "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only) }`;
+
+    const userPrompt = `Source material:
+---
+${content.slice(0, 8000)}
+---
+
+Generate exactly ${count} questions following this plan:
+${typeInstructions}
+
+Return ONLY the JSON array.`;
+
+    try {
+      const res = await fetch(`${apiBase}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-5",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          max_tokens: 2000,
+          temperature: 0.4,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`API error ${res.status}`);
+
+      const data = await res.json();
+      const raw: string = data.choices?.[0]?.message?.content ?? "";
+
+      // Strip any accidental markdown code fences
+      const cleaned = raw.replace(/^```[\w]*\n?/m, "").replace(/\n?```$/m, "").trim();
+      const parsed: Array<{
+        type: string;
+        text: string;
+        options?: string[];
+        correctAnswer?: string;
+      }> = JSON.parse(cleaned);
+
+      const pool: AiGenQuestion[] = parsed
+        .filter((q) => q.text && q.type)
+        .map((q) => ({
+          type: q.type as QuestionType,
+          text: q.text,
+          selected: true,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+        }));
+
+      if (pool.length === 0) throw new Error("No questions returned");
       setGenerated(pool);
+    } catch (err) {
+      console.error("AI generation error:", err);
+      toast.error("Generation failed — check your content and try again.");
+    } finally {
       setLoading(false);
-    }, 1800);
+    }
   };
 
   const toggleSelect = (i: number) =>
@@ -1474,13 +1534,28 @@ function AiPanel({
   const addSelected = () => {
     const toAdd: Question[] = generated
       .filter((q) => q.selected)
-      .map((q) => ({
-        id: uid(),
-        type: q.type,
-        icon: TYPE_META[q.type].icon,
-        text: q.text,
-        color: TYPE_META[q.type].color,
-      }));
+      .map((q) => {
+        const base: Question = {
+          id: uid(),
+          type: q.type,
+          icon: TYPE_META[q.type].icon,
+          text: q.text,
+          color: TYPE_META[q.type].color,
+        };
+        // Carry over Multiple Choice options and correct answer
+        if (q.type === "Multiple Choice" && q.options && q.options.length >= 2) {
+          base.options = q.options;
+          if (q.correctAnswer) {
+            const idx = q.options.findIndex((o) => o === q.correctAnswer);
+            if (idx !== -1) base.correctIndex = idx;
+          }
+        }
+        // Carry over True / False correct answer
+        if (q.type === "True / False" && (q.correctAnswer === "True" || q.correctAnswer === "False")) {
+          base.tfAnswer = q.correctAnswer as "True" | "False";
+        }
+        return base;
+      });
     onAddQuestions(toAdd);
   };
 
@@ -1689,7 +1764,40 @@ function AiPanel({
                           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: meta.color, marginBottom: 3 }}>
                             {meta.icon} {q.type}
                           </span>
-                          <p style={{ margin: 0, fontSize: 12.5, color: "oklch(0.205 0 0)", lineHeight: 1.5, fontFamily: "'Geist', system-ui, sans-serif" }}>{q.text}</p>
+                          <p style={{ margin: "0 0 6px", fontSize: 12.5, color: "oklch(0.205 0 0)", lineHeight: 1.5, fontFamily: "'Geist', system-ui, sans-serif" }}>{q.text}</p>
+                          {/* Multiple Choice: show options */}
+                          {q.type === "Multiple Choice" && q.options && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                              {q.options.map((opt, oi) => (
+                                <div key={oi} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                                  <span style={{
+                                    fontSize: 10, fontFamily: "'Geist Mono', monospace",
+                                    width: 16, height: 16, borderRadius: "50%",
+                                    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                                    background: opt === q.correctAnswer ? "oklch(0.92 0.08 160)" : "oklch(0.93 0 0)",
+                                    color: opt === q.correctAnswer ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
+                                    fontWeight: 700,
+                                  }}>
+                                    {String.fromCharCode(65 + oi)}
+                                  </span>
+                                  <span style={{ fontSize: 11, color: opt === q.correctAnswer ? "oklch(0.38 0.14 160)" : "oklch(0.4 0 0)", fontWeight: opt === q.correctAnswer ? 600 : 400 }}>{opt}</span>
+                                  {opt === q.correctAnswer && <CheckCircle2 size={10} style={{ color: "oklch(0.52 0.18 160)", flexShrink: 0 }} />}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {/* True / False: show correct answer */}
+                          {q.type === "True / False" && q.correctAnswer && (
+                            <span style={{
+                              display: "inline-flex", alignItems: "center", gap: 4,
+                              fontSize: 10, fontWeight: 700,
+                              background: q.correctAnswer === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.97 0.04 27)",
+                              color: q.correctAnswer === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.57 0.22 27)",
+                              padding: "2px 7px", borderRadius: 20,
+                            }}>
+                              Answer: {q.correctAnswer}
+                            </span>
+                          )}
                         </div>
                       </div>
                     );
