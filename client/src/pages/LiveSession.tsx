@@ -31,6 +31,16 @@ import {
   Cloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import QRCode from "qrcode";
 import type { Question } from "@shared/types";
 import WordCloud from "@/components/WordCloud";
@@ -275,6 +285,7 @@ export default function LiveSession() {
   const [, navigate] = useLocation();
   const [showQR, setShowQR] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -354,6 +365,7 @@ export default function LiveSession() {
   };
 
   const handleClose = async () => {
+    setShowEndConfirm(false);
     setClosing(true);
     try {
       await closeMut.mutateAsync({ id: sessionId });
@@ -467,7 +479,7 @@ export default function LiveSession() {
             </Button>
             <Button
               variant="outline"
-              onClick={handleClose}
+              onClick={() => setShowEndConfirm(true)}
               disabled={closing}
               style={{ borderColor: CRIMSON, color: CRIMSON, fontWeight: 600, fontSize: 13 }}
             >
@@ -631,7 +643,7 @@ export default function LiveSession() {
                 </Button>
               ) : (
                 <Button
-                  onClick={handleClose}
+                  onClick={() => setShowEndConfirm(true)}
                   disabled={closing}
                   style={{ background: CRIMSON, color: "#fff", fontWeight: 600 }}
                 >
@@ -699,6 +711,28 @@ export default function LiveSession() {
       </main>
 
       {showQR && <QRModal code={session.code} onClose={() => setShowQR(false)} />}
+
+      {/* End Session confirmation dialog */}
+      <AlertDialog open={showEndConfirm} onOpenChange={setShowEndConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>End this session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will immediately close the session for all students currently connected.
+              Responses are saved and you can review them in Past Sessions.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClose}
+              style={{ background: CRIMSON, color: "#fff" }}
+            >
+              {closing ? "Ending…" : "End Session"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

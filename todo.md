@@ -132,3 +132,6 @@
 
 ## Bug — Join Link Not Working
 - [x] /join?code=XSSNMY does not work — fixed: navigate path was /student/:id instead of /student/session/:id
+
+## Sprint — End Session Confirmation
+- [x] Add confirmation dialog to End Session button in LiveSession.tsx
