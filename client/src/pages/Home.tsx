@@ -11,7 +11,8 @@ import {
   Rocket, Sparkles, Type, ListChecks, Paperclip, Star,
   RotateCcw, GripVertical, X, ChevronRight, CheckCircle2,
   Circle, Pencil, ArrowLeft, ToggleLeft, Upload, FileText,
-  Loader2, Plus as PlusIcon, Trash2 as TrashIcon,
+  Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
+  ChevronLeft, ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 import {
   Dialog,
@@ -102,6 +103,7 @@ function Topbar({
   sessionCode,
   isUntitled,
   onLaunch,
+  onPreview,
   hasQuestions,
   onBack,
   onSaveDraft,
@@ -113,6 +115,7 @@ function Topbar({
   sessionCode: string;
   isUntitled: boolean;
   onLaunch: () => void;
+  onPreview: () => void;
   hasQuestions: boolean;
   onBack: () => void;
   onSaveDraft: () => void;
@@ -252,6 +255,31 @@ function Topbar({
           className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all"
         >
           {isDirty ? "Save Draft" : "Saved"}
+        </button>
+        {/* Preview button */}
+        <button
+          onClick={onPreview}
+          disabled={!hasQuestions}
+          title={!hasQuestions ? "Add at least one question to preview" : "Preview student experience"}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
+            padding: "8px 18px",
+            borderRadius: 10,
+            border: hasQuestions ? "1.5px solid oklch(0.88 0.04 264)" : "1.5px solid oklch(0.922 0 0)",
+            background: hasQuestions ? "oklch(0.96 0.04 264)" : "#fff",
+            color: hasQuestions ? "oklch(0.45 0.22 264)" : "oklch(0.7 0 0)",
+            fontSize: 13,
+            fontWeight: 600,
+            fontFamily: "'Geist', system-ui, sans-serif",
+            transition: "all 0.15s",
+            cursor: hasQuestions ? "pointer" : "not-allowed",
+          }}
+          className={hasQuestions ? "hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all" : ""}
+        >
+          <Eye size={14} />
+          Preview
         </button>
         <button
           onClick={onLaunch}
@@ -1661,52 +1689,19 @@ function AiPanel({
 
   return (
     <>
-      {/* Backdrop */}
-      {open && (
-        <div
-          onClick={onClose}
+      {/* Free-floating trigger — shown only when panel is closed */}
+      {!open && (
+        <button
+          onClick={onOpen}
+          title="Generate with AI"
           style={{
             position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.25)",
-            zIndex: 200,
-            backdropFilter: "blur(2px)",
-            WebkitBackdropFilter: "blur(2px)",
-          }}
-        />
-      )}
-
-      {/* Drawer panel */}
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          right: open ? 0 : -360,
-          width: 360,
-          height: "100dvh",
-          background: "#fff",
-          boxShadow: open ? "-4px 0 32px rgba(0,0,0,0.14)" : "none",
-          zIndex: 201,
-          display: "flex",
-          flexDirection: "column",
-          transition: "right 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease",
-          borderLeft: "1px solid oklch(0.922 0 0)",
-        }}
-      >
-        {/* Tab handle — pill button that protrudes from the left edge of the drawer */}
-        <button
-          onClick={open ? onClose : onOpen}
-          title={open ? "Close AI panel" : "Generate with AI"}
-          style={{
-            position: "absolute",
-            left: -44,
-            top: 80,
+            right: 0,
+            top: 140,
             width: 44,
             height: 44,
             borderRadius: "12px 0 0 12px",
-            background: open
-              ? "linear-gradient(135deg, #c4b5fd 0%, #f9a8d4 100%)"
-              : "linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%)",
+            background: "linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%)",
             border: "1.5px solid #d8b4fe",
             borderRight: "none",
             padding: 0,
@@ -1715,20 +1710,30 @@ function AiPanel({
             alignItems: "center",
             justifyContent: "center",
             boxShadow: "-3px 2px 12px rgba(139,92,246,0.20)",
-            transition: "background 0.2s ease",
-            zIndex: 202,
+            zIndex: 300,
           }}
+          className="hover:bg-[#e9d5ff] transition-colors"
         >
-          <Sparkles
-            size={16}
-            style={{
-              color: open ? "#6d28d9" : "#7c3aed",
-              flexShrink: 0,
-            }}
-          />
+          <Sparkles size={16} style={{ color: "#7c3aed", flexShrink: 0 }} />
         </button>
+      )}
 
-        <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+      {/* Inline aside — width animates so the canvas resizes naturally */}
+      <aside
+        style={{
+          width: open ? 320 : 0,
+          minWidth: open ? 320 : 0,
+          overflow: "hidden",
+          transition: "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)",
+          borderLeft: open ? "1px solid oklch(0.922 0 0)" : "none",
+          background: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ width: 320, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
           {/* Header */}
           <div style={{
             padding: "16px 18px 14px",
@@ -2273,7 +2278,7 @@ function AiPanel({
             )}
           </div>
         </div>
-      </div>
+      </aside>
     </>
   );
 }
@@ -2430,6 +2435,10 @@ export default function Home() {
   // AI panel
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
 
+  // Preview modal
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
+
   const openAddType = (type: QuestionType) => {
     setAddModalType(type);
     setAddModalOpen(true);
@@ -2482,6 +2491,7 @@ export default function Home() {
         sessionCode={sessionCode}
         isUntitled={!hasNamed}
         onLaunch={handleLaunch}
+        onPreview={() => { setPreviewIndex(0); setPreviewOpen(true); }}
         hasQuestions={questions.length > 0}
         onBack={handleBack}
         onSaveDraft={handleSaveDraft}
@@ -2495,7 +2505,7 @@ export default function Home() {
           onOpenMagic={() => setAiPanelOpen(true)}
         />
 
-        {/* Canvas */}
+        {/* Canvas — shrinks when AI panel is open */}
         <main
           style={{
             flex: 1,
@@ -2504,7 +2514,7 @@ export default function Home() {
             display: "flex",
             flexDirection: "column",
             gap: 16,
-            transition: "margin-right 0.3s ease",
+            minWidth: 0,
           }}
         >
           {/* Onboarding */}
@@ -2564,15 +2574,15 @@ export default function Home() {
           )}
         </main>
 
-      </div>
+        {/* AI Panel — inline, resizes the canvas */}
+        <AiPanel
+          open={aiPanelOpen}
+          onClose={() => setAiPanelOpen(false)}
+          onOpen={() => setAiPanelOpen(true)}
+          onAddQuestions={handleAiAddQuestions}
+        />
 
-      {/* AI Drawer — fixed overlay with backdrop */}
-      <AiPanel
-        open={aiPanelOpen}
-        onClose={() => setAiPanelOpen(false)}
-        onOpen={() => setAiPanelOpen(true)}
-        onAddQuestions={handleAiAddQuestions}
-      />
+      </div>
 
       {/* Question Type Picker Overlay */}
       {typePickerOpen && (
@@ -2655,6 +2665,243 @@ export default function Home() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewOpen && questions.length > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.55)",
+            zIndex: 500,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px 16px",
+          }}
+          onClick={() => setPreviewOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#fff",
+              borderRadius: 20,
+              width: "100%",
+              maxWidth: 560,
+              boxShadow: "0 16px 60px rgba(0,0,0,0.22)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              maxHeight: "90vh",
+              fontFamily: "'Geist', system-ui, sans-serif",
+            }}
+          >
+            {/* Preview header */}
+            <div style={{
+              padding: "16px 20px",
+              borderBottom: "1px solid oklch(0.922 0 0)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              background: "oklch(0.985 0 0)",
+              flexShrink: 0,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Eye size={15} style={{ color: "oklch(0.45 0.22 264)" }} />
+                <span style={{ fontWeight: 700, fontSize: 14, color: "oklch(0.205 0 0)" }}>
+                  Student Preview
+                </span>
+                <span style={{ fontSize: 12, color: "oklch(0.556 0 0)", marginLeft: 4 }}>
+                  Question {previewIndex + 1} of {questions.length}
+                </span>
+              </div>
+              <button
+                onClick={() => setPreviewOpen(false)}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.556 0 0)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
+                className="hover:bg-[oklch(0.96_0_0)] transition-colors"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {/* Progress bar */}
+            <div style={{ height: 3, background: "oklch(0.94 0 0)", flexShrink: 0 }}>
+              <div style={{
+                height: "100%",
+                width: `${((previewIndex + 1) / questions.length) * 100}%`,
+                background: "oklch(0.45 0.22 264)",
+                transition: "width 0.3s ease",
+                borderRadius: "0 2px 2px 0",
+              }} />
+            </div>
+
+            {/* Question display */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "32px 28px 24px" }}>
+              {(() => {
+                const q = questions[previewIndex];
+                const meta = TYPE_META[q.type];
+                return (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                    {/* Type badge */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{
+                        display: "inline-flex", alignItems: "center", gap: 5,
+                        fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em",
+                        color: meta.color, background: meta.color + "14",
+                        padding: "3px 10px", borderRadius: 20,
+                      }}>
+                        {meta.icon} {q.type}
+                      </span>
+                    </div>
+
+                    {/* Question text */}
+                    <p style={{ fontSize: 20, fontWeight: 700, color: "oklch(0.145 0 0)", lineHeight: 1.4, margin: 0 }}>
+                      {q.text}
+                    </p>
+
+                    {/* Response area by type */}
+                    {q.type === "Short Text" && (
+                      <textarea
+                        placeholder="Type your answer here…"
+                        rows={4}
+                        disabled
+                        style={{
+                          width: "100%", borderRadius: 12, border: "1.5px solid oklch(0.88 0 0)",
+                          padding: "12px 14px", fontSize: 14, resize: "none",
+                          background: "oklch(0.985 0 0)", color: "oklch(0.556 0 0)",
+                          fontFamily: "'Geist', system-ui, sans-serif",
+                        }}
+                      />
+                    )}
+                    {q.type === "Multiple Choice" && q.options && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {q.options.map((opt, i) => (
+                          <div key={i} style={{
+                            display: "flex", alignItems: "center", gap: 12,
+                            padding: "12px 16px", borderRadius: 12,
+                            border: "1.5px solid oklch(0.88 0 0)",
+                            background: "oklch(0.985 0 0)", cursor: "default",
+                          }}>
+                            <span style={{
+                              width: 26, height: 26, borderRadius: "50%",
+                              border: "1.5px solid oklch(0.82 0 0)",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              fontSize: 11, fontWeight: 700, color: "oklch(0.556 0 0)",
+                              fontFamily: "'Geist Mono', monospace", flexShrink: 0,
+                            }}>
+                              {String.fromCharCode(65 + i)}
+                            </span>
+                            <span style={{ fontSize: 14, color: "oklch(0.205 0 0)" }}>{opt}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {q.type === "True / False" && (
+                      <div style={{ display: "flex", gap: 12 }}>
+                        {["True", "False"].map((label) => (
+                          <div key={label} style={{
+                            flex: 1, padding: "14px 0", borderRadius: 12,
+                            border: "1.5px solid oklch(0.88 0 0)",
+                            background: "oklch(0.985 0 0)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: 15, fontWeight: 600, color: "oklch(0.35 0 0)",
+                            cursor: "default",
+                          }}>
+                            {label}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {q.type === "Star Rating" && (
+                      <div style={{ display: "flex", gap: 10, justifyContent: "center", padding: "8px 0" }}>
+                        {[1,2,3,4,5].map((n) => (
+                          <Star key={n} size={36} style={{ color: "oklch(0.82 0.12 60)", cursor: "default" }} />
+                        ))}
+                      </div>
+                    )}
+                    {q.type === "File Upload" && (
+                      <div style={{
+                        border: "2px dashed oklch(0.88 0 0)", borderRadius: 12,
+                        padding: "28px 20px", textAlign: "center",
+                        background: "oklch(0.985 0 0)",
+                      }}>
+                        <Paperclip size={22} style={{ color: "oklch(0.65 0 0)", margin: "0 auto 8px" }} />
+                        <p style={{ fontSize: 14, color: "oklch(0.556 0 0)", margin: 0 }}>Click to upload a file</p>
+                      </div>
+                    )}
+
+                    {/* Preview-only notice */}
+                    <p style={{ fontSize: 11.5, color: "oklch(0.65 0 0)", textAlign: "center", margin: 0 }}>
+                      This is a read-only preview — students will interact with this live.
+                    </p>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Navigation footer */}
+            <div style={{
+              padding: "14px 20px",
+              borderTop: "1px solid oklch(0.922 0 0)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexShrink: 0,
+              background: "oklch(0.985 0 0)",
+            }}>
+              <button
+                onClick={() => setPreviewIndex((i) => Math.max(0, i - 1))}
+                disabled={previewIndex === 0}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "8px 16px", borderRadius: 9,
+                  border: "1.5px solid oklch(0.88 0 0)",
+                  background: "#fff", fontSize: 13, fontWeight: 500,
+                  color: previewIndex === 0 ? "oklch(0.75 0 0)" : "oklch(0.205 0 0)",
+                  cursor: previewIndex === 0 ? "not-allowed" : "pointer",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                }}
+              >
+                <ChevronLeft size={14} /> Previous
+              </button>
+              <span style={{ fontSize: 12, color: "oklch(0.556 0 0)" }}>
+                {previewIndex + 1} / {questions.length}
+              </span>
+              {previewIndex < questions.length - 1 ? (
+                <button
+                  onClick={() => setPreviewIndex((i) => i + 1)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    padding: "8px 16px", borderRadius: 9,
+                    border: "none",
+                    background: "oklch(0.45 0.22 264)",
+                    color: "#fff", fontSize: 13, fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                  }}
+                >
+                  Next <ChevronRightIcon size={14} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => setPreviewOpen(false)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    padding: "8px 16px", borderRadius: 9,
+                    border: "none",
+                    background: "oklch(0.45 0.22 264)",
+                    color: "#fff", fontSize: 13, fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                  }}
+                >
+                  Done
+                </button>
+              )}
             </div>
           </div>
         </div>
