@@ -410,11 +410,11 @@ export default function LiveSession() {
         <div style={{
           display: "flex", alignItems: "center", gap: 6,
           padding: "4px 12px", borderRadius: 20,
-          background: isLive ? GREEN_LIGHT : "oklch(0.96 0 0)",
-          border: `1px solid ${isLive ? GREEN : BORDER}`,
+          background: isLive ? "oklch(0.97 0.04 27)" : "oklch(0.96 0 0)",
+          border: `1px solid ${isLive ? "oklch(0.85 0.1 27)" : BORDER}`,
         }}>
-          {isLive && <span style={{ width: 8, height: 8, borderRadius: "50%", background: GREEN, animation: "pulse 1.5s ease-in-out infinite" }} />}
-          <span style={{ fontSize: 12, fontWeight: 700, color: isLive ? GREEN : TEXT_MUTED }}>
+          {isLive && <span style={{ width: 8, height: 8, borderRadius: "50%", background: "oklch(0.57 0.22 27)", animation: "pulse 1.5s ease-in-out infinite" }} />}
+          <span style={{ fontSize: 12, fontWeight: 700, color: isLive ? "oklch(0.50 0.22 27)" : TEXT_MUTED }}>
             {session.status.toUpperCase()}
           </span>
         </div>

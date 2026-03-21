@@ -669,10 +669,10 @@ export default function StudentSession() {
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{
-              width: 8, height: 8, borderRadius: "50%", background: GREEN,
+              width: 8, height: 8, borderRadius: "50%", background: "oklch(0.57 0.22 27)",
               animation: "pulse 1.5s ease-in-out infinite",
             }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: GREEN, letterSpacing: "0.06em" }}>LIVE</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "oklch(0.57 0.22 27)", letterSpacing: "0.06em" }}>LIVE</span>
           </div>
           <span style={{ fontSize: 13, color: TEXT_MUTED, fontWeight: 500 }}>
             Question {(data.currentQuestionIndex ?? 0) + 1} of {data.questionCount}

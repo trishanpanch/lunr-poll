@@ -126,3 +126,6 @@
 - [x] Student session: waiting room — full-screen with participant count, animated pulse
 - [x] Student session: session ended screen — thank you message
 - [x] Student session: smooth slide/fade transitions between question states
+
+## Sprint — UI Polish
+- [x] LIVE indicator: change dot and label to red in StudentSession.tsx and LiveSession.tsx
