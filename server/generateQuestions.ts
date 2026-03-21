@@ -36,6 +36,7 @@ interface GenerateRequest {
   count: number;
   types: QuestionType[];
   urls?: string[];
+  objectives?: string[];
 }
 
 interface GeneratedQuestion {
@@ -47,7 +48,7 @@ interface GeneratedQuestion {
 }
 
 router.post("/api/generate-questions", async (req: Request, res: Response) => {
-  const { content, count, types, urls } = req.body as GenerateRequest;
+  const { content, count, types, urls, objectives } = req.body as GenerateRequest;
 
   if ((!content || content.trim().length === 0) && (!urls || urls.length === 0)) {
     return res.status(400).json({ error: "content or at least one URL is required" });
@@ -95,11 +96,16 @@ router.post("/api/generate-questions", async (req: Request, res: Response) => {
     })
     .join("\n");
 
+  const objectivesSection = objectives && objectives.length > 0
+    ? `\n\nLEARNING OBJECTIVES (prioritise these — every question should help assess whether a student has met at least one objective):\n${objectives.map((o, i) => `${i + 1}. ${o}`).join("\n")}`
+    : "";
+
   const systemPrompt = `You are an expert educator who creates precise, content-specific classroom questions.
-Your job: read the provided source material and extract ${count} specific knowledge atoms — concrete facts, definitions, relationships, or claims — then turn each into a question.
+Your job: read the provided source material${objectives && objectives.length > 0 ? " and the learning objectives" : ""} and extract ${count} specific knowledge atoms — concrete facts, definitions, relationships, or claims — then turn each into a question.${objectivesSection}
 
 CRITICAL RULES:
 - Every question MUST reference specific names, numbers, terms, or claims from the source material. Never write generic questions like "What was the main takeaway?" or "Summarize today's content."
+- If learning objectives are provided, prioritise knowledge atoms that directly assess those objectives. Distribute questions across all objectives where possible.
 - If the text mentions a specific person, date, formula, law, or term — use it in the question.
 - Multiple Choice: the 3 wrong options must be plausible but clearly incorrect based on the text.
 - True / False: write a direct declarative statement about the subject matter itself. NEVER say "The article mentions...", "According to the text...", or any meta-reference to a source. The statement must stand alone as a factual claim.

@@ -39,3 +39,11 @@
 - [x] Fix sidebar full-height issue — left sidebar and AI panel now use sticky positioning (top: 64px, height: calc(100vh - 64px)) so they stay visible while the canvas scrolls naturally
 - [x] Cmd/Ctrl+S keyboard shortcut — triggers Save Draft from anywhere in the session builder
 - [x] Inline type switching on canvas cards — Short Text, Multiple Choice, True/False switcher pills appear on each canvas question card (same transform API as AI panel)
+
+## Learning Objectives Feature
+- [x] Add Learning Objectives input section to AI panel (above or alongside source material)
+- [x] Support multiple objectives as individual chips (add/remove)
+- [x] Pass objectives to the generate-questions server route
+- [x] Update AI prompt to use objectives to steer question focus and Bloom's taxonomy level
+- [x] Persist objectives in localStorage so they survive panel close/reopen
+- [x] Show objectives count on Generate button when objectives are active

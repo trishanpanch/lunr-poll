@@ -1804,6 +1804,29 @@ function AiPanel({
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollBodyRef = useRef<HTMLDivElement>(null);
 
+  // Learning objectives — persisted in localStorage
+  const [objectives, setObjectives] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem("lunr_objectives") || "[]"); }
+    catch { return []; }
+  });
+  const [objectiveInput, setObjectiveInput] = useState("");
+  const objectiveInputRef = useRef<HTMLInputElement>(null);
+
+  const addObjective = () => {
+    const trimmed = objectiveInput.trim();
+    if (!trimmed) return;
+    const next = [...objectives, trimmed];
+    setObjectives(next);
+    localStorage.setItem("lunr_objectives", JSON.stringify(next));
+    setObjectiveInput("");
+  };
+
+  const removeObjective = (i: number) => {
+    const next = objectives.filter((_, idx) => idx !== i);
+    setObjectives(next);
+    localStorage.setItem("lunr_objectives", JSON.stringify(next));
+  };
+
   const handleAddUrl = () => {
     const trimmed = urlInput.trim();
     if (!trimmed) return;
@@ -1893,6 +1916,7 @@ function AiPanel({
           count,
           types: typeList,
           urls: urlChips.length > 0 ? urlChips : undefined,
+          objectives: objectives.length > 0 ? objectives : undefined,
         }),
       });
 
@@ -2275,6 +2299,97 @@ function AiPanel({
                   style={{ borderRadius: 10, fontSize: 13, resize: "none", marginBottom: 16 }}
                   disabled={loading}
                 />
+
+                {/* Learning Objectives */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                    <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                      Learning Objectives
+                    </p>
+                    <span style={{ fontSize: 10.5, color: "oklch(0.65 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>optional</span>
+                  </div>
+                  <p style={{ margin: "0 0 8px", fontSize: 11.5, color: "oklch(0.55 0 0)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.5 }}>
+                    What should students be able to do after this session? AI will steer questions toward these goals.
+                  </p>
+                  {/* Objective chips */}
+                  {objectives.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 8 }}>
+                      {objectives.map((obj, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 6,
+                            padding: "7px 10px",
+                            borderRadius: 8,
+                            background: "oklch(0.96 0.04 160)",
+                            border: "1px solid oklch(0.88 0.08 160)",
+                          }}
+                        >
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "oklch(0.45 0.14 160)", fontFamily: "'Geist Mono', monospace", flexShrink: 0, marginTop: 1 }}>
+                            {i + 1}.
+                          </span>
+                          <span style={{ flex: 1, fontSize: 12, color: "oklch(0.28 0.1 160)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
+                            {obj}
+                          </span>
+                          <button
+                            onClick={() => removeObjective(i)}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.52 0.12 160)", display: "flex", alignItems: "center", padding: 0, flexShrink: 0, marginTop: 1 }}
+                          >
+                            <X size={11} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {/* Add objective input */}
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <input
+                      ref={objectiveInputRef}
+                      type="text"
+                      value={objectiveInput}
+                      onChange={(e) => setObjectiveInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addObjective(); } }}
+                      placeholder="e.g. Explain the causes of WWI"
+                      style={{
+                        flex: 1,
+                        height: 34,
+                        padding: "0 10px",
+                        borderRadius: 8,
+                        border: "1.5px solid oklch(0.88 0.08 160)",
+                        fontSize: 12,
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        color: "oklch(0.205 0 0)",
+                        background: "#fff",
+                        outline: "none",
+                        transition: "border-color 0.15s, box-shadow 0.15s",
+                      }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.18 160)"; e.currentTarget.style.boxShadow = "0 0 0 3px oklch(0.52 0.18 160 / 0.12)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.88 0.08 160)"; e.currentTarget.style.boxShadow = "none"; }}
+                    />
+                    <button
+                      onClick={addObjective}
+                      disabled={!objectiveInput.trim()}
+                      style={{
+                        height: 34,
+                        padding: "0 12px",
+                        borderRadius: 8,
+                        border: "none",
+                        background: objectiveInput.trim() ? "oklch(0.52 0.18 160)" : "oklch(0.88 0 0)",
+                        color: objectiveInput.trim() ? "#fff" : "oklch(0.6 0 0)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        cursor: objectiveInput.trim() ? "pointer" : "not-allowed",
+                        transition: "all 0.15s",
+                        flexShrink: 0,
+                      }}
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
 
                 {/* Question types */}
                 <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
@@ -2696,7 +2811,11 @@ function AiPanel({
                   boxShadow: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "none" : "0 2px 10px oklch(0.52 0.22 290 / 0.28)",
                 }}
               >
-                {loading ? <><Loader2 size={14} className="animate-spin" /> Generating…</> : <><Sparkles size={14} /> Generate Questions</>}
+                {loading
+                  ? <><Loader2 size={14} className="animate-spin" /> Generating…</>
+                  : objectives.length > 0
+                  ? <><Sparkles size={14} /> Generate ({objectives.length} objective{objectives.length !== 1 ? "s" : ""})</>
+                  : <><Sparkles size={14} /> Generate Questions</>}
               </button>
             ) : (
               <button
