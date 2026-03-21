@@ -643,7 +643,7 @@ function EmptyState({
       }}
       className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] transition-all"
     >
-      <div style={{ fontSize: 38, opacity: 0.25, lineHeight: 1 }}>🗂️</div>
+      <div style={{ fontSize: 38, lineHeight: 1 }}>🗂️</div>
       <p
         style={{
           fontFamily: "'Geist', system-ui, sans-serif",
@@ -667,43 +667,40 @@ function EmptyState({
         Add a question from the sidebar, use a preset, or generate questions automatically with AI.
       </p>
       <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
-        <button
+        <Button
           onClick={onMagic}
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "9px 20px",
-            borderRadius: 10,
-            border: "none",
-            background: "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
+            background: "oklch(0.52 0.22 290)",
             color: "#fff",
             fontSize: 13,
             fontWeight: 700,
             fontFamily: "'Geist', system-ui, sans-serif",
-            boxShadow: "0 2px 8px oklch(0.52 0.22 290 / 0.25)",
+            borderRadius: 10,
+            padding: "9px 20px",
+            height: "auto",
+            gap: 6,
           }}
-          className="hover:opacity-90 transition-opacity"
+          className="hover:opacity-90 transition-opacity shadow-sm"
         >
           <Sparkles size={14} />
           Generate with AI
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="outline"
           onClick={onManual}
           style={{
-            padding: "9px 20px",
-            borderRadius: 10,
-            border: "1.5px solid oklch(0.922 0 0)",
-            background: "#fff",
-            color: "oklch(0.205 0 0)",
             fontSize: 13,
             fontWeight: 500,
             fontFamily: "'Geist', system-ui, sans-serif",
+            borderRadius: 10,
+            padding: "9px 20px",
+            height: "auto",
+            background: "#fff",
           }}
           className="hover:border-[oklch(0.55_0.2_250)] hover:text-[oklch(0.55_0.2_250)] transition-all"
         >
           + Add Manually
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -1970,7 +1967,7 @@ function AiPanel({
                     ← Regenerate
                   </button>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
                   {generated.map((q, i) => {
                     const meta = TYPE_META[q.type];
                     return (
@@ -1978,98 +1975,124 @@ function AiPanel({
                         key={i}
                         style={{
                           position: "relative",
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: 10,
-                          padding: "12px 12px",
-                          paddingRight: 36,
-                          borderRadius: 10,
-                          border: `1.5px solid ${q.selected ? meta.color + "80" : "transparent"}`,
-                          background: q.selected ? "#fff" : "transparent",
-                          boxShadow: q.selected ? `0 1px 6px ${meta.color}18` : "none",
-                          transition: "all 0.15s",
+                          padding: "16px 16px 14px",
+                          paddingRight: 44,
+                          borderRadius: 14,
+                          border: "1.5px solid oklch(0.922 0 0)",
+                          background: "#fff",
+                          boxShadow: "0 1px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)",
+                          transition: "box-shadow 0.15s, border-color 0.15s",
+                          opacity: q.selected ? 1 : 0.45,
                         }}
+                        className="hover:shadow-md"
                       >
-                        {/* Checkbox — top-right corner, dedicated deselect/select button */}
+                        {/* Circular checkbox — top-right */}
                         <div
                           onClick={() => toggleSelect(i)}
                           title={q.selected ? "Deselect" : "Select"}
                           style={{
                             position: "absolute",
-                            top: 10, right: 10,
-                            width: 22, height: 22, borderRadius: 6,
-                            background: q.selected ? meta.color + "18" : "transparent",
-                            color: q.selected ? meta.color : "oklch(0.82 0 0)",
-                            border: q.selected ? `1.5px solid ${meta.color}50` : "1.5px solid oklch(0.88 0 0)",
+                            top: 14, right: 14,
+                            width: 26, height: 26, borderRadius: "50%",
+                            background: q.selected ? "oklch(0.92 0.08 160)" : "oklch(0.94 0 0)",
+                            color: q.selected ? "oklch(0.38 0.14 160)" : "oklch(0.75 0 0)",
+                            border: q.selected ? "1.5px solid oklch(0.82 0.1 160)" : "1.5px solid oklch(0.88 0 0)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             flexShrink: 0, cursor: "pointer",
                             transition: "all 0.15s",
                           }}
                         >
-                          {q.selected ? <CheckCircle2 size={13} /> : <Circle size={13} />}
+                          {q.selected
+                            ? <CheckCircle2 size={14} />
+                            : <Circle size={14} />}
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: meta.color, marginBottom: 3 }}>
-                            {meta.icon} {q.type}
-                          </span>
-                          {/* Inline-editable question text — auto-height */}
-                          <textarea
-                            value={q.text}
-                            onChange={(e) => {
-                              updateGenerated(i, { text: e.target.value });
-                              // auto-height
-                              e.target.style.height = "auto";
-                              e.target.style.height = e.target.scrollHeight + "px";
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                            rows={1}
-                            style={{
-                              display: "block",
-                              width: "100%",
-                              margin: "0 0 6px",
-                              fontSize: 12.5,
-                              color: "oklch(0.205 0 0)",
-                              lineHeight: 1.5,
-                              fontFamily: "'Geist', system-ui, sans-serif",
-                              background: "transparent",
-                              border: "1px solid transparent",
-                              borderRadius: 6,
-                              padding: "2px 4px",
-                              resize: "none",
-                              overflow: "hidden",
-                              outline: "none",
-                              boxSizing: "border-box",
-                              transition: "border-color 0.15s, background 0.15s",
-                              height: "auto",
-                            }}
-                            ref={(el) => {
-                              if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
-                            }}
-                            onFocus={(e) => {
-                              e.currentTarget.style.borderColor = meta.color + "80";
-                              e.currentTarget.style.background = "#fff";
-                            }}
-                            onBlur={(e) => {
-                              e.currentTarget.style.borderColor = "transparent";
-                              e.currentTarget.style.background = "transparent";
-                            }}
-                          />
-                          {/* Multiple Choice: show options */}
-                          {q.type === "Multiple Choice" && q.options && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                              {q.options.map((opt, oi) => (
-                                <div key={oi} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+
+                        {/* Type label */}
+                        <div style={{
+                          display: "inline-flex", alignItems: "center", gap: 6,
+                          marginBottom: 10,
+                        }}>
+                          <span style={{ color: meta.color, display: "flex", alignItems: "center" }}>{meta.icon}</span>
+                          <span style={{
+                            fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                            letterSpacing: "0.09em", color: meta.color,
+                            fontFamily: "'Geist', system-ui, sans-serif",
+                          }}>{q.type}</span>
+                        </div>
+
+                        {/* Question text — inline editable */}
+                        <textarea
+                          value={q.text}
+                          onChange={(e) => {
+                            updateGenerated(i, { text: e.target.value });
+                            e.target.style.height = "auto";
+                            e.target.style.height = e.target.scrollHeight + "px";
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          rows={1}
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            marginBottom: 12,
+                            fontSize: 15,
+                            fontWeight: 500,
+                            color: "oklch(0.145 0 0)",
+                            lineHeight: 1.55,
+                            fontFamily: "'Geist', system-ui, sans-serif",
+                            background: "transparent",
+                            border: "1px solid transparent",
+                            borderRadius: 6,
+                            padding: "2px 4px",
+                            resize: "none",
+                            overflow: "hidden",
+                            outline: "none",
+                            boxSizing: "border-box",
+                            height: "auto",
+                            transition: "border-color 0.15s, background 0.15s",
+                          }}
+                          ref={(el) => {
+                            if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = meta.color + "60";
+                            e.currentTarget.style.background = "oklch(0.98 0 0)";
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.borderColor = "transparent";
+                            e.currentTarget.style.background = "transparent";
+                          }}
+                        />
+
+                        {/* Multiple Choice options */}
+                        {q.type === "Multiple Choice" && q.options && (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            {q.options.map((opt, oi) => {
+                              const isCorrect = opt === q.correctAnswer;
+                              return (
+                                <div
+                                  key={oi}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 10,
+                                    padding: "7px 10px",
+                                    borderRadius: 8,
+                                    background: isCorrect ? "oklch(0.95 0.06 160)" : "transparent",
+                                    transition: "background 0.15s",
+                                  }}
+                                >
+                                  {/* Letter badge */}
                                   <span style={{
-                                    fontSize: 10, fontFamily: "'Geist Mono', monospace",
-                                    width: 16, height: 16, borderRadius: "50%",
+                                    fontSize: 11, fontFamily: "'Geist Mono', monospace",
+                                    width: 22, height: 22, borderRadius: "50%",
                                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                                    background: opt === q.correctAnswer ? "oklch(0.92 0.08 160)" : "oklch(0.93 0 0)",
-                                    color: opt === q.correctAnswer ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
+                                    background: isCorrect ? "oklch(0.52 0.18 160)" : "oklch(0.93 0 0)",
+                                    color: isCorrect ? "#fff" : "oklch(0.45 0 0)",
                                     fontWeight: 700,
                                   }}>
                                     {String.fromCharCode(65 + oi)}
                                   </span>
-                                  {/* Inline-editable option text — wrapping textarea */}
+                                  {/* Option text — inline editable */}
                                   <textarea
                                     value={opt}
                                     rows={1}
@@ -2087,9 +2110,9 @@ function AiPanel({
                                     }}
                                     style={{
                                       flex: 1,
-                                      fontSize: 11,
-                                      color: opt === q.correctAnswer ? "oklch(0.38 0.14 160)" : "oklch(0.4 0 0)",
-                                      fontWeight: opt === q.correctAnswer ? 600 : 400,
+                                      fontSize: 13,
+                                      color: isCorrect ? "oklch(0.32 0.14 160)" : "oklch(0.25 0 0)",
+                                      fontWeight: isCorrect ? 700 : 400,
                                       fontFamily: "'Geist', system-ui, sans-serif",
                                       background: "transparent",
                                       border: "1px solid transparent",
@@ -2100,92 +2123,96 @@ function AiPanel({
                                       overflow: "hidden",
                                       lineHeight: 1.45,
                                       height: "auto",
-                                      transition: "border-color 0.15s, background 0.15s",
+                                      transition: "border-color 0.15s",
                                     }}
                                     ref={(el) => {
                                       if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
                                     }}
                                     onFocus={(e) => {
-                                      e.currentTarget.style.borderColor = "oklch(0.52 0.18 160 / 0.5)";
-                                      e.currentTarget.style.background = "#fff";
+                                      e.currentTarget.style.borderColor = "oklch(0.52 0.18 160 / 0.4)";
                                     }}
                                     onBlur={(e) => {
                                       e.currentTarget.style.borderColor = "transparent";
-                                      e.currentTarget.style.background = "transparent";
                                     }}
                                   />
-                                  {opt === q.correctAnswer && <CheckCircle2 size={10} style={{ color: "oklch(0.52 0.18 160)", flexShrink: 0 }} />}
+                                  {isCorrect && (
+                                    <CheckCircle2 size={15} style={{ color: "oklch(0.52 0.18 160)", flexShrink: 0 }} />
+                                  )}
                                 </div>
-                              ))}
-                            </div>
-                          )}
-                          {/* True / False: show correct answer badge (click to toggle) */}
-                          {q.type === "True / False" && q.correctAnswer && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateGenerated(i, { correctAnswer: q.correctAnswer === "True" ? "False" : "True" });
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* True / False: correct answer badge (click to toggle) */}
+                        {q.type === "True / False" && q.correctAnswer && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateGenerated(i, { correctAnswer: q.correctAnswer === "True" ? "False" : "True" });
+                            }}
+                            title="Click to toggle correct answer"
+                            style={{
+                              display: "inline-flex", alignItems: "center", gap: 5,
+                              fontSize: 12, fontWeight: 700,
+                              background: q.correctAnswer === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.97 0.04 27)",
+                              color: q.correctAnswer === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.57 0.22 27)",
+                              padding: "5px 12px", borderRadius: 20,
+                              border: q.correctAnswer === "True" ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.08 27)",
+                              cursor: "pointer",
+                              fontFamily: "'Geist', system-ui, sans-serif",
+                              transition: "all 0.15s",
+                            }}
+                          >
+                            Answer: {q.correctAnswer}
+                          </button>
+                        )}
+
+                        {/* Short Text: model answer */}
+                        {q.type === "Short Text" && q.modelAnswer && (
+                          <div style={{ marginTop: 8 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "oklch(0.48 0.18 264)", display: "block", marginBottom: 4 }}>Model Answer</span>
+                            <textarea
+                              value={q.modelAnswer}
+                              onChange={(e) => {
+                                updateGenerated(i, { modelAnswer: e.target.value });
+                                e.target.style.height = "auto";
+                                e.target.style.height = e.target.scrollHeight + "px";
                               }}
-                              title="Click to toggle correct answer"
+                              onClick={(e) => e.stopPropagation()}
+                              rows={1}
                               style={{
-                                display: "inline-flex", alignItems: "center", gap: 4,
-                                fontSize: 10, fontWeight: 700,
-                                background: q.correctAnswer === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.97 0.04 27)",
-                                color: q.correctAnswer === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.57 0.22 27)",
-                                padding: "2px 7px", borderRadius: 20,
-                                border: "none", cursor: "pointer",
-                                transition: "all 0.15s",
+                                display: "block",
+                                width: "100%",
+                                fontSize: 12,
+                                color: "oklch(0.38 0.18 264)",
+                                lineHeight: 1.5,
+                                fontFamily: "'Geist', system-ui, sans-serif",
+                                background: "oklch(0.96 0.03 264 / 0.4)",
+                                border: "1px solid oklch(0.88 0.04 264)",
+                                borderRadius: 8,
+                                padding: "6px 8px",
+                                resize: "none",
+                                overflow: "hidden",
+                                outline: "none",
+                                boxSizing: "border-box",
+                                height: "auto",
+                                transition: "border-color 0.15s, background 0.15s",
                               }}
-                            >
-                              Answer: {q.correctAnswer}
-                            </button>
-                          )}
-                          {/* Short Text: show model answer — auto-height */}
-                          {q.type === "Short Text" && q.modelAnswer && (
-                            <div style={{ marginTop: 5 }}>
-                              <span style={{ fontSize: 9.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "oklch(0.48 0.18 264)", display: "block", marginBottom: 2 }}>Model Answer</span>
-                              <textarea
-                                value={q.modelAnswer}
-                                onChange={(e) => {
-                                  updateGenerated(i, { modelAnswer: e.target.value });
-                                  e.target.style.height = "auto";
-                                  e.target.style.height = e.target.scrollHeight + "px";
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                                rows={1}
-                                style={{
-                                  display: "block",
-                                  width: "100%",
-                                  fontSize: 11,
-                                  color: "oklch(0.38 0.18 264)",
-                                  lineHeight: 1.5,
-                                  fontFamily: "'Geist', system-ui, sans-serif",
-                                  background: "oklch(0.96 0.03 264 / 0.4)",
-                                  border: "1px solid oklch(0.88 0.04 264)",
-                                  borderRadius: 6,
-                                  padding: "4px 6px",
-                                  resize: "none",
-                                  overflow: "hidden",
-                                  outline: "none",
-                                  boxSizing: "border-box",
-                                  height: "auto",
-                                  transition: "border-color 0.15s, background 0.15s",
-                                }}
-                                ref={(el) => {
-                                  if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
-                                }}
-                                onFocus={(e) => {
-                                  e.currentTarget.style.borderColor = "oklch(0.45 0.22 264)";
-                                  e.currentTarget.style.background = "oklch(0.97 0.02 264)";
-                                }}
-                                onBlur={(e) => {
-                                  e.currentTarget.style.borderColor = "oklch(0.88 0.04 264)";
-                                  e.currentTarget.style.background = "oklch(0.96 0.03 264 / 0.4)";
-                                }}
-                              />
-                            </div>
-                          )}
-                        </div>
+                              ref={(el) => {
+                                if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }
+                              }}
+                              onFocus={(e) => {
+                                e.currentTarget.style.borderColor = "oklch(0.45 0.22 264)";
+                                e.currentTarget.style.background = "oklch(0.97 0.02 264)";
+                              }}
+                              onBlur={(e) => {
+                                e.currentTarget.style.borderColor = "oklch(0.88 0.04 264)";
+                                e.currentTarget.style.background = "oklch(0.96 0.03 264 / 0.4)";
+                              }}
+                            />
+                          </div>
+                        )}
                       </div>
                     );
                   })}
