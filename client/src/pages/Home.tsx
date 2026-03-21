@@ -1523,7 +1523,12 @@ function AiPanel({
     if (!trimmed) return;
     let url = trimmed;
     if (!/^https?:\/\//i.test(url)) url = "https://" + url;
-    if (!urlChips.includes(url)) setUrlChips((prev) => [...prev, url]);
+    if (urlChips.includes(url)) {
+      toast.warning("Already added", { description: "This URL is already in your source list." });
+      setUrlInput("");
+      return;
+    }
+    setUrlChips((prev) => [...prev, url]);
     setUrlInput("");
   };
 

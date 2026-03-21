@@ -32,3 +32,4 @@
 - [x] Editable model answer on card — click-to-edit inline on Short Text cards
 - [x] Manual Short Text modal — add optional model answer field
 - [x] Session edit flow — Edit button on session card loads saved questions and name into builder
+- [x] Duplicate URL toast — show a warning toast when the same URL is added to the AI panel source chips more than once
