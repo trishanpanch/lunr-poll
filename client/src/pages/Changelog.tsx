@@ -31,6 +31,48 @@ interface ChangelogItem {
 
 const DAYS: ChangelogDay[] = [
   {
+    date: "March 21, 2026",
+    title: "AI Panel & Generation Improvements",
+    groups: [
+      {
+        category: "AI Panel",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Curved tab handle with gradient",
+            description:
+              "The AI drawer tab handle has been redesigned from a rectangular button into a smooth SVG shape with concave bezier curves on the top and bottom corners, flowing organically into the drawer edge. The fill now uses the same diagonal purple-to-pink gradient as the AI banner in the sidebar, and deepens when the drawer is open.",
+            tag: "Polish",
+          },
+          {
+            title: "Checkbox moved to top-right of generated question cards",
+            description:
+              "The select/deselect checkbox on AI-generated question preview cards has been moved from the top-left to the top-right corner. This prevents accidental deselection when clicking into the question text or answer options, making selection a deliberate action rather than an easy misclick.",
+            tag: "UX Flow",
+          },
+          {
+            title: "Robust JSON parsing for AI responses",
+            description:
+              "The generation endpoint now extracts the JSON array by bracket-matching rather than relying on the model returning a perfectly clean response. Trailing commas before ] or } are automatically removed, preventing occasional parse failures when the model adds extra text or formatting around the JSON.",
+            tag: "Reliability",
+          },
+        ],
+      },
+      {
+        category: "Question Cards",
+        color: "oklch(0.55 0.2 250)",
+        items: [
+          {
+            title: "Generated questions start selected by default",
+            description:
+              "All AI-generated questions now arrive pre-checked in the review panel. Previously they defaulted to unselected, requiring an extra click before adding them to the session.",
+            tag: "UX Flow",
+          },
+        ],
+      },
+    ],
+  },
+  {
     date: "March 20, 2026",
     title: "Product & Design Improvements",
     groups: [
@@ -190,6 +232,7 @@ const TAG_COLORS: Record<string, { bg: string; text: string }> = {
   Tokens:        { bg: "oklch(0.93 0.05 60)",  text: "oklch(0.42 0.14 60)"  },
   Documentation: { bg: "oklch(0.94 0.03 0)",   text: "oklch(0.45 0.08 0)"   },
   Navigation:    { bg: "oklch(0.93 0.06 160)", text: "oklch(0.38 0.16 160)" },
+  Reliability:   { bg: "oklch(0.93 0.07 160)", text: "oklch(0.36 0.18 160)" },
 };
 
 // ── Copy Button ────────────────────────────────────────────────────────────────
