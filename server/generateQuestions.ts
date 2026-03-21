@@ -124,13 +124,29 @@ Return ONLY the JSON array.`;
     const raw: string =
       (result.choices?.[0]?.message?.content as string) ?? "";
 
-    // Strip any accidental markdown code fences
-    const cleaned = raw
-      .replace(/^```[\w]*\n?/m, "")
-      .replace(/\n?```$/m, "")
+    // 1. Strip markdown code fences
+    let cleaned = raw
+      .replace(/^```[\w]*\n?/gm, "")
+      .replace(/\n?```/gm, "")
       .trim();
 
-    const parsed: GeneratedQuestion[] = JSON.parse(cleaned);
+    // 2. Extract the JSON array by finding the outermost [ … ]
+    const arrayStart = cleaned.indexOf("[");
+    const arrayEnd = cleaned.lastIndexOf("]");
+    if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+      cleaned = cleaned.slice(arrayStart, arrayEnd + 1);
+    }
+
+    // 3. Remove trailing commas before ] or } (common LLM mistake)
+    cleaned = cleaned.replace(/,\s*([\]\}])/g, "$1");
+
+    let parsed: GeneratedQuestion[];
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error("[generate-questions] JSON parse error, raw response:", raw.slice(0, 500));
+      throw parseErr;
+    }
 
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return res.status(500).json({ error: "No questions returned from model" });

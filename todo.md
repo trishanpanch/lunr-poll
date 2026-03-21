@@ -33,3 +33,4 @@
 - [x] Manual Short Text modal — add optional model answer field
 - [x] Session edit flow — Edit button on session card loads saved questions and name into builder
 - [x] Duplicate URL toast — show a warning toast when the same URL is added to the AI panel source chips more than once
+- [ ] AI preview card selection — cards should start selected; clicking deselects (or re-selects) them; currently tapping in feels like it unchecks unexpectedly

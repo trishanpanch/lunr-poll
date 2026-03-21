@@ -1701,30 +1701,73 @@ function AiPanel({
           borderLeft: "1px solid oklch(0.922 0 0)",
         }}
       >
-        {/* Tab handle — top-right, always visible, toggles drawer */}
+        {/* Tab handle — curved pill that flows into the drawer edge */}
         <button
           onClick={open ? onClose : onOpen}
+          title={open ? "Close AI panel" : "Generate with AI"}
           style={{
             position: "absolute",
-            left: -44,
-            top: 80,
-            width: 44,
-            height: 36,
-            background: open ? "oklch(0.96 0.04 290)" : "#fff",
-            border: "1px solid oklch(0.922 0 0)",
-            borderRight: "none",
-            borderRadius: "10px 0 0 10px",
+            left: -52,
+            top: 72,
+            width: 52,
+            height: 52,
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            gap: 5,
-            cursor: "pointer",
-            boxShadow: "-2px 2px 8px rgba(0,0,0,0.07)",
-            transition: "background 0.15s",
+            justifyContent: "flex-start",
           }}
-          title={open ? "Close AI panel" : "Generate with AI"}
         >
-          <Sparkles size={13} style={{ color: "oklch(0.52 0.22 290)", flexShrink: 0 }} />
+          {/* SVG tab: concave curves + gradient matching AI banner */}
+          <svg
+            width="52"
+            height="52"
+            viewBox="0 0 52 52"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ display: "block", filter: "drop-shadow(-2px 2px 8px rgba(120,60,200,0.18))" }}
+          >
+            <defs>
+              {/* Diagonal gradient: top-left purple → bottom-right pink, matching the AI banner */}
+              <linearGradient id="tab-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="oklch(0.96 0.06 290)" />
+                <stop offset="100%" stopColor="oklch(0.97 0.04 10)" />
+              </linearGradient>
+              <linearGradient id="tab-grad-open" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="oklch(0.88 0.10 290)" />
+                <stop offset="100%" stopColor="oklch(0.92 0.07 10)" />
+              </linearGradient>
+            </defs>
+            {/* Concave-corner tab shape */}
+            <path
+              d={[
+                "M 52 0",
+                "C 36 0 28 4 26 14",
+                "L 26 38",
+                "C 28 48 36 52 52 52",
+                "Z",
+              ].join(" ")}
+              fill={open ? "url(#tab-grad-open)" : "url(#tab-grad)"}
+              stroke="oklch(0.88 0.06 290)"
+              strokeWidth="1"
+            />
+            {/* Hide right-edge stroke so it blends with the drawer border */}
+            <line x1="52" y1="0" x2="52" y2="52" stroke={open ? "oklch(0.88 0.10 290)" : "oklch(0.96 0.06 290)"} strokeWidth="2" />
+          </svg>
+          {/* Sparkles icon centered in the tab */}
+          <Sparkles
+            size={14}
+            style={{
+              position: "absolute",
+              left: 16,
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "oklch(0.45 0.22 290)",
+              pointerEvents: "none",
+            }}
+          />
         </button>
 
         <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
@@ -2000,25 +2043,31 @@ function AiPanel({
                       <div
                         key={i}
                         style={{
+                          position: "relative",
                           display: "flex",
                           alignItems: "flex-start",
                           gap: 10,
                           padding: "12px 12px",
+                          paddingRight: 36,
                           borderRadius: 10,
                           border: `1.5px solid ${q.selected ? meta.color + "60" : "oklch(0.922 0 0)"}`,
                           background: q.selected ? meta.color + "08" : "oklch(0.985 0 0)",
                           transition: "all 0.15s",
                         }}
                       >
-                        {/* Checkbox — clicking it toggles selection */}
+                        {/* Checkbox — top-right corner, dedicated deselect/select button */}
                         <div
                           onClick={() => toggleSelect(i)}
+                          title={q.selected ? "Deselect" : "Select"}
                           style={{
+                            position: "absolute",
+                            top: 10, right: 10,
                             width: 22, height: 22, borderRadius: 6,
                             background: q.selected ? meta.color + "20" : "oklch(0.93 0 0)",
                             color: q.selected ? meta.color : "oklch(0.75 0 0)",
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            flexShrink: 0, marginTop: 1, cursor: "pointer",
+                            flexShrink: 0, cursor: "pointer",
+                            transition: "all 0.15s",
                           }}
                         >
                           {q.selected ? <CheckCircle2 size={13} /> : <Circle size={13} />}
