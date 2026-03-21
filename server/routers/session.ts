@@ -12,6 +12,7 @@ import {
   getResponsesForSession,
   getResponsesForQuestion,
   hasStudentResponded,
+  getParticipantCount,
 } from "../db";
 import type { Question } from "../../drizzle/schema";
 
@@ -252,6 +253,56 @@ export const sessionRouter = router({
         answer: input.answer,
       });
       return { success: true };
+    }),
+
+  // ── CSV Export ────────────────────────────────────────────────────────────
+
+  /**
+   * Export all responses for a session as a CSV string.
+   * Returns: questionText, questionType, studentId, answer, submittedAt
+   */
+  exportCsv: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+
+      const questions = (session.questions as Question[]) ?? [];
+      const qMap = new Map(questions.map((q) => [q.id, q]));
+      const allResponses = await getResponsesForSession(input.id);
+
+      // Build CSV rows
+      const header = ["Question #", "Question Text", "Question Type", "Student ID", "Answer", "Submitted At"];
+      const rows = allResponses.map((r) => {
+        const q = qMap.get(r.questionId);
+        const qIndex = q ? questions.indexOf(q) + 1 : "?";
+        const qText = q?.text ?? r.questionId;
+        const qType = q?.type ?? "Unknown";
+        const submittedAt = r.createdAt ? new Date(r.createdAt).toISOString() : "";
+        // Escape CSV fields (wrap in quotes if they contain commas/quotes/newlines)
+        const escape = (v: string | number) => {
+          const s = String(v);
+          if (s.includes(",") || s.includes('"') || s.includes("\n")) {
+            return `"${s.replace(/"/g, '""')}"`;
+          }
+          return s;
+        };
+        return [qIndex, qText, qType, r.studentId, r.answer, submittedAt].map(escape).join(",");
+      });
+
+      const csv = [header.join(","), ...rows].join("\n");
+      return { csv, sessionName: session.name, totalResponses: allResponses.length };
+    }),
+
+  // ── Participant Count ─────────────────────────────────────────────────────
+
+  /** Count unique students who have submitted at least one response */
+  participantCount: publicProcedure
+    .input(z.object({ sessionId: z.number() }))
+    .query(async ({ input }) => {
+      const count = await getParticipantCount(input.sessionId);
+      return { count };
     }),
 
   /** Get response counts per question for a live session (professor) */

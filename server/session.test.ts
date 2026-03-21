@@ -21,6 +21,7 @@ vi.mock("./db", () => ({
   getResponsesForSession: vi.fn(),
   getResponsesForQuestion: vi.fn(),
   hasStudentResponded: vi.fn(),
+  getParticipantCount: vi.fn(),
 }));
 
 import * as db from "./db";
@@ -266,6 +267,63 @@ describe("session.joinByCode (student, public)", () => {
     await expect(caller.session.joinByCode({ code: "XXXXX" })).rejects.toThrow(
       "not found"
     );
+  });
+});
+
+describe("session.exportCsv", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns CSV string with header and response rows", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(sampleSession);
+    vi.mocked(db.getResponsesForSession).mockResolvedValue([
+      {
+        id: 1,
+        sessionId: 10,
+        questionId: "q1",
+        studentId: "stu-1",
+        answer: "I learned tRPC",
+        submittedAt: new Date("2026-01-01T12:00:00Z"),
+      },
+    ]);
+
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.session.exportCsv({ id: 10 });
+
+    expect(result.totalResponses).toBe(1);
+    expect(result.csv).toContain("Question Text");
+    expect(result.csv).toContain("I learned tRPC");
+    expect(result.sessionName).toBe("Test Session");
+  });
+
+  it("throws Forbidden when user does not own the session", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({ ...sampleSession, userId: 99 });
+
+    const caller = appRouter.createCaller(makeCtx());
+    await expect(caller.session.exportCsv({ id: 10 })).rejects.toThrow("Forbidden");
+  });
+});
+
+describe("session.participantCount", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns the unique participant count for a session", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(sampleSession);
+    vi.mocked(db.getParticipantCount).mockResolvedValue(7);
+
+    const caller = appRouter.createCaller(makeCtx(null)); // public procedure
+    const result = await caller.session.participantCount({ sessionId: 10 });
+
+    expect(result.count).toBe(7);
+  });
+
+  it("returns 0 when no students have joined", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(sampleSession);
+    vi.mocked(db.getParticipantCount).mockResolvedValue(0);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.participantCount({ sessionId: 10 });
+
+    expect(result.count).toBe(0);
   });
 });
 

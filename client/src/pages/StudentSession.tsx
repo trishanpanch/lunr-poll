@@ -237,6 +237,13 @@ export default function StudentSession() {
     }
   );
 
+  // Poll for participant count every 5s (shown in waiting room)
+  const participantCountQ = trpc.session.participantCount.useQuery(
+    { sessionId },
+    { refetchInterval: 5000, enabled: !!sessionId }
+  );
+  const participantCount = participantCountQ.data?.count ?? 0;
+
   const submitMut = trpc.session.submitResponse.useMutation({
     onSuccess: () => {
       toast.success("Response submitted!");
@@ -309,7 +316,7 @@ export default function StudentSession() {
       <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{
           background: "#fff", borderRadius: 20, padding: "40px 36px",
-          textAlign: "center", maxWidth: 380, width: "100%",
+          textAlign: "center", maxWidth: 400, width: "100%",
           border: `1px solid ${BORDER}`, boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
         }}>
           <div style={{ fontSize: 52, marginBottom: 16 }}>⏳</div>
@@ -317,6 +324,19 @@ export default function StudentSession() {
           <p style={{ margin: "0 0 20px", fontSize: 14, color: TEXT_MID }}>
             The professor hasn't started the session yet. Hang tight!
           </p>
+
+          {/* Live participant count */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            background: INDIGO_LIGHT, border: `1px solid oklch(0.88 0.04 250)`,
+            borderRadius: 40, padding: "8px 20px", marginBottom: 20,
+          }}>
+            <span style={{ fontSize: 22, fontWeight: 800, color: INDIGO }}>{participantCount}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: INDIGO }}>
+              student{participantCount !== 1 ? "s" : ""} joined
+            </span>
+          </div>
+
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, color: TEXT_MUTED, fontSize: 13 }}>
             <Clock size={14} style={{ animation: "pulse 1.5s ease-in-out infinite" }} />
             Checking for updates…

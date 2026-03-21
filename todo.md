@@ -71,9 +71,9 @@
 - [x] Local Demo Mode: fully functional offline/demo mode for testing without auth
 
 ## Roadmap (after current sprint)
-- [ ] Response Analysis: export results to CSV/Excel
-- [ ] Response Analysis: word cloud visualization for short-text responses
-- [ ] Response Analysis: history view for closed sessions
+- [x] Response Analysis: export results to CSV/Excel
+- [x] Response Analysis: word cloud visualization for short-text responses
+- [x] Student Experience: "Waiting room" state before session goes live
 - [ ] Advanced Question Types: File Upload backend storage (scaffolding exists)
 - [ ] Advanced Question Types: Ranking/Sorting questions
 - [ ] Advanced Question Types: Click-on-image heatmap questions
@@ -81,3 +81,11 @@
 - [ ] Auth & Security: implement row-level security (Firestore Security Rules)
 - [ ] Student Experience: "Waiting room" state before session goes live
 - [ ] Student Experience: ability to see own past submissions
+
+## Sprint — Analytics & Waiting Room Polish
+- [x] CSV export: tRPC procedure to fetch all responses for a session and return as CSV string
+- [x] CSV export: "Download CSV" button in Live Mode header
+- [x] Word cloud: install d3-cloud, render word-frequency cloud in Live Mode for Short Text questions
+- [x] Participant count: track unique student IDs that have polled/joined; expose via tRPC
+- [x] Participant count: show live count in student waiting room ("N students joined")
+- [x] Participant count: show live count in professor Live Mode header

@@ -27,10 +27,13 @@ import {
   Copy,
   ExternalLink,
   Loader2,
+  Download,
+  Cloud,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import QRCode from "qrcode";
 import type { Question } from "@shared/types";
+import WordCloud from "@/components/WordCloud";
 
 // ── Colour tokens ─────────────────────────────────────────────────────────────
 const INDIGO = "oklch(0.55 0.2 250)";
@@ -303,10 +306,47 @@ export default function LiveSession() {
   });
 
   const session = data?.session;
-    const questions = (session?.questions as Question[]) ?? [];
+  const questions = (session?.questions as Question[]) ?? [];
   const currentIdx = session?.currentQuestionIndex ?? 0;
   const currentQ = questions[currentIdx];
   const currentStats = responseCounts.data?.find((r) => r.questionId === currentQ?.id);
+
+  // ── Participant count (polls every 5s) ────────────────────────────────────
+  const participantCountQ = trpc.session.participantCount.useQuery(
+    { sessionId },
+    { refetchInterval: 5000, enabled: !!sessionId }
+  );
+  const participantCount = participantCountQ.data?.count ?? 0;
+
+  // ── CSV export ────────────────────────────────────────────────────────────
+  const csvExport = trpc.session.exportCsv.useQuery(
+    { id: sessionId },
+    { enabled: false } // only fetch on demand
+  );
+
+  const handleDownloadCsv = async () => {
+    const result = await csvExport.refetch();
+    if (!result.data) {
+      toast.error("Failed to export CSV");
+      return;
+    }
+    const { csv, sessionName, totalResponses } = result.data;
+    if (totalResponses === 0) {
+      toast.info("No responses to export yet.");
+      return;
+    }
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${sessionName.replace(/[^a-z0-9]/gi, "_")}_responses.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${totalResponses} response${totalResponses !== 1 ? "s" : ""}`);
+  };
+
+  // ── Word cloud view toggle ────────────────────────────────────────────────
+  const [showWordCloud, setShowWordCloud] = useState(false);
 
   const handleLaunch = async () => {
     await launchMut.mutateAsync({ id: sessionId });
@@ -456,9 +496,15 @@ export default function LiveSession() {
                   background: INDIGO, transition: "width 0.3s ease",
                 }} />
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: TEXT_MID }}>
-                <Users size={14} />
-                <span>{currentStats?.total ?? 0} response{(currentStats?.total ?? 0) !== 1 ? "s" : ""}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: TEXT_MID }}>
+                  <Users size={14} />
+                  <span>{participantCount} joined</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: TEXT_MID }}>
+                  <BarChart2 size={14} />
+                  <span>{currentStats?.total ?? 0} response{(currentStats?.total ?? 0) !== 1 ? "s" : ""}</span>
+                </div>
               </div>
             </div>
 
@@ -477,16 +523,57 @@ export default function LiveSession() {
                 {currentQ.text}
               </h2>
 
-              {/* Response chart */}
+              {/* Response chart / word cloud toggle for Short Text */}
+              {currentQ.type === "Short Text" && currentStats && currentStats.total > 0 && (
+                <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                  <button
+                    onClick={() => setShowWordCloud(false)}
+                    style={{
+                      padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                      border: `1.5px solid ${!showWordCloud ? INDIGO : BORDER}`,
+                      background: !showWordCloud ? INDIGO_LIGHT : "#fff",
+                      color: !showWordCloud ? INDIGO : TEXT_MUTED,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <BarChart2 size={12} style={{ display: "inline", marginRight: 4 }} />
+                    List
+                  </button>
+                  <button
+                    onClick={() => setShowWordCloud(true)}
+                    style={{
+                      padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+                      border: `1.5px solid ${showWordCloud ? INDIGO : BORDER}`,
+                      background: showWordCloud ? INDIGO_LIGHT : "#fff",
+                      color: showWordCloud ? INDIGO : TEXT_MUTED,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Cloud size={12} style={{ display: "inline", marginRight: 4 }} />
+                    Word Cloud
+                  </button>
+                </div>
+              )}
+
               {currentStats ? (
-                <ResponseChart
-                  type={currentQ.type}
-                  tally={currentStats.tally}
-                  total={currentStats.total}
-                  options={currentQ.options}
-                  correctIndex={currentQ.correctIndex}
-                  tfAnswer={currentQ.tfAnswer}
-                />
+                showWordCloud && currentQ.type === "Short Text" ? (
+                  <div style={{ display: "flex", justifyContent: "center", padding: "8px 0" }}>
+                    <WordCloud
+                      responses={Object.keys(currentStats.tally)}
+                      width={480}
+                      height={240}
+                    />
+                  </div>
+                ) : (
+                  <ResponseChart
+                    type={currentQ.type}
+                    tally={currentStats.tally}
+                    total={currentStats.total}
+                    options={currentQ.options}
+                    correctIndex={currentQ.correctIndex}
+                    tfAnswer={currentQ.tfAnswer}
+                  />
+                )
               ) : (
                 <p style={{ fontSize: 13, color: TEXT_MUTED }}>Waiting for responses…</p>
               )}
@@ -574,7 +661,17 @@ export default function LiveSession() {
             <p style={{ margin: "0 0 24px", fontSize: 14, color: TEXT_MUTED }}>
               This session has been closed. View the full results below.
             </p>
-            <Button variant="outline" onClick={() => navigate("/sessions")}>Back to Sessions</Button>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+              <Button variant="outline" onClick={() => navigate("/sessions")}>Back to Sessions</Button>
+              <Button
+                onClick={handleDownloadCsv}
+                disabled={csvExport.isFetching}
+                style={{ background: INDIGO, color: "#fff", fontWeight: 600 }}
+              >
+                {csvExport.isFetching ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                Download CSV
+              </Button>
+            </div>
           </div>
         )}
       </main>

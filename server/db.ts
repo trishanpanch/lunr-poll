@@ -197,6 +197,20 @@ export async function getResponsesForQuestion(sessionId: number, questionId: str
     .orderBy(desc(responses.createdAt));
 }
 
+/** Count unique students who have submitted at least one response for a session */
+export async function getParticipantCount(sessionId: number): Promise<number> {
+  const db = getDb();
+  if (!db) return 0;
+  // Fetch all studentIds for the session and count distinct values in JS
+  // (avoids needing a COUNT DISTINCT raw query across different DB drivers)
+  const rows = await db
+    .select({ studentId: responses.studentId })
+    .from(responses)
+    .where(eq(responses.sessionId, sessionId));
+  const unique = new Set(rows.map((r) => r.studentId));
+  return unique.size;
+}
+
 export async function hasStudentResponded(
   sessionId: number,
   questionId: string,
