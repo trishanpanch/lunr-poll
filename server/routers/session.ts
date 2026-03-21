@@ -1,18 +1,40 @@
 import { z } from "zod";
 import * as cheerio from "cheerio";
-import { publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
+import {
+  createSession,
+  updateSession,
+  getSessionById,
+  getSessionByCode,
+  getSessionsByUser,
+  deleteSession,
+  submitResponse,
+  getResponsesForSession,
+  getResponsesForQuestion,
+  hasStudentResponded,
+} from "../db";
+import type { Question } from "../../drizzle/schema";
+
+// ── Zod schemas ───────────────────────────────────────────────────────────────
+
+const QuestionSchema = z.object({
+  id: z.string(),
+  type: z.enum(["Short Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"]),
+  text: z.string(),
+  color: z.string(),
+  options: z.array(z.string()).optional(),
+  correctIndex: z.number().optional(),
+  tfAnswer: z.enum(["True", "False"]).optional(),
+  modelAnswer: z.string().optional(),
+});
 
 export const sessionRouter = router({
-  /**
-   * Fetch a URL server-side and extract readable text content.
-   * Returns the cleaned body text (up to 12 000 chars) for use as AI source material.
-   */
+  // ── URL fetcher (unchanged) ────────────────────────────────────────────────
   fetchUrl: publicProcedure
     .input(z.object({ url: z.string().url() }))
     .mutation(async ({ input }) => {
       const res = await fetch(input.url, {
         headers: {
-          // Mimic a browser so sites don't block the request
           "User-Agent":
             "Mozilla/5.0 (compatible; SessionBuilder/1.0; +https://sessionbuild.manus.space)",
           Accept: "text/html,application/xhtml+xml,*/*;q=0.8",
@@ -20,41 +42,243 @@ export const sessionRouter = router({
         signal: AbortSignal.timeout(10_000),
       });
 
-      if (!res.ok) {
-        throw new Error(`Failed to fetch URL: HTTP ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`Failed to fetch URL: HTTP ${res.status}`);
 
       const contentType = res.headers.get("content-type") ?? "";
       if (!contentType.includes("html")) {
-        // For plain text / PDF links just return the raw text
         const text = await res.text();
         return { text: text.slice(0, 12_000) };
       }
 
       const html = await res.text();
       const $ = cheerio.load(html);
-
-      // Remove noise elements
       $(
         "script, style, noscript, nav, footer, header, aside, [role=navigation], [role=banner], [role=complementary], .nav, .navbar, .footer, .header, .sidebar, .menu, .cookie, .ad, .advertisement"
       ).remove();
 
-      // Prefer <article> or <main>, fall back to <body>
       const container =
         $("article").first().text() ||
         $("main").first().text() ||
         $("body").text();
 
-      // Collapse whitespace
-      const cleaned = container
-        .replace(/\s+/g, " ")
-        .trim()
-        .slice(0, 12_000);
-
-      if (!cleaned) {
-        throw new Error("No readable text found on that page.");
-      }
-
+      const cleaned = container.replace(/\s+/g, " ").trim().slice(0, 12_000);
+      if (!cleaned) throw new Error("No readable text found on that page.");
       return { text: cleaned };
+    }),
+
+  // ── Session CRUD ───────────────────────────────────────────────────────────
+
+  /** Save (create or update) a session. Returns the session id and join code. */
+  save: protectedProcedure
+    .input(
+      z.object({
+        id: z.number().optional(),
+        name: z.string().min(1).max(255),
+        questions: z.array(QuestionSchema),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (input.id) {
+        const existing = await getSessionById(input.id);
+        if (!existing) throw new Error("Session not found");
+        const updated = await updateSession(input.id, {
+          name: input.name,
+          questions: input.questions as Question[],
+        });
+        return { id: updated!.id, code: updated!.code };
+      }
+      const result = await createSession({
+        userId: ctx.user.id,
+        name: input.name,
+        questions: input.questions as Question[],
+      });
+      if (!result) throw new Error("Failed to create session");
+      return result;
+    }),
+
+  /** List all sessions for the logged-in professor */
+  list: protectedProcedure.query(async ({ ctx }) => {
+    return getSessionsByUser(ctx.user.id);
+  }),
+
+  /** Get a single session by id (professor view) */
+  get: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      return session;
+    }),
+
+  /** Delete a session and all its responses */
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      await deleteSession(input.id);
+      return { success: true };
+    }),
+
+  // ── Live Mode ──────────────────────────────────────────────────────────────
+
+  /** Launch a session (set status to live, record launchedAt) */
+  launch: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      return updateSession(input.id, {
+        status: "live",
+        currentQuestionIndex: 0,
+        launchedAt: new Date(),
+      });
+    }),
+
+  /** Close a session */
+  close: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      return updateSession(input.id, {
+        status: "closed",
+        closedAt: new Date(),
+      });
+    }),
+
+  /** Advance to the next question in live mode */
+  nextQuestion: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      const questions = (session.questions as Question[]) ?? [];
+      const next = Math.min(session.currentQuestionIndex + 1, questions.length - 1);
+      return updateSession(input.id, { currentQuestionIndex: next });
+    }),
+
+  /** Go back to the previous question */
+  prevQuestion: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      const prev = Math.max(session.currentQuestionIndex - 1, 0);
+      return updateSession(input.id, { currentQuestionIndex: prev });
+    }),
+
+  /** Professor polls for latest session state + response counts (live mode) */
+  liveState: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      const allResponses = await getResponsesForSession(input.id);
+      return { session, responses: allResponses };
+    }),
+
+  // ── Student-facing (public, no auth) ──────────────────────────────────────
+
+  /** Look up a session by join code — returns public info only */
+  joinByCode: publicProcedure
+    .input(z.object({ code: z.string().min(4).max(6) }))
+    .mutation(async ({ input }) => {
+      const session = await getSessionByCode(input.code);
+      if (!session) throw new Error("Session not found. Check your code and try again.");
+      if (session.status === "closed") throw new Error("This session has already ended.");
+      const questions = (session.questions as Question[]) ?? [];
+      return {
+        id: session.id,
+        name: session.name,
+        code: session.code,
+        status: session.status,
+        currentQuestionIndex: session.currentQuestionIndex,
+        questionCount: questions.length,
+        currentQuestion: questions[session.currentQuestionIndex] ?? null,
+      };
+    }),
+
+  /** Poll for the current question in a live session (students call this) */
+  studentPoll: publicProcedure
+    .input(z.object({ sessionId: z.number() }))
+    .query(async ({ input }) => {
+      const session = await getSessionById(input.sessionId);
+      if (!session) throw new Error("Session not found");
+      const questions = (session.questions as Question[]) ?? [];
+      return {
+        status: session.status,
+        currentQuestionIndex: session.currentQuestionIndex,
+        questionCount: questions.length,
+        currentQuestion: questions[session.currentQuestionIndex] ?? null,
+      };
+    }),
+
+  /** Submit a student response */
+  submitResponse: publicProcedure
+    .input(
+      z.object({
+        sessionId: z.number(),
+        questionId: z.string(),
+        studentId: z.string().min(1).max(64),
+        studentName: z.string().max(128).optional(),
+        answer: z.string().min(1).max(4000),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const session = await getSessionById(input.sessionId);
+      if (!session) throw new Error("Session not found");
+      if (session.status !== "live") throw new Error("Session is not live");
+
+      const alreadyAnswered = await hasStudentResponded(
+        input.sessionId,
+        input.questionId,
+        input.studentId
+      );
+      if (alreadyAnswered) throw new Error("You have already answered this question");
+
+      await submitResponse({
+        sessionId: input.sessionId,
+        questionId: input.questionId,
+        studentId: input.studentId,
+        studentName: input.studentName ?? null,
+        answer: input.answer,
+      });
+      return { success: true };
+    }),
+
+  /** Get response counts per question for a live session (professor) */
+  responseCounts: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input, ctx }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
+      const questions = (session.questions as Question[]) ?? [];
+      const allResponses = await getResponsesForSession(input.id);
+
+      return questions.map((q) => {
+        const qResponses = allResponses.filter((r) => r.questionId === q.id);
+        // For MC/TF, tally each option
+        const tally: Record<string, number> = {};
+        for (const r of qResponses) {
+          tally[r.answer] = (tally[r.answer] ?? 0) + 1;
+        }
+        return {
+          questionId: q.id,
+          questionText: q.text,
+          type: q.type,
+          total: qResponses.length,
+          tally,
+          responses: qResponses,
+        };
+      });
     }),
 });

@@ -3055,78 +3055,57 @@ function generateCode() {
 }
 
 // ── Main Page ───────────────────────────────────────────────────────────────
-export default function Home() {
-  // If lunr_new_session flag is set, clear all builder state and start fresh.
-  // If lunr_edit_session is set, load that session's code/name/questions.
-  const [sessionCode] = useState(() => {
-    const editId = localStorage.getItem("lunr_edit_session");
-    if (editId) {
-      localStorage.removeItem("lunr_edit_session");
-      // Load the session metadata from the sessions list
-      try {
-        const sessions = JSON.parse(localStorage.getItem("lunr_sessions") || "[]") as Array<{ id: string; name: string; code: string }>;
-        const found = sessions.find((s) => s.id === editId);
-        if (found) {
-          localStorage.setItem("lunr_session_code", found.code);
-          localStorage.setItem("lunr_session_name", found.name);
-          return found.code;
-        }
-      } catch { /* fall through */ }
+export default function Home({ params: routeParams }: { params?: { id?: string } }) {
+  const [, navigate] = useLocation();
+
+  // Read id from either path param (/session/:id) or query string (?id=)
+  const [dbSessionId, setDbSessionId] = useState<number | null>(() => {
+    // Path param takes priority (from /session/:id route)
+    if (routeParams?.id) {
+      const n = parseInt(routeParams.id, 10);
+      if (!isNaN(n)) return n;
     }
-    const isNew = localStorage.getItem("lunr_new_session") === "true";
-    if (isNew) {
-      localStorage.removeItem("lunr_new_session");
-      const code = generateCode();
-      localStorage.setItem("lunr_session_code", code);
-      localStorage.setItem("lunr_session_name", "Untitled Session");
-      localStorage.removeItem(`lunr_questions_${code}`);
-      return code;
-    }
-    const stored = localStorage.getItem("lunr_session_code");
-    if (stored) return stored;
-    const code = generateCode();
-    localStorage.setItem("lunr_session_code", code);
-    return code;
+    // Fallback: query string (?id=)
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    return id ? parseInt(id, 10) : null;
   });
 
-  // Session name — persisted in localStorage, only "saved" on blur/Enter
-  const [sessionName, setSessionName] = useState(
-    () => localStorage.getItem("lunr_session_name") || "Untitled Session"
-  );
-  const [savedName, setSavedName] = useState(
-    () => localStorage.getItem("lunr_session_name") || "Untitled Session"
-  );
+  // Session name
+  const [sessionName, setSessionName] = useState("Untitled Session");
+  const [savedName, setSavedName] = useState("Untitled Session");
   const hasNamed = savedName.trim() !== "Untitled Session" && savedName.trim() !== "";
 
-  // Restore questions from the last saved draft for this session code
-  const [questions, setQuestions] = useState<Question[]>(() => {
-    try {
-      const code = localStorage.getItem("lunr_session_code");
-      if (!code) return [];
-      const raw = localStorage.getItem(`lunr_questions_${code}`);
-      if (!raw) return [];
-      // Restore serialised questions — re-attach icons from TYPE_META
-      const parsed = JSON.parse(raw) as Omit<Question, "icon">[];
-      return parsed.map((q) => ({
-        ...q,
-        icon: TYPE_META[q.type as QuestionType]?.icon ?? null,
-      }));
-    } catch {
-      return [];
-    }
-  });
-  // Always show onboarding on new sessions; persist dismissal only after launch
+  // Session code (display only — assigned by server on first save)
+  const [sessionCode, setSessionCode] = useState(() => generateCode());
+
+  // Questions
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  // Load existing session from DB if editing
+  const { data: existingSession } = trpc.session.get.useQuery(
+    { id: dbSessionId! },
+    { enabled: !!dbSessionId, retry: false }
+  );
+  useEffect(() => {
+    if (!existingSession) return;
+    setSessionName(existingSession.name);
+    setSavedName(existingSession.name);
+    setSessionCode(existingSession.code);
+    const qs = (existingSession.questions as Omit<Question, "icon">[]) ?? [];
+    setQuestions(qs.map((q) => ({
+      ...q,
+      icon: TYPE_META[q.type as QuestionType]?.icon ?? null,
+    })));
+  }, [existingSession]);
+
+  // Always show onboarding on new sessions
   const [showOnboarding, setShowOnboarding] = useState(true);
 
   const iconNudge = -3;
 
-  const [, navigate] = useLocation();
-
-  // Auto-persist questions whenever they change
-  useEffect(() => {
-    const serialisable = questions.map(({ icon: _icon, ...rest }) => rest);
-    localStorage.setItem(`lunr_questions_${sessionCode}`, JSON.stringify(serialisable));
-  }, [questions, sessionCode]);
+  // tRPC save mutation
+  const saveMutation = trpc.session.save.useMutation();
 
   // DnD sensors
   const sensors = useSensors(
@@ -3151,7 +3130,7 @@ export default function Home() {
     }
   };
 
-  // Track whether there are unsaved changes (questions added or name changed)
+  // Track whether there are unsaved changes
   const [savedDraft, setSavedDraft] = useState(false);
   const isDirty = (questions.length > 0 || hasNamed) && !savedDraft;
 
@@ -3159,31 +3138,26 @@ export default function Home() {
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const [pendingNav, setPendingNav] = useState<string | null>(null);
 
-  const handleSaveDraft = () => {
-    const session = {
-      id: sessionCode,
-      name: savedName || "Untitled Session",
-      code: sessionCode,
-      questionCount: questions.length,
-      status: "draft" as const,
-      createdAt: Date.now(),
-      questionTypes: questions.map((q) => q.type),
-    };
-    // Write directly into the sessions list so it shows in My Sessions
+  const handleSaveDraft = async () => {
     try {
-      const existing = JSON.parse(localStorage.getItem("lunr_sessions") || "[]") as typeof session[];
-      const idx = existing.findIndex((s) => s.id === sessionCode);
-      if (idx >= 0) {
-        existing[idx] = session;
-      } else {
-        existing.unshift(session);
+      const serialisable = questions.map(({ icon: _icon, ...rest }) => rest);
+      const result = await saveMutation.mutateAsync({
+        id: dbSessionId ?? undefined,
+        name: savedName || "Untitled Session",
+        questions: serialisable,
+      });
+      if (!dbSessionId) {
+        setDbSessionId(result.id);
+        setSessionCode(result.code);
+        // Update URL without full navigation so back button works
+        window.history.replaceState(null, "", `/session?id=${result.id}`);
       }
-      localStorage.setItem("lunr_sessions", JSON.stringify(existing));
-    } catch {
-      localStorage.setItem("lunr_sessions", JSON.stringify([session]));
+      setSavedDraft(true);
+      toast.success("Draft saved");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Save failed";
+      toast.error(msg);
     }
-    setSavedDraft(true);
-    toast.success("Draft saved");
   };
 
   // ── Keyboard shortcut: Cmd/Ctrl+S → Save Draft ────────────────────────────
@@ -3197,7 +3171,7 @@ export default function Home() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [questions, savedName, sessionCode]);
+  }, [questions, savedName, dbSessionId]);
 
   const handleBack = () => {
     if (isDirty) {
@@ -3208,21 +3182,24 @@ export default function Home() {
     }
   };
 
-  const handleLaunch = () => {
-    localStorage.setItem("lunr_onboarding_done", "true");
-    setShowOnboarding(false);
-    // Save this session as a pending session for the Sessions dashboard
-    const session = {
-      id: sessionCode, // use code as stable id
-      name: savedName || "Untitled Session",
-      code: sessionCode,
-      questionCount: questions.length,
-      status: "draft",
-      createdAt: Date.now(),
-      questionTypes: questions.map((q) => q.type),
-    };
-    localStorage.setItem("lunr_pending_session", JSON.stringify(session));
-    navigate("/sessions");
+  const handleLaunch = async () => {
+    try {
+      // Save first to ensure we have a DB record
+      const serialisable = questions.map(({ icon: _icon, ...rest }) => rest);
+      const result = await saveMutation.mutateAsync({
+        id: dbSessionId ?? undefined,
+        name: savedName || "Untitled Session",
+        questions: serialisable,
+      });
+      const id = dbSessionId ?? result.id;
+      setDbSessionId(id);
+      setSessionCode(result.code);
+      setShowOnboarding(false);
+      navigate(`/live/${id}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Could not launch session";
+      toast.error(msg);
+    }
   };
 
   // Add modal

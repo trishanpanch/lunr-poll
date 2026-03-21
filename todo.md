@@ -59,3 +59,25 @@
 
 ## Type Switcher Dropdown
 - [x] Replace horizontal type-switcher pills on canvas cards with a compact dropdown
+
+## Current Sprint — Professor & Student Features
+- [x] Professor Dashboard: persist sessions to DB (not just localStorage); list all sessions with status (draft/live/closed)
+- [x] Session Builder: wire save/load to DB so sessions survive across devices
+- [x] Live Mode: launch a session and stream real-time incoming student responses to the professor view
+- [x] QR Code Sharing: generate a QR code for the session join URL; display in Live Mode
+- [x] Auto-Join via QR: scanning QR code takes student directly to the join flow with code pre-filled
+- [x] Student Join Page: join via 6-character code or QR scan (no login required)
+- [x] Student Live Questions: questions appear in real-time as professor launches them
+- [x] Local Demo Mode: fully functional offline/demo mode for testing without auth
+
+## Roadmap (after current sprint)
+- [ ] Response Analysis: export results to CSV/Excel
+- [ ] Response Analysis: word cloud visualization for short-text responses
+- [ ] Response Analysis: history view for closed sessions
+- [ ] Advanced Question Types: File Upload backend storage (scaffolding exists)
+- [ ] Advanced Question Types: Ranking/Sorting questions
+- [ ] Advanced Question Types: Click-on-image heatmap questions
+- [ ] Auth & Security: enable real Google/Email auth providers for production
+- [ ] Auth & Security: implement row-level security (Firestore Security Rules)
+- [ ] Student Experience: "Waiting room" state before session goes live
+- [ ] Student Experience: ability to see own past submissions

@@ -1,12 +1,15 @@
-/* ── Design: Student join page — clean, focused, mobile-first ──
-   Single action: enter a 5-character session code.
-   Blue as the interactive accent (not crimson — avoids error associations).
-   Background: #F9FAFC
-*/
+/**
+ * Join.tsx — Student join page
+ *
+ * Students enter a 6-char code (or arrive via QR link with ?code=XXXXXX).
+ * No login required. On success, redirected to /session/live/:id as a student.
+ */
 
-import { useState } from "react";
-import { Link } from "wouter";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { ArrowLeft, ArrowRight, Loader2, QrCode } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 const CRIMSON = "oklch(0.514 0.2 13.9)";
 const BLUE = "oklch(0.55 0.2 250)";
@@ -20,9 +23,32 @@ const TEXT_MID = "oklch(0.4 0 0)";
 const TEXT_MUTED = "oklch(0.556 0 0)";
 
 export default function Join() {
+  const [, navigate] = useLocation();
   const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Auto-fill code from URL query param (QR code auto-join)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const qCode = params.get("code");
+    if (qCode) {
+      const cleaned = qCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+      setCode(cleaned);
+    }
+  }, []);
+
+  const joinMut = trpc.session.joinByCode.useMutation({
+    onSuccess: (data) => {
+      // Store student identity in sessionStorage (persists across page navigations in same tab)
+      if (!sessionStorage.getItem("studentId")) {
+        sessionStorage.setItem("studentId", crypto.randomUUID());
+      }
+      navigate(`/student/${data.id}`);
+    },
+    onError: (err) => {
+      setError(err.message);
+    },
+  });
 
   const handleSubmit = () => {
     if (code.trim().length < 4) {
@@ -30,12 +56,7 @@ export default function Join() {
       return;
     }
     setError("");
-    setLoading(true);
-    // Simulate lookup — replace with real Firebase call
-    setTimeout(() => {
-      setLoading(false);
-      setError("Session not found. Check your code and try again.");
-    }, 1400);
+    joinMut.mutate({ code });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +64,8 @@ export default function Join() {
     setCode(val);
     if (error) setError("");
   };
+
+  const loading = joinMut.isPending;
 
   return (
     <div style={{
@@ -132,7 +155,7 @@ export default function Join() {
               value={code}
               onChange={handleChange}
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              placeholder="e.g. 23EAJ"
+              placeholder="e.g. 23EAJ9"
               autoFocus
               style={{
                 width: "100%",
@@ -190,11 +213,23 @@ export default function Join() {
               }}
             >
               {loading ? (
-                <><Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> Looking up session...</>
+                <><Loader2 size={16} className="animate-spin" /> Looking up session…</>
               ) : (
                 <>Join Session <ArrowRight size={16} /></>
               )}
             </button>
+          </div>
+
+          {/* QR hint */}
+          <div style={{
+            marginTop: 16, padding: "12px 16px",
+            background: CARD_BG, borderRadius: 12, border: `1px solid ${BORDER}`,
+            display: "flex", alignItems: "center", gap: 10,
+          }}>
+            <QrCode size={18} style={{ color: BLUE, flexShrink: 0 }} />
+            <p style={{ margin: 0, fontSize: 13, color: TEXT_MID, lineHeight: 1.45 }}>
+              Or scan the QR code your professor displays — it will bring you here with the code pre-filled.
+            </p>
           </div>
 
           {/* Footer hint */}
@@ -211,8 +246,6 @@ export default function Join() {
           </p>
         </div>
       </main>
-
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

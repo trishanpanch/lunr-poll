@@ -8,6 +8,13 @@
       "when": 1774047867325,
       "tag": "0000_lucky_banshee",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1774111682566,
+      "tag": "0001_violet_magneto",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import Join from "./pages/Join";
 import Sessions from "./pages/Sessions";
+import LiveSession from "./pages/LiveSession";
+import StudentSession from "./pages/StudentSession";
 import DesignSystemPage from "./pages/DesignSystem";
 import Changelog from "./pages/Changelog";
 import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, ChevronDown, ChevronUp } from "lucide-react";
@@ -17,6 +19,12 @@ import { useState } from "react";
 function BottomNav() {
   const [location] = useLocation();
   const [collapsed, setCollapsed] = useState(true);
+
+  // Hide bottom nav on live/student session pages to avoid clutter
+  const isFullscreen =
+    location.startsWith("/live/") || location.startsWith("/student/session/");
+  if (isFullscreen) return null;
+
   const tabs = [
     { href: "/", label: "Home", icon: <HomeIcon size={16} /> },
     { href: "/session", label: "Session Builder", icon: <LayoutDashboard size={16} /> },
@@ -26,7 +34,6 @@ function BottomNav() {
     { href: "/changelog", label: "Changelog", icon: <ScrollText size={16} /> },
   ];
 
-  // make sure to consider if you need authentication for certain routes
   return (
     <div
       style={{
@@ -135,14 +142,25 @@ function BottomNav() {
 
 // ── Router ────────────────────────────────────────────────────────────────────
 function Router() {
+  const [location] = useLocation();
+  const isFullscreen =
+    location.startsWith("/live/") || location.startsWith("/student/session/");
+
   return (
     <>
-      <div style={{ paddingBottom: 64 }}>
+      <div style={{ paddingBottom: isFullscreen ? 0 : 64 }}>
         <Switch>
           <Route path="/" component={Landing} />
+          {/* Professor routes */}
           <Route path="/session" component={Home} />
+          <Route path="/session/:id" component={Home} />
           <Route path="/sessions" component={Sessions} />
+          <Route path="/live/:id" component={LiveSession} />
+          {/* Student routes */}
           <Route path="/join" component={Join} />
+          <Route path="/join/:code" component={Join} />
+          <Route path="/student/session/:id" component={StudentSession} />
+          {/* Utility */}
           <Route path="/design-system" component={DesignSystemPage} />
           <Route path="/changelog" component={Changelog} />
           <Route path="/404" component={NotFound} />
