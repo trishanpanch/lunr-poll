@@ -542,7 +542,9 @@ export default function Sessions() {
       {/* Header */}
       <header
         style={{
-          background: "#fff",
+          background: "rgba(255,255,255,0.88)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           borderBottom: "1px solid oklch(0.922 0 0)",
           padding: "0 32px",
           height: 64,
