@@ -135,3 +135,6 @@
 
 ## Sprint — End Session Confirmation
 - [x] Add confirmation dialog to End Session button in LiveSession.tsx
+
+## Sprint — UI Polish (cont.)
+- [x] "Untitled Session" placeholder text should be gray in the session builder topbar

@@ -212,7 +212,7 @@ function Topbar({
                 fontFamily: "'Geist', system-ui, sans-serif",
                 fontWeight: 700,
                 fontSize: 17,
-                color: "oklch(0.145 0 0)",
+                color: isUntitled ? "oklch(0.65 0.01 264)" : "oklch(0.145 0 0)",
                 background: "transparent",
                 border: "none",
                 borderBottom: "1.5px solid transparent",
