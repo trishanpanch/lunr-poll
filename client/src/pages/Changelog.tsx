@@ -278,17 +278,23 @@ const DAYS: ChangelogDay[] = [
               "The generation endpoint now extracts the JSON array by bracket-matching rather than relying on the model returning a perfectly clean response. Trailing commas before ] or } are automatically removed, preventing occasional parse failures when the model adds extra text or formatting around the JSON.",
             tag: "Reliability",
           },
+          {
+            title: "Learning Objectives",
+            description:
+              "A new Learning Objectives section sits between the source material and question types in the AI panel. Professors can add one or more objectives as numbered green chips (Enter or Add button to confirm, × to remove). Objectives persist in localStorage across panel close and reopen. When objectives are present, they are injected into the generation prompt so the AI steers every question toward assessing a specific objective. The Generate button shows the active count: \"Generate (2 objectives)\".",
+            tag: "Feature",
+          },
+          {
+            title: "AI-suggested learning objectives",
+            description:
+              "A Suggest button in the Learning Objectives header calls a new /api/suggest-objectives endpoint that reads the source material and returns 3–5 Bloom's-aligned draft objectives. Suggestions appear as purple preview chips with individual \"+ Add\" and dismiss (×) controls. The button is disabled until source material is present and shows a spinner while loading.",
+            tag: "Feature",
+          },
         ],
       },
-    ],
-  },
-  {
-    date: "March 21, 2026",
-    title: "Canvas & AI Panel Improvements",
-    groups: [
       {
-        category: "Question Builder",
-        color: "oklch(0.55 0.2 250)",
+        category: "Question Builder (Canvas)",
+        color: "oklch(0.48 0.18 200)",
         items: [
           {
             title: "Sidebar and AI panel extend full height",
@@ -319,24 +325,6 @@ const DAYS: ChangelogDay[] = [
             description:
               "The session name in the topbar is now a plain always-visible input field. Hovering reveals a subtle underline and a pencil icon to signal that it is editable. Previously the name required a two-step click-to-edit interaction.",
             tag: "UX Flow",
-          },
-        ],
-      },
-      {
-        category: "AI Panel",
-        color: "oklch(0.52 0.22 290)",
-        items: [
-          {
-            title: "Learning Objectives",
-            description:
-              "A new Learning Objectives section sits between the source material and question types in the AI panel. Professors can add one or more objectives as numbered green chips (Enter or Add button to confirm, × to remove). Objectives persist in localStorage across panel close and reopen. When objectives are present, they are injected into the generation prompt so the AI steers every question toward assessing a specific objective. The Generate button shows the active count: \"Generate (2 objectives)\".",
-            tag: "Feature",
-          },
-          {
-            title: "AI-suggested learning objectives",
-            description:
-              "A Suggest button in the Learning Objectives header calls a new /api/suggest-objectives endpoint that reads the source material and returns 3–5 Bloom's-aligned draft objectives. Suggestions appear as purple preview chips with individual \"+ Add\" and dismiss (×) controls. The button is disabled until source material is present and shows a spinner while loading.",
-            tag: "Feature",
           },
         ],
       },
