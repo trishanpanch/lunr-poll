@@ -121,15 +121,9 @@ function Topbar({
   onSaveDraft: () => void;
   isDirty: boolean;
 }) {
-  const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (editing) inputRef.current?.select();
-  }, [editing]);
-
   const commitName = () => {
-    setEditing(false);
     onNameSave(sessionName);
   };
 
@@ -168,53 +162,31 @@ function Topbar({
           <ArrowLeft size={16} />
         </button>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {editing ? (
           <input
             ref={inputRef}
             value={sessionName}
             onChange={(e) => onNameChange(e.target.value)}
             onBlur={commitName}
-            onKeyDown={(e) => e.key === "Enter" && commitName()}
+            onKeyDown={(e) => e.key === "Enter" && (e.currentTarget as HTMLInputElement).blur()}
+            placeholder="Untitled Session"
             style={{
               fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
               fontSize: 17,
               color: "oklch(0.145 0 0)",
-              border: "1.5px solid oklch(0.45 0.22 264)",
-              borderRadius: 8,
-              padding: "2px 8px",
-              outline: "none",
-              background: "oklch(0.97 0.02 264)",
-              minWidth: 180,
-            }}
-          />
-        ) : (
-          <button
-            onClick={() => setEditing(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontFamily: "'Geist', system-ui, sans-serif",
-              fontWeight: 700,
-              fontSize: 17,
-              color: isUntitled ? "oklch(0.65 0.01 264)" : "oklch(0.145 0 0)",
-              background: "none",
+              background: "transparent",
               border: "none",
-              padding: "2px 4px",
-              borderRadius: 6,
+              borderBottom: "1.5px solid transparent",
+              padding: "2px 0",
+              outline: "none",
+              minWidth: 160,
+              width: `${Math.max(sessionName.length, 10)}ch`,
+              maxWidth: 320,
+              transition: "border-color 0.15s",
               cursor: "text",
             }}
-            className="group hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors"
-          >
-            {sessionName}
-            <Pencil
-              size={13}
-              style={{ color: "oklch(0.556 0 0)", opacity: 0 }}
-              className="group-hover:opacity-100 transition-opacity"
-            />
-          </button>
-        )}
+            className="focus:border-b-[oklch(0.45_0.22_264)] placeholder:text-[oklch(0.65_0.01_264)] placeholder:font-bold"
+          />
         <span
           style={{
             fontSize: 12,
