@@ -135,30 +135,32 @@ export default function Landing() {
             </span>
           </div>
 
-          <h1 style={{
-            fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: heroWeight, fontSize: "clamp(36px, 5vw, 56px)",
-            lineHeight: heroLineHeight, letterSpacing: "-0.03em",
-            color: TEXT_DARK, margin: `0 0 ${heroGap}px`,
-          }}>
-            Real-time insights
-          </h1>
-          <h1 style={{
-            fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: heroWeight, fontSize: "clamp(36px, 5vw, 56px)",
-            lineHeight: heroLineHeight, letterSpacing: "-0.03em",
-            color: TEXT_DARK, margin: `0 0 ${heroGap}px`,
-          }}>
-            from the
-          </h1>
-          <h1 style={{
-            fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: heroWeight, fontSize: "clamp(36px, 5vw, 56px)",
-            lineHeight: heroLineHeight, letterSpacing: "-0.03em",
-            color: CRIMSON, margin: `0 0 ${heroGap}px`,
-          }}>
-            connected classroom.
-          </h1>
+          <div style={{ display: "flex", flexDirection: "column", gap: heroGap, marginBottom: 32 }}>
+            <h1 style={{
+              fontFamily: "'Syne', system-ui, sans-serif",
+              fontWeight: heroWeight, fontSize: "clamp(36px, 5vw, 56px)",
+              lineHeight: heroLineHeight, letterSpacing: "-0.03em",
+              color: TEXT_DARK, margin: 0,
+            }}>
+              Real-time insights
+            </h1>
+            <h1 style={{
+              fontFamily: "'Syne', system-ui, sans-serif",
+              fontWeight: heroWeight, fontSize: "clamp(36px, 5vw, 56px)",
+              lineHeight: heroLineHeight, letterSpacing: "-0.03em",
+              color: TEXT_DARK, margin: 0,
+            }}>
+              from the
+            </h1>
+            <h1 style={{
+              fontFamily: "'Syne', system-ui, sans-serif",
+              fontWeight: heroWeight, fontSize: "clamp(36px, 5vw, 56px)",
+              lineHeight: heroLineHeight, letterSpacing: "-0.03em",
+              color: CRIMSON, margin: 0,
+            }}>
+              connected classroom.
+            </h1>
+          </div>
 
           <p style={{
             fontSize: 17, lineHeight: 1.65, color: TEXT_MID,
