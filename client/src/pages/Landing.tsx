@@ -110,11 +110,11 @@ export default function Landing() {
       {/* ── Hero ── */}
       <section style={{
         maxWidth: 1160, margin: "0 auto",
-        padding: "64px 32px 80px",
+        padding: "72px 32px 64px",
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
-        gap: 40,
-        alignItems: "start",
+        gap: 56,
+        alignItems: "center",
       }}>
         {/* Left */}
         <div>
@@ -193,24 +193,22 @@ export default function Landing() {
         </div>
 
         {/* Right — Hero image */}
-        <div style={{ position: "relative", paddingTop: 8 }}>
+        <div style={{ position: "relative" }}>
           <div style={{
             borderRadius: 20,
             overflow: "hidden",
             boxShadow: "0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)",
             border: `1px solid ${BORDER}`,
-            maxHeight: 340,
           }}>
             <img
               src={HERO_IMG}
               alt="Live polling in a Harvard classroom"
-              style={{ width: "100%", display: "block", objectFit: "cover", objectPosition: "center top", maxHeight: 340 }}
+              style={{ width: "100%", display: "block" }}
             />
           </div>
           {/* Floating stat badge */}
           <div style={{
-            position: "absolute", top: "50%", right: -20,
-            transform: "translateY(-50%)",
+            position: "absolute", bottom: -16, left: -16,
             background: CARD_BG,
             borderRadius: 12, padding: "10px 16px",
             boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
