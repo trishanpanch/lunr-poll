@@ -114,3 +114,15 @@
 - [x] Share link button: "Copy join link" on session cards (copies https://alicepoll.com/join?code=XXXXXX)
 - [x] Share link button: "Copy join link" in Live Mode header
 - [x] Word cloud: List/Word Cloud toggle in Live Mode Short Text response panel (auto-refreshes with polling)
+
+## Sprint — Student Mobile Flow
+- [x] Join page: full-screen mobile-first layout, large 6-char code input with individual character boxes, auto-advance on complete, touch-friendly CTA
+- [x] Join page: works on desktop too (centered card layout on wide screens)
+- [x] Join page: auto-fill code from ?code= URL param (QR scan)
+- [x] Student session: full-screen question cards, one question at a time
+- [x] Student session: large tap-target answer buttons (MC, T/F, Star Rating)
+- [x] Student session: Short Text — full-screen textarea with submit button anchored to bottom
+- [x] Student session: animated submission confirmation screen ("Answer received ✓") before next question
+- [x] Student session: waiting room — full-screen with participant count, animated pulse
+- [x] Student session: session ended screen — thank you message
+- [x] Student session: smooth slide/fade transitions between question states

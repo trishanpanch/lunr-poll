@@ -1,219 +1,577 @@
 /**
- * StudentSession.tsx — Student live view
+ * StudentSession.tsx — Student live view (mobile-first rebuild)
  *
- * Polls every 2s for the current question. No login required.
- * Stores studentId in sessionStorage for deduplication.
+ * Full-screen, touch-native design. One question at a time with large tap
+ * targets. Animated submission confirmation. Works on desktop too.
+ * No login required.
  */
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Loader2, Send, Star, CheckCircle2, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2, Star, CheckCircle2, Send, ArrowRight } from "lucide-react";
 import type { Question } from "@shared/types";
 
 // ── Colour tokens ─────────────────────────────────────────────────────────────
 const INDIGO = "oklch(0.55 0.2 250)";
-const INDIGO_LIGHT = "oklch(0.96 0.04 250)";
-const BORDER = "oklch(0.922 0 0)";
-const TEXT_DARK = "oklch(0.145 0 0)";
-const TEXT_MID = "oklch(0.4 0 0)";
-const TEXT_MUTED = "oklch(0.556 0 0)";
-const BG = "oklch(0.982 0.0107 271.3)";
+const INDIGO_DARK = "oklch(0.45 0.22 264)";
+const INDIGO_LIGHT = "rgba(99,102,241,0.12)";
+const INDIGO_BORDER = "rgba(99,102,241,0.35)";
 const GREEN = "oklch(0.52 0.18 160)";
-const GREEN_LIGHT = "oklch(0.92 0.08 160)";
+const GREEN_LIGHT = "rgba(34,197,94,0.12)";
 const CRIMSON = "oklch(0.514 0.2 13.9)";
+const TEXT_DARK = "#fff";
+const TEXT_MID = "rgba(255,255,255,0.7)";
+const TEXT_MUTED = "rgba(255,255,255,0.4)";
+const CARD_BG = "rgba(255,255,255,0.06)";
+const CARD_BORDER = "rgba(255,255,255,0.1)";
+const BG_TOP = "oklch(0.18 0.04 264)";
+const BG_BOT = "oklch(0.12 0.02 264)";
 
-// ── Answer inputs by question type ───────────────────────────────────────────
-
-function ShortTextInput({
-  onSubmit,
-  disabled,
-}: {
-  onSubmit: (answer: string) => void;
-  disabled: boolean;
-}) {
-  const [text, setText] = useState("");
+// ── Shared full-screen shell ──────────────────────────────────────────────────
+function Shell({ children, progress }: { children: React.ReactNode; progress?: number }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div style={{
+      minHeight: "100svh",
+      background: `linear-gradient(160deg, ${BG_TOP} 0%, ${BG_BOT} 100%)`,
+      fontFamily: "'Geist', system-ui, sans-serif",
+      display: "flex",
+      flexDirection: "column",
+      overflowX: "hidden",
+    }}>
+      {/* Progress bar */}
+      {progress !== undefined && (
+        <div style={{ height: 3, background: "rgba(255,255,255,0.08)", flexShrink: 0 }}>
+          <div style={{
+            height: "100%",
+            width: `${Math.max(4, progress * 100)}%`,
+            background: `linear-gradient(90deg, ${INDIGO}, oklch(0.65 0.2 290))`,
+            transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
+          }} />
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
+
+// ── Loading screen ────────────────────────────────────────────────────────────
+function LoadingScreen() {
+  return (
+    <Shell>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center" }}>
+          <Loader2 size={36} style={{ color: INDIGO, margin: "0 auto 16px" }} className="animate-spin" />
+          <p style={{ color: TEXT_MUTED, fontSize: 14, margin: 0 }}>Connecting…</p>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+// ── Error screen ──────────────────────────────────────────────────────────────
+function ErrorScreen({ onRetry }: { onRetry: () => void }) {
+  return (
+    <Shell>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+        <div style={{ textAlign: "center", maxWidth: 320 }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+          <h2 style={{ color: TEXT_DARK, fontWeight: 800, fontSize: 22, margin: "0 0 10px" }}>Session not found</h2>
+          <p style={{ color: TEXT_MID, fontSize: 14, margin: "0 0 28px", lineHeight: 1.55 }}>
+            This session may have ended or the code was incorrect.
+          </p>
+          <button onClick={onRetry} style={{
+            padding: "14px 28px", borderRadius: 12,
+            background: `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`,
+            color: "#fff", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer",
+          }}>
+            Try another code
+          </button>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+// ── Waiting room ──────────────────────────────────────────────────────────────
+function WaitingRoom({ participantCount }: { participantCount: number }) {
+  return (
+    <Shell>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+        {/* Animated pulse rings */}
+        <div style={{ position: "relative", width: 96, height: 96, marginBottom: 32 }}>
+          <div style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            border: `2px solid ${INDIGO}`,
+            animation: "ring 2s ease-out infinite",
+            opacity: 0,
+          }} />
+          <div style={{
+            position: "absolute", inset: 8, borderRadius: "50%",
+            border: `2px solid ${INDIGO}`,
+            animation: "ring 2s ease-out 0.5s infinite",
+            opacity: 0,
+          }} />
+          <div style={{
+            position: "absolute", inset: 16, borderRadius: "50%",
+            background: INDIGO_LIGHT,
+            border: `2px solid ${INDIGO_BORDER}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 28,
+          }}>
+            ⏳
+          </div>
+        </div>
+
+        <h2 style={{ color: TEXT_DARK, fontWeight: 800, fontSize: 26, margin: "0 0 10px", letterSpacing: "-0.02em" }}>
+          Waiting Room
+        </h2>
+        <p style={{ color: TEXT_MID, fontSize: 15, margin: "0 0 32px", textAlign: "center", lineHeight: 1.55, maxWidth: 280 }}>
+          The professor hasn't started the session yet. Hang tight!
+        </p>
+
+        {/* Participant count pill */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 10,
+          background: INDIGO_LIGHT,
+          border: `1.5px solid ${INDIGO_BORDER}`,
+          borderRadius: 40, padding: "12px 24px",
+        }}>
+          <div style={{
+            width: 8, height: 8, borderRadius: "50%", background: INDIGO,
+            animation: "pulse 1.5s ease-in-out infinite",
+          }} />
+          <span style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>{participantCount}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: TEXT_MID }}>
+            student{participantCount !== 1 ? "s" : ""} joined
+          </span>
+        </div>
+
+        <p style={{ color: TEXT_MUTED, fontSize: 13, marginTop: 20, animation: "pulse 2s ease-in-out infinite" }}>
+          Checking for updates every few seconds…
+        </p>
+      </div>
+
+      <style>{`
+        @keyframes ring {
+          0% { transform: scale(0.8); opacity: 0.6; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.35; }
+        }
+      `}</style>
+    </Shell>
+  );
+}
+
+// ── Session ended ─────────────────────────────────────────────────────────────
+function SessionEnded({ onJoinAnother }: { onJoinAnother: () => void }) {
+  return (
+    <Shell>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+        <div style={{
+          width: 80, height: 80, borderRadius: "50%",
+          background: "rgba(34,197,94,0.15)",
+          border: "2px solid rgba(34,197,94,0.3)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          marginBottom: 24, fontSize: 36,
+        }}>
+          🎉
+        </div>
+        <h2 style={{ color: TEXT_DARK, fontWeight: 800, fontSize: 26, margin: "0 0 10px", letterSpacing: "-0.02em" }}>
+          Session Complete!
+        </h2>
+        <p style={{ color: TEXT_MID, fontSize: 15, margin: "0 0 36px", textAlign: "center", lineHeight: 1.55, maxWidth: 280 }}>
+          The professor has ended this session. Thanks for participating!
+        </p>
+        <button onClick={onJoinAnother} style={{
+          padding: "16px 32px", borderRadius: 14,
+          background: `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`,
+          color: "#fff", fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", gap: 10,
+          boxShadow: "0 4px 20px oklch(0.55 0.2 250 / 0.35)",
+        }}>
+          Join Another Session <ArrowRight size={18} />
+        </button>
+      </div>
+    </Shell>
+  );
+}
+
+// ── Submission confirmation overlay ──────────────────────────────────────────
+function SubmittedOverlay({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 1800);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 100,
+      background: `linear-gradient(160deg, ${BG_TOP} 0%, ${BG_BOT} 100%)`,
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      animation: "fadeIn 0.2s ease",
+    }}>
+      <div style={{
+        width: 96, height: 96, borderRadius: "50%",
+        background: GREEN_LIGHT,
+        border: "2px solid rgba(34,197,94,0.3)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        marginBottom: 24,
+        animation: "popIn 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+      }}>
+        <CheckCircle2 size={44} style={{ color: GREEN }} />
+      </div>
+      <h2 style={{
+        color: TEXT_DARK, fontWeight: 800, fontSize: 28,
+        margin: "0 0 10px", letterSpacing: "-0.02em",
+        animation: "slideUp 0.3s ease 0.1s both",
+      }}>
+        Answer received!
+      </h2>
+      <p style={{
+        color: TEXT_MID, fontSize: 15, margin: 0,
+        animation: "slideUp 0.3s ease 0.2s both",
+      }}>
+        Waiting for the next question…
+      </p>
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn {
+          from { transform: scale(0.5); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(12px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ── Answer input components ───────────────────────────────────────────────────
+
+function ShortTextInput({ onSubmit, disabled }: { onSubmit: (a: string) => void; disabled: boolean }) {
+  const [text, setText] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
+
+  const autoResize = (el: HTMLTextAreaElement) => {
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 0, height: "100%" }}>
       <textarea
+        ref={textareaRef}
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => { setText(e.target.value); autoResize(e.target); }}
         placeholder="Type your answer here…"
-        rows={4}
         disabled={disabled}
         style={{
-          width: "100%", borderRadius: 10,
-          border: `1.5px solid ${BORDER}`, padding: "12px 14px",
-          fontSize: 14, color: TEXT_DARK, resize: "none",
-          fontFamily: "'Inter', system-ui, sans-serif",
-          outline: "none", transition: "border-color 0.15s",
+          flex: 1,
+          width: "100%",
+          minHeight: 120,
+          borderRadius: 14,
+          border: `1.5px solid ${text ? INDIGO_BORDER : CARD_BORDER}`,
+          background: text ? INDIGO_LIGHT : CARD_BG,
+          padding: "16px 18px",
+          fontSize: 16,
+          color: TEXT_DARK,
+          resize: "none",
+          fontFamily: "'Geist', system-ui, sans-serif",
+          outline: "none",
+          transition: "border-color 0.15s, background 0.15s",
           boxSizing: "border-box",
+          lineHeight: 1.55,
+          overflowY: "hidden",
         }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = INDIGO; }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = BORDER; }}
+        onFocus={(e) => { e.currentTarget.style.borderColor = INDIGO_BORDER; autoResize(e.currentTarget); }}
+        onBlur={(e) => { e.currentTarget.style.borderColor = text ? INDIGO_BORDER : CARD_BORDER; }}
       />
-      <Button
+      <button
         onClick={() => text.trim() && onSubmit(text.trim())}
         disabled={disabled || !text.trim()}
-        style={{ background: INDIGO, color: "#fff", fontWeight: 600, alignSelf: "flex-end" }}
+        style={{
+          marginTop: 14,
+          width: "100%",
+          padding: "16px 24px",
+          borderRadius: 14,
+          border: "none",
+          background: text.trim()
+            ? `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`
+            : "rgba(255,255,255,0.08)",
+          color: text.trim() ? "#fff" : TEXT_MUTED,
+          fontWeight: 700, fontSize: 16,
+          cursor: text.trim() && !disabled ? "pointer" : "not-allowed",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          transition: "all 0.2s",
+          boxShadow: text.trim() ? "0 4px 20px oklch(0.55 0.2 250 / 0.3)" : "none",
+          letterSpacing: "-0.01em",
+        }}
       >
-        <Send size={14} /> Submit
-      </Button>
+        {disabled ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> Submit Answer</>}
+      </button>
     </div>
   );
 }
 
-function MultipleChoiceInput({
-  options,
-  onSubmit,
-  disabled,
-}: {
-  options: string[];
-  onSubmit: (answer: string) => void;
-  disabled: boolean;
-}) {
+function MultipleChoiceInput({ options, onSubmit, disabled }: { options: string[]; onSubmit: (a: string) => void; disabled: boolean }) {
   const [selected, setSelected] = useState<number | null>(null);
+  const letters = "ABCDEFGHIJ";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      {options.map((opt, i) => (
-        <button
-          key={i}
-          onClick={() => !disabled && setSelected(i)}
-          disabled={disabled}
-          style={{
-            display: "flex", alignItems: "center", gap: 12,
-            padding: "14px 16px", borderRadius: 10, textAlign: "left",
-            border: `1.5px solid ${selected === i ? INDIGO : BORDER}`,
-            background: selected === i ? INDIGO_LIGHT : "#fff",
-            color: TEXT_DARK, fontSize: 14, fontWeight: selected === i ? 600 : 400,
-            cursor: disabled ? "not-allowed" : "pointer",
-            transition: "all 0.15s",
-          }}
-        >
-          <span style={{
-            width: 26, height: 26, borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0, fontFamily: "'Geist Mono', monospace",
-            fontSize: 11, fontWeight: 700,
-            background: selected === i ? INDIGO : "oklch(0.93 0 0)",
-            color: selected === i ? "#fff" : TEXT_MUTED,
-          }}>
-            {String.fromCharCode(65 + i)}
-          </span>
-          {opt}
-        </button>
-      ))}
-      <Button
-        onClick={() => selected !== null && onSubmit(String(selected))}
-        disabled={disabled || selected === null}
-        style={{ background: INDIGO, color: "#fff", fontWeight: 600, marginTop: 4, alignSelf: "flex-end" }}
-      >
-        <Send size={14} /> Submit
-      </Button>
-    </div>
-  );
-}
-
-function StarRatingInput({
-  onSubmit,
-  disabled,
-}: {
-  onSubmit: (answer: string) => void;
-  disabled: boolean;
-}) {
-  const [hovered, setHovered] = useState(0);
-  const [selected, setSelected] = useState(0);
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-      <div style={{ display: "flex", gap: 8 }}>
-        {[1, 2, 3, 4, 5].map((n) => (
+      {options.map((opt, i) => {
+        const isSelected = selected === i;
+        return (
           <button
-            key={n}
-            onClick={() => !disabled && setSelected(n)}
-            onMouseEnter={() => !disabled && setHovered(n)}
-            onMouseLeave={() => setHovered(0)}
+            key={i}
+            onClick={() => { if (!disabled) { setSelected(i); } }}
             disabled={disabled}
             style={{
-              background: "none", border: "none", cursor: disabled ? "not-allowed" : "pointer",
-              padding: 4, transition: "transform 0.1s",
-              transform: hovered >= n || selected >= n ? "scale(1.15)" : "scale(1)",
+              display: "flex", alignItems: "center", gap: 14,
+              padding: "16px 18px", borderRadius: 14, textAlign: "left",
+              border: `1.5px solid ${isSelected ? INDIGO_BORDER : CARD_BORDER}`,
+              background: isSelected ? INDIGO_LIGHT : CARD_BG,
+              color: TEXT_DARK, fontSize: 16, fontWeight: isSelected ? 600 : 400,
+              cursor: disabled ? "not-allowed" : "pointer",
+              transition: "all 0.15s",
+              width: "100%",
+              boxShadow: isSelected ? `0 0 0 2px ${INDIGO_BORDER}` : "none",
             }}
           >
-            <Star
-              size={36}
-              fill={hovered >= n || selected >= n ? "oklch(0.62 0.18 60)" : "none"}
-              stroke={hovered >= n || selected >= n ? "oklch(0.62 0.18 60)" : TEXT_MUTED}
-            />
+            <span style={{
+              width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontFamily: "'Geist Mono', monospace", fontSize: 13, fontWeight: 800,
+              background: isSelected ? INDIGO : "rgba(255,255,255,0.08)",
+              color: isSelected ? "#fff" : TEXT_MUTED,
+              transition: "all 0.15s",
+            }}>
+              {letters[i]}
+            </span>
+            <span style={{ lineHeight: 1.4 }}>{opt}</span>
           </button>
-        ))}
-      </div>
-      {selected > 0 && (
-        <p style={{ margin: 0, fontSize: 14, color: TEXT_MID, fontWeight: 500 }}>
-          You selected {selected} star{selected !== 1 ? "s" : ""}
-        </p>
-      )}
-      <Button
-        onClick={() => selected > 0 && onSubmit(String(selected))}
-        disabled={disabled || selected === 0}
-        style={{ background: INDIGO, color: "#fff", fontWeight: 600 }}
+        );
+      })}
+      <button
+        onClick={() => selected !== null && onSubmit(String(selected))}
+        disabled={disabled || selected === null}
+        style={{
+          marginTop: 6,
+          width: "100%",
+          padding: "16px 24px",
+          borderRadius: 14,
+          border: "none",
+          background: selected !== null
+            ? `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`
+            : "rgba(255,255,255,0.08)",
+          color: selected !== null ? "#fff" : TEXT_MUTED,
+          fontWeight: 700, fontSize: 16,
+          cursor: selected !== null && !disabled ? "pointer" : "not-allowed",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          transition: "all 0.2s",
+          boxShadow: selected !== null ? "0 4px 20px oklch(0.55 0.2 250 / 0.3)" : "none",
+          letterSpacing: "-0.01em",
+        }}
       >
-        <Send size={14} /> Submit
-      </Button>
+        {disabled ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> Submit Answer</>}
+      </button>
     </div>
   );
 }
 
-function TrueFalseInput({
-  onSubmit,
-  disabled,
-}: {
-  onSubmit: (answer: string) => void;
-  disabled: boolean;
-}) {
+function TrueFalseInput({ onSubmit, disabled }: { onSubmit: (a: string) => void; disabled: boolean }) {
   const [selected, setSelected] = useState<"True" | "False" | null>(null);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", gap: 12 }}>
-        {(["True", "False"] as const).map((label) => (
-          <button
-            key={label}
-            onClick={() => !disabled && setSelected(label)}
-            disabled={disabled}
-            style={{
-              flex: 1, padding: "18px 0", borderRadius: 12,
-              border: `1.5px solid ${selected === label ? INDIGO : BORDER}`,
-              background: selected === label ? INDIGO_LIGHT : "#fff",
-              color: selected === label ? INDIGO : TEXT_DARK,
-              fontSize: 16, fontWeight: 700,
-              cursor: disabled ? "not-allowed" : "pointer",
-              transition: "all 0.15s",
-            }}
-          >
-            {label}
-          </button>
-        ))}
+        {(["True", "False"] as const).map((label) => {
+          const isSelected = selected === label;
+          const color = label === "True" ? GREEN : CRIMSON;
+          const colorLight = label === "True" ? "rgba(34,197,94,0.12)" : "rgba(220,38,38,0.12)";
+          const colorBorder = label === "True" ? "rgba(34,197,94,0.35)" : "rgba(220,38,38,0.35)";
+          return (
+            <button
+              key={label}
+              onClick={() => { if (!disabled) setSelected(label); }}
+              disabled={disabled}
+              style={{
+                flex: 1,
+                padding: "22px 0",
+                borderRadius: 16,
+                border: `1.5px solid ${isSelected ? colorBorder : CARD_BORDER}`,
+                background: isSelected ? colorLight : CARD_BG,
+                color: isSelected ? color : TEXT_MID,
+                fontSize: 18, fontWeight: 800,
+                cursor: disabled ? "not-allowed" : "pointer",
+                transition: "all 0.15s",
+                boxShadow: isSelected ? `0 0 0 2px ${colorBorder}` : "none",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              {label === "True" ? "✓ True" : "✗ False"}
+            </button>
+          );
+        })}
       </div>
-      <Button
+      <button
         onClick={() => selected && onSubmit(selected)}
         disabled={disabled || !selected}
-        style={{ background: INDIGO, color: "#fff", fontWeight: 600, alignSelf: "flex-end" }}
+        style={{
+          width: "100%",
+          padding: "16px 24px",
+          borderRadius: 14,
+          border: "none",
+          background: selected
+            ? `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`
+            : "rgba(255,255,255,0.08)",
+          color: selected ? "#fff" : TEXT_MUTED,
+          fontWeight: 700, fontSize: 16,
+          cursor: selected && !disabled ? "pointer" : "not-allowed",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          transition: "all 0.2s",
+          boxShadow: selected ? "0 4px 20px oklch(0.55 0.2 250 / 0.3)" : "none",
+          letterSpacing: "-0.01em",
+        }}
       >
-        <Send size={14} /> Submit
-      </Button>
+        {disabled ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> Submit Answer</>}
+      </button>
+    </div>
+  );
+}
+
+function StarRatingInput({ onSubmit, disabled }: { onSubmit: (a: string) => void; disabled: boolean }) {
+  const [hovered, setHovered] = useState(0);
+  const [selected, setSelected] = useState(0);
+  const GOLD = "oklch(0.75 0.18 60)";
+  const labels = ["", "Poor", "Fair", "Good", "Great", "Excellent"];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+      <div style={{ display: "flex", gap: "clamp(8px, 3vw, 16px)" }}>
+        {[1, 2, 3, 4, 5].map((n) => {
+          const active = hovered >= n || selected >= n;
+          return (
+            <button
+              key={n}
+              onClick={() => { if (!disabled) setSelected(n); }}
+              onMouseEnter={() => { if (!disabled) setHovered(n); }}
+              onMouseLeave={() => setHovered(0)}
+              disabled={disabled}
+              style={{
+                background: "none", border: "none",
+                cursor: disabled ? "not-allowed" : "pointer",
+                padding: "4px",
+                transition: "transform 0.15s",
+                transform: active ? "scale(1.2)" : "scale(1)",
+              }}
+            >
+              <Star
+                size={44}
+                fill={active ? GOLD : "none"}
+                stroke={active ? GOLD : "rgba(255,255,255,0.2)"}
+                strokeWidth={1.5}
+              />
+            </button>
+          );
+        })}
+      </div>
+      {(hovered > 0 || selected > 0) && (
+        <p style={{
+          margin: 0, fontSize: 15, fontWeight: 600,
+          color: TEXT_MID, animation: "fadeIn 0.15s ease",
+        }}>
+          {labels[hovered || selected]}
+        </p>
+      )}
+      <button
+        onClick={() => selected > 0 && onSubmit(String(selected))}
+        disabled={disabled || selected === 0}
+        style={{
+          width: "100%",
+          padding: "16px 24px",
+          borderRadius: 14,
+          border: "none",
+          background: selected > 0
+            ? `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`
+            : "rgba(255,255,255,0.08)",
+          color: selected > 0 ? "#fff" : TEXT_MUTED,
+          fontWeight: 700, fontSize: 16,
+          cursor: selected > 0 && !disabled ? "pointer" : "not-allowed",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          transition: "all 0.2s",
+          boxShadow: selected > 0 ? "0 4px 20px oklch(0.55 0.2 250 / 0.3)" : "none",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {disabled ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> Submit Answer</>}
+      </button>
+
+      <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
+    </div>
+  );
+}
+
+// ── Waiting-for-next-question state (after answering) ─────────────────────────
+function AnsweredState() {
+  return (
+    <div style={{
+      flex: 1,
+      display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center",
+      padding: "24px",
+      textAlign: "center",
+    }}>
+      <div style={{
+        width: 72, height: 72, borderRadius: "50%",
+        background: GREEN_LIGHT,
+        border: "2px solid rgba(34,197,94,0.3)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        marginBottom: 20,
+      }}>
+        <CheckCircle2 size={34} style={{ color: GREEN }} />
+      </div>
+      <h3 style={{ color: TEXT_DARK, fontWeight: 800, fontSize: 22, margin: "0 0 8px" }}>
+        Response submitted!
+      </h3>
+      <p style={{ color: TEXT_MID, fontSize: 15, margin: 0, lineHeight: 1.55 }}>
+        Waiting for the next question…
+      </p>
+      <div style={{
+        marginTop: 24, display: "flex", alignItems: "center", gap: 8,
+        color: TEXT_MUTED, fontSize: 13,
+        animation: "pulse 2s ease-in-out infinite",
+      }}>
+        <div style={{
+          width: 6, height: 6, borderRadius: "50%", background: GREEN,
+          animation: "pulse 1.5s ease-in-out infinite",
+        }} />
+        Checking for updates…
+      </div>
+      <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
     </div>
   );
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
-
 export default function StudentSession() {
   const params = useParams<{ id: string }>();
   const sessionId = parseInt(params.id ?? "0");
   const [, navigate] = useLocation();
 
-  // Stable student identity
   const studentId = useRef<string>("");
   useEffect(() => {
     let id = sessionStorage.getItem("studentId");
@@ -224,20 +582,15 @@ export default function StudentSession() {
     studentId.current = id;
   }, []);
 
-  // Track which questionIds this student has already answered
   const [answered, setAnswered] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Poll for current question every 2s
   const { data, isLoading, error } = trpc.session.studentPoll.useQuery(
     { sessionId },
-    {
-      refetchInterval: 2000,
-      enabled: !!sessionId,
-    }
+    { refetchInterval: 2000, enabled: !!sessionId }
   );
 
-  // Poll for participant count every 5s (shown in waiting room)
   const participantCountQ = trpc.session.participantCount.useQuery(
     { sessionId },
     { refetchInterval: 5000, enabled: !!sessionId }
@@ -246,11 +599,11 @@ export default function StudentSession() {
 
   const submitMut = trpc.session.submitResponse.useMutation({
     onSuccess: () => {
-      toast.success("Response submitted!");
       if (data?.currentQuestion) {
         setAnswered((prev) => new Set(Array.from(prev).concat(data.currentQuestion!.id)));
       }
       setSubmitting(false);
+      setShowConfirmation(true);
     },
     onError: (err) => {
       toast.error(err.message);
@@ -271,213 +624,134 @@ export default function StudentSession() {
 
   const currentQ = data?.currentQuestion as Question | null | undefined;
   const hasAnswered = currentQ ? answered.has(currentQ.id) : false;
+  const progress = data?.questionCount
+    ? ((data.currentQuestionIndex ?? 0) + 1) / data.questionCount
+    : 0;
 
-  if (isLoading) {
-    return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: BG }}>
-        <Loader2 size={32} style={{ color: INDIGO, animation: "spin 1s linear infinite" }} />
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
+  // ── Render states ────────────────────────────────────────────────────────────
 
-  if (error || !data) {
-    return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: BG, flexDirection: "column", gap: 16 }}>
-        <p style={{ color: CRIMSON, fontWeight: 600 }}>Session not found.</p>
-        <Button variant="outline" onClick={() => navigate("/join")}>Try another code</Button>
-      </div>
-    );
-  }
-
-  // Session ended
-  if (data.status === "closed") {
-    return (
-      <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{
-          background: "#fff", borderRadius: 20, padding: "40px 36px",
-          textAlign: "center", maxWidth: 380, width: "100%",
-          border: `1px solid ${BORDER}`, boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-        }}>
-          <div style={{ fontSize: 52, marginBottom: 16 }}>🎉</div>
-          <h2 style={{ margin: "0 0 8px", fontWeight: 800, fontSize: 22, color: TEXT_DARK }}>Session Complete!</h2>
-          <p style={{ margin: "0 0 24px", fontSize: 14, color: TEXT_MID }}>
-            The professor has ended this session. Thanks for participating!
-          </p>
-          <Button variant="outline" onClick={() => navigate("/join")}>Join Another Session</Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Waiting room (session not yet live)
-  if (data.status === "draft") {
-    return (
-      <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{
-          background: "#fff", borderRadius: 20, padding: "40px 36px",
-          textAlign: "center", maxWidth: 400, width: "100%",
-          border: `1px solid ${BORDER}`, boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-        }}>
-          <div style={{ fontSize: 52, marginBottom: 16 }}>⏳</div>
-          <h2 style={{ margin: "0 0 8px", fontWeight: 800, fontSize: 22, color: TEXT_DARK }}>Waiting Room</h2>
-          <p style={{ margin: "0 0 20px", fontSize: 14, color: TEXT_MID }}>
-            The professor hasn't started the session yet. Hang tight!
-          </p>
-
-          {/* Live participant count */}
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            background: INDIGO_LIGHT, border: `1px solid oklch(0.88 0.04 250)`,
-            borderRadius: 40, padding: "8px 20px", marginBottom: 20,
-          }}>
-            <span style={{ fontSize: 22, fontWeight: 800, color: INDIGO }}>{participantCount}</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: INDIGO }}>
-              student{participantCount !== 1 ? "s" : ""} joined
-            </span>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, color: TEXT_MUTED, fontSize: 13 }}>
-            <Clock size={14} style={{ animation: "pulse 1.5s ease-in-out infinite" }} />
-            Checking for updates…
-          </div>
-        </div>
-        <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingScreen />;
+  if (error || !data) return <ErrorScreen onRetry={() => navigate("/join")} />;
+  if (data.status === "closed") return <SessionEnded onJoinAnother={() => navigate("/join")} />;
+  if (data.status === "draft") return <WaitingRoom participantCount={participantCount} />;
 
   // Live — no question yet
   if (!currentQ) {
     return (
-      <div style={{ minHeight: "100vh", background: BG, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{
-          background: "#fff", borderRadius: 20, padding: "40px 36px",
-          textAlign: "center", maxWidth: 380, width: "100%",
-          border: `1px solid ${BORDER}`,
-        }}>
-          <Loader2 size={28} style={{ color: INDIGO, animation: "spin 1s linear infinite", margin: "0 auto 16px" }} />
-          <p style={{ margin: 0, fontSize: 15, color: TEXT_MID }}>Waiting for the first question…</p>
+      <Shell>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+          <div style={{ textAlign: "center" }}>
+            <Loader2 size={32} style={{ color: INDIGO, margin: "0 auto 16px" }} className="animate-spin" />
+            <p style={{ color: TEXT_MID, fontSize: 15, margin: 0 }}>Waiting for the first question…</p>
+          </div>
         </div>
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-      </div>
+      </Shell>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: BG, fontFamily: "'Inter', system-ui, sans-serif" }}>
-      {/* Header */}
-      <header style={{
-        position: "sticky", top: 0, zIndex: 50,
-        background: "rgba(255,255,255,0.95)", backdropFilter: "blur(12px)",
-        borderBottom: `1px solid ${BORDER}`,
-        height: 56, display: "flex", alignItems: "center",
-        padding: "0 20px", gap: 12,
-      }}>
-        <div style={{
-          width: 8, height: 8, borderRadius: "50%", background: GREEN,
-          animation: "pulse 1.5s ease-in-out infinite",
-        }} />
-        <span style={{ fontSize: 13, fontWeight: 600, color: GREEN }}>LIVE</span>
-        <div style={{ flex: 1 }} />
-        <span style={{ fontSize: 12, color: TEXT_MUTED }}>
-          Question {(data.currentQuestionIndex ?? 0) + 1} of {data.questionCount}
-        </span>
-      </header>
+    <>
+      {/* Submission confirmation overlay */}
+      {showConfirmation && (
+        <SubmittedOverlay onDone={() => setShowConfirmation(false)} />
+      )}
 
-      {/* Progress */}
-      <div style={{ height: 4, background: "oklch(0.93 0 0)" }}>
-        <div style={{
-          height: "100%", background: INDIGO,
-          width: `${(((data.currentQuestionIndex ?? 0) + 1) / (data.questionCount || 1)) * 100}%`,
-          transition: "width 0.4s ease",
-        }} />
-      </div>
-
-      {/* Question card */}
-      <main style={{ maxWidth: 560, margin: "0 auto", padding: "32px 20px 80px" }}>
-        <div style={{
-          background: "#fff", borderRadius: 18,
-          border: `1px solid ${BORDER}`,
-          padding: "28px 28px 24px",
-          boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
+      <Shell progress={progress}>
+        {/* Header */}
+        <header style={{
+          padding: "0 20px",
+          height: 52,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexShrink: 0,
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}>
-          {/* Type badge */}
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "4px 10px", borderRadius: 20,
-            background: INDIGO_LIGHT, marginBottom: 16,
-          }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: INDIGO, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-              {currentQ.type}
-            </span>
-          </div>
-
-          {/* Question text */}
-          <h2 style={{
-            margin: "0 0 24px",
-            fontFamily: "'Geist', system-ui, sans-serif",
-            fontWeight: 700, fontSize: 20,
-            color: TEXT_DARK, lineHeight: 1.4,
-          }}>
-            {currentQ.text}
-          </h2>
-
-          {/* Already answered */}
-          {hasAnswered ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{
-              display: "flex", flexDirection: "column", alignItems: "center",
-              gap: 12, padding: "24px 0",
+              width: 8, height: 8, borderRadius: "50%", background: GREEN,
+              animation: "pulse 1.5s ease-in-out infinite",
+            }} />
+            <span style={{ fontSize: 12, fontWeight: 700, color: GREEN, letterSpacing: "0.06em" }}>LIVE</span>
+          </div>
+          <span style={{ fontSize: 13, color: TEXT_MUTED, fontWeight: 500 }}>
+            Question {(data.currentQuestionIndex ?? 0) + 1} of {data.questionCount}
+          </span>
+        </header>
+
+        {/* Main content */}
+        {hasAnswered ? (
+          <AnsweredState />
+        ) : (
+          <main style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            padding: "28px 20px 32px",
+            maxWidth: 560,
+            width: "100%",
+            margin: "0 auto",
+            boxSizing: "border-box",
+          }}>
+            {/* Question type badge */}
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "5px 12px", borderRadius: 20,
+              background: INDIGO_LIGHT,
+              border: `1px solid ${INDIGO_BORDER}`,
+              marginBottom: 18, alignSelf: "flex-start",
             }}>
-              <div style={{
-                width: 52, height: 52, borderRadius: "50%",
-                background: GREEN_LIGHT, display: "flex",
-                alignItems: "center", justifyContent: "center",
+              <span style={{
+                fontSize: 11, fontWeight: 700, color: INDIGO,
+                textTransform: "uppercase", letterSpacing: "0.07em",
               }}>
-                <CheckCircle2 size={26} style={{ color: GREEN }} />
-              </div>
-              <p style={{ margin: 0, fontWeight: 600, fontSize: 15, color: GREEN }}>Response submitted!</p>
-              <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>
-                Waiting for the next question…
-              </p>
+                {currentQ.type}
+              </span>
             </div>
-          ) : (
-            /* Answer inputs */
-            <>
+
+            {/* Question text */}
+            <h2 style={{
+              margin: "0 0 28px",
+              fontWeight: 800,
+              fontSize: "clamp(20px, 5vw, 26px)",
+              color: TEXT_DARK,
+              lineHeight: 1.35,
+              letterSpacing: "-0.02em",
+            }}>
+              {currentQ.text}
+            </h2>
+
+            {/* Answer input */}
+            <div style={{ flex: 1 }}>
               {currentQ.type === "Short Text" && (
                 <ShortTextInput onSubmit={handleSubmit} disabled={submitting} />
               )}
               {currentQ.type === "Multiple Choice" && currentQ.options && (
-                <MultipleChoiceInput
-                  options={currentQ.options}
-                  onSubmit={handleSubmit}
-                  disabled={submitting}
-                />
-              )}
-              {currentQ.type === "Star Rating" && (
-                <StarRatingInput onSubmit={handleSubmit} disabled={submitting} />
+                <MultipleChoiceInput options={currentQ.options} onSubmit={handleSubmit} disabled={submitting} />
               )}
               {currentQ.type === "True / False" && (
                 <TrueFalseInput onSubmit={handleSubmit} disabled={submitting} />
               )}
+              {currentQ.type === "Star Rating" && (
+                <StarRatingInput onSubmit={handleSubmit} disabled={submitting} />
+              )}
               {currentQ.type === "File Upload" && (
                 <div style={{
-                  padding: "20px", borderRadius: 10,
-                  border: `1.5px dashed ${BORDER}`,
-                  textAlign: "center", color: TEXT_MUTED, fontSize: 13,
+                  padding: "32px 24px", borderRadius: 14,
+                  border: `1.5px dashed ${CARD_BORDER}`,
+                  background: CARD_BG, textAlign: "center",
                 }}>
-                  File upload is not supported in this demo.
+                  <p style={{ color: TEXT_MUTED, fontSize: 14, margin: 0 }}>
+                    File upload is not yet supported on mobile.
+                  </p>
                 </div>
               )}
-            </>
-          )}
-        </div>
-      </main>
+            </div>
+          </main>
+        )}
+      </Shell>
 
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-      `}</style>
-    </div>
+      <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
+    </>
   );
 }
