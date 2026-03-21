@@ -237,7 +237,7 @@ function Topbar({
           style={{
             fontSize: 12,
             color: "oklch(0.556 0 0)",
-            paddingLeft: 0,
+            paddingLeft: '4px',
             letterSpacing: "0.03em", marginTop: '-4px',
           }}
         >
