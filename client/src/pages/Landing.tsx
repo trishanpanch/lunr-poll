@@ -5,6 +5,7 @@
    Fonts: Geist (headings), Inter (body)
 */
 
+import { useState } from "react";
 import { Link } from "wouter";
 import { Zap, BarChart2, Sparkles, GraduationCap, BookOpen, ArrowRight, ChevronRight } from "lucide-react";
 
@@ -47,6 +48,8 @@ const features = [
 ];
 
 export default function Landing() {
+  const [heroSize, setHeroSize] = useState(56);
+
   return (
     <div style={{ minHeight: "100vh", background: BG, fontFamily: "'Inter', system-ui, sans-serif", paddingBottom: 80 }}>
 
@@ -132,7 +135,7 @@ export default function Landing() {
 
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 500, fontSize: heroSize,
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
@@ -140,7 +143,7 @@ export default function Landing() {
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 500, fontSize: heroSize,
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
@@ -148,12 +151,19 @@ export default function Landing() {
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 500, fontSize: heroSize,
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: CRIMSON, margin: "0 0 32px",
           }}>
             connected classroom.
           </h1>
+
+          <p style={{
+            fontSize: 17, lineHeight: 1.65, color: TEXT_MID,
+            margin: "0 0 32px", maxWidth: 420,
+          }}>
+            Empower your lectures with instant student feedback and live polls.
+          </p>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Link
@@ -418,6 +428,35 @@ export default function Landing() {
           </Link>
         </div>
       </section>
+
+      {/* ── Font-size tuning slider (dev tool) ── */}
+      <div style={{
+        position: "fixed", bottom: 24, right: 24, zIndex: 200,
+        background: "#fff",
+        border: `1px solid ${BORDER}`,
+        borderRadius: 14,
+        padding: "12px 16px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
+        display: "flex", flexDirection: "column", gap: 8,
+        minWidth: 220,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: TEXT_MUTED }}>Hero title size</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: TEXT_DARK, fontFamily: "monospace" }}>{heroSize}px</span>
+        </div>
+        <input
+          type="range"
+          min={24}
+          max={80}
+          value={heroSize}
+          onChange={(e) => setHeroSize(Number(e.target.value))}
+          style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 10, color: TEXT_MUTED }}>24px</span>
+          <span style={{ fontSize: 10, color: TEXT_MUTED }}>80px</span>
+        </div>
+      </div>
 
       {/* ── Footer ── */}
       <footer style={{
