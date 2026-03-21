@@ -76,7 +76,7 @@ function BottomNav() {
           WebkitBackdropFilter: "blur(12px)",
           borderTop: "1px solid oklch(0.91 0.005 264)",
           display: "flex",
-          justifyContent: "center",
+          alignItems: "center",
           gap: 4,
           padding: collapsed ? "0 16px" : "8px 16px 10px",
           boxShadow: "0 -2px 16px rgba(0,0,0,0.06)",
@@ -85,34 +85,49 @@ function BottomNav() {
           transition: "max-height 0.25s ease, padding 0.25s ease",
         }}
       >
-        {tabs.map((tab) => {
-          const active = location === tab.href || (tab.href !== "/" && location.startsWith(tab.href + "/"));
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 7,
-                padding: "7px 16px",
-                borderRadius: 10,
-                fontSize: 13,
-                fontWeight: active ? 600 : 500,
-                fontFamily: "'Inter', sans-serif",
-                textDecoration: "none",
-                transition: "all 0.15s",
-                background: active ? "oklch(0.982 0.0107 271.3)" : "transparent",
-                color: active ? "oklch(0.55 0.2 250)" : "oklch(0.556 0 0)",
-                border: active ? "1px solid oklch(0.88 0.04 250)" : "1px solid transparent",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {tab.icon}
-              {tab.label}
-            </Link>
-          );
-        })}
+        {/* Dev mode label */}
+        <span
+          style={{
+            fontSize: 11,
+            fontFamily: "'Geist Mono', 'Fira Mono', monospace",
+            color: "oklch(0.65 0 0)",
+            whiteSpace: "nowrap",
+            marginRight: 8,
+            flexShrink: 0,
+          }}
+        >
+          (dev mode)
+        </span>
+
+        {/* Tabs — centered */}
+        <div style={{ flex: 1, display: "flex", justifyContent: "center", gap: 4 }}>
+          {tabs.map((tab) => {
+            const active = location === tab.href || (tab.href !== "/" && location.startsWith(tab.href + "/"));
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "7px 14px",
+                  borderRadius: 10,
+                  fontSize: 12,
+                  fontWeight: active ? 700 : 400,
+                  fontFamily: "'Geist Mono', 'Fira Mono', monospace",
+                  textDecoration: "none",
+                  transition: "all 0.15s",
+                  background: active ? "oklch(0.982 0.0107 271.3)" : "transparent",
+                  color: active ? "oklch(0.55 0.2 250)" : "oklch(0.556 0 0)",
+                  border: active ? "1px solid oklch(0.88 0.04 250)" : "1px solid transparent",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {tab.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );
