@@ -8,7 +8,7 @@
 import { Link } from "wouter";
 import { Zap, BarChart2, Sparkles, GraduationCap, BookOpen, ArrowRight, ChevronRight } from "lucide-react";
 
-const HERO_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663458952851/86W9gfE4aRgK8Kn2hW7KrC/hero-monocle-classroom-oTjwYKAy3PrRZT8tNzL8fT.webp";
+const HERO_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663458952851/86W9gfE4aRgK8Kn2hW7KrC/hero-marklong-classroom-TyhDRtALAiUwVLwHm7WKcb.webp";
 
 const CRIMSON = "oklch(0.514 0.2 13.9)";
 const CRIMSON_HOVER = "oklch(0.44 0.2 13.9)";
