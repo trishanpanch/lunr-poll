@@ -761,12 +761,20 @@ function QuestionCard({
   const [answerDraft, setAnswerDraft] = useState(question.modelAnswer ?? "");
   const answerRef = useRef<HTMLTextAreaElement>(null);
 
+  // Auto-resize helper — resets height to auto then sets to scrollHeight
+  const autoResize = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  };
+
   const startEditAnswer = () => {
     setAnswerDraft(question.modelAnswer ?? "");
     setEditingAnswer(true);
     setTimeout(() => {
       answerRef.current?.focus();
       answerRef.current?.select();
+      autoResize(answerRef.current);
     }, 0);
   };
 
@@ -983,12 +991,13 @@ function QuestionCard({
               <textarea
                 ref={answerRef}
                 value={answerDraft}
-                onChange={(e) => setAnswerDraft(e.target.value)}
+                onChange={(e) => { setAnswerDraft(e.target.value); autoResize(e.target); }}
                 onBlur={commitAnswerEdit}
                 onKeyDown={(e) => {
                   if (e.key === "Escape") { setAnswerDraft(question.modelAnswer ?? ""); setEditingAnswer(false); }
                 }}
                 placeholder="Write a model answer…"
+                rows={1}
                 style={{
                   width: "100%",
                   fontSize: 12.5,
@@ -1000,9 +1009,11 @@ function QuestionCard({
                   padding: "7px 10px",
                   resize: "none",
                   outline: "none",
+                  overflow: "hidden",
                   background: "oklch(0.97 0.02 264 / 0.4)",
                   boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
                   minHeight: 60,
+                  boxSizing: "border-box",
                 }}
               />
             ) : (
