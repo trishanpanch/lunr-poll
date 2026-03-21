@@ -34,3 +34,8 @@
 - [x] Session edit flow — Edit button on session card loads saved questions and name into builder
 - [x] Duplicate URL toast — show a warning toast when the same URL is added to the AI panel source chips more than once
 - [ ] AI preview card selection — cards should start selected; clicking deselects (or re-selects) them; currently tapping in feels like it unchecks unexpectedly
+
+## Session 2026-03-21 Improvements
+- [x] Fix sidebar full-height issue — left sidebar and AI panel now use sticky positioning (top: 64px, height: calc(100vh - 64px)) so they stay visible while the canvas scrolls naturally
+- [x] Cmd/Ctrl+S keyboard shortcut — triggers Save Draft from anywhere in the session builder
+- [x] Inline type switching on canvas cards — Short Text, Multiple Choice, True/False switcher pills appear on each canvas question card (same transform API as AI panel)

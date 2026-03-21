@@ -335,7 +335,10 @@ function Sidebar({
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
-        height: "100%",
+        position: "sticky",
+        top: 64,
+        height: "calc(100vh - 64px)",
+        flexShrink: 0,
       }}
     >
       {/* AI Banner */}
@@ -866,6 +869,7 @@ function QuestionCard({
   onUpdate,
   onUpdateModelAnswer,
   onUpdateOptions,
+  onUpdateType,
   iconNudge = 1,
 }: {
   question: Question;
@@ -874,6 +878,7 @@ function QuestionCard({
   onUpdate: (text: string) => void;
   onUpdateModelAnswer?: (answer: string) => void;
   onUpdateOptions?: (options: string[], correctIndex: number | undefined) => void;
+  onUpdateType?: (newType: QuestionType, newQuestion: Partial<Question>) => void;
   iconNudge?: number;
 }) {
   const meta = TYPE_META[question.type];
@@ -894,6 +899,41 @@ function QuestionCard({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(question.text);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Inline type switching state
+  const [transforming, setTransforming] = useState(false);
+
+  const handleSwitchType = async (toType: QuestionType) => {
+    if (!onUpdateType || question.type === toType || transforming) return;
+    setTransforming(true);
+    try {
+      const res = await fetch("/api/transform-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: question.text, fromType: question.type, toType }),
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json() as { question: { text: string; type: string; options?: string[]; correctAnswer?: string; modelAnswer?: string } };
+      const t = data.question;
+      const meta = TYPE_META[toType];
+      const update: Partial<Question> = {
+        type: toType,
+        icon: meta.icon,
+        color: meta.color,
+        text: t.text ?? question.text,
+        options: t.options,
+        correctIndex: t.options && t.correctAnswer ? t.options.findIndex((o) => o === t.correctAnswer) : undefined,
+        tfAnswer: toType === "True / False" && (t.correctAnswer === "True" || t.correctAnswer === "False") ? t.correctAnswer as "True" | "False" : undefined,
+        modelAnswer: t.modelAnswer,
+      };
+      onUpdateType(toType, update);
+    } catch (err) {
+      console.error("[canvas-transform] error:", err);
+      toast.error("Type switch failed — try again.");
+    } finally {
+      setTransforming(false);
+    }
+  };
 
   // Model answer inline edit state
   const [editingAnswer, setEditingAnswer] = useState(false);
@@ -997,19 +1037,58 @@ function QuestionCard({
 
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p
-          style={{
-            fontSize: 10.5,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            color: meta.color,
-            margin: "0 0 4px",
-            fontFamily: "'Geist', system-ui, sans-serif",
-          }}
-        >
-          {question.type}
-        </p>
+        {/* Type label + inline type switcher */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
+          <p
+            style={{
+              fontSize: 10.5,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: meta.color,
+              margin: 0,
+              fontFamily: "'Geist', system-ui, sans-serif",
+            }}
+          >
+            {question.type}
+          </p>
+          {onUpdateType && (
+            <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
+              {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).filter((t) => t !== question.type).map((t) => {
+                const tm = TYPE_META[t];
+                return (
+                  <button
+                    key={t}
+                    onClick={() => handleSwitchType(t)}
+                    disabled={transforming}
+                    title={`Switch to ${t}`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 3,
+                      padding: "2px 7px",
+                      borderRadius: 20,
+                      border: `1px solid ${tm.color}50`,
+                      background: `${tm.color}0d`,
+                      color: tm.color,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      cursor: transforming ? "not-allowed" : "pointer",
+                      opacity: transforming ? 0.5 : 1,
+                      transition: "all 0.15s",
+                      whiteSpace: "nowrap",
+                    }}
+                    className="hover:opacity-80"
+                  >
+                    {transforming ? <Loader2 size={9} className="animate-spin" /> : tm.icon}
+                    {t}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
         {editing ? (
           <textarea
             ref={textareaRef}
@@ -1965,7 +2044,9 @@ function AiPanel({
           background: "#fff",
           display: "flex",
           flexDirection: "column",
-          height: "100%",
+          position: "sticky",
+          top: 64,
+          height: "calc(100vh - 64px)",
           flexShrink: 0,
         }}
       >
@@ -2788,6 +2869,19 @@ export default function Home() {
     toast.success("Draft saved");
   };
 
+  // ── Keyboard shortcut: Cmd/Ctrl+S → Save Draft ────────────────────────────
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        handleSaveDraft();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions, savedName, sessionCode]);
+
   const handleBack = () => {
     if (isDirty) {
       setPendingNav("/sessions");
@@ -2868,7 +2962,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", paddingTop: 64 }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", paddingTop: 64 }} className="home-root">
       <Topbar
         sessionName={sessionName}
         onNameChange={setSessionName}
@@ -2887,7 +2981,7 @@ export default function Home() {
         isDirty={isDirty}
       />
 
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <div style={{ display: "flex", flex: 1, alignItems: "flex-start" }}>
         <Sidebar
           onAddType={openAddType}
           onAddPreset={addPreset}
@@ -2898,12 +2992,12 @@ export default function Home() {
         <main
           style={{
             flex: 1,
-            overflowY: "auto",
             padding: "28px 32px",
             display: "flex",
             flexDirection: "column",
             gap: 16,
             minWidth: 0,
+            minHeight: "calc(100vh - 64px)",
           }}
         >
           {/* Onboarding */}
@@ -2939,6 +3033,7 @@ export default function Home() {
                       onUpdate={(text) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, text } : item))}
                       onUpdateModelAnswer={(answer) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, modelAnswer: answer || undefined } : item))}
                       onUpdateOptions={(options, correctIndex) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, options, correctIndex } : item))}
+                      onUpdateType={(_newType, update) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, ...update } : item))}
                       iconNudge={iconNudge}
                     />
                   ))}
