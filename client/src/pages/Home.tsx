@@ -143,8 +143,10 @@ function Topbar({
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 28px",
-        position: "sticky",
+        position: "fixed",
         top: 0,
+        left: 0,
+        right: 0,
         zIndex: 100,
         boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
       }}
@@ -238,49 +240,30 @@ function Topbar({
 
       {/* Right: actions */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <button
+        <Button
+          variant="outline"
           onClick={onSaveDraft}
-          style={{
-            padding: "8px 18px",
-            borderRadius: 10,
-            border: isDirty ? "1.5px solid oklch(0.88 0.04 264)" : "1.5px solid oklch(0.922 0 0)",
-            background: isDirty ? "oklch(0.96 0.04 264)" : "#fff",
-            color: isDirty ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
-            fontSize: 13,
-            fontWeight: isDirty ? 600 : 500,
-            fontFamily: "'Geist', system-ui, sans-serif",
-            transition: "all 0.15s",
-            cursor: "pointer",
-          }}
-          className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all"
+          className="gap-1.5 bg-white"
+          style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 13 }}
         >
-          {isDirty ? "Save Draft" : "Saved"}
-        </button>
+          {!isDirty ? (
+            <><CheckCircle2 size={14} className="text-green-600" /> Saved</>
+          ) : (
+            "Save Draft"
+          )}
+        </Button>
         {/* Preview button */}
-        <button
+        <Button
+          variant="outline"
           onClick={onPreview}
           disabled={!hasQuestions}
           title={!hasQuestions ? "Add at least one question to preview" : "Preview student experience"}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 7,
-            padding: "8px 18px",
-            borderRadius: 10,
-            border: hasQuestions ? "1.5px solid oklch(0.88 0.04 264)" : "1.5px solid oklch(0.922 0 0)",
-            background: hasQuestions ? "oklch(0.96 0.04 264)" : "#fff",
-            color: hasQuestions ? "oklch(0.45 0.22 264)" : "oklch(0.7 0 0)",
-            fontSize: 13,
-            fontWeight: 600,
-            fontFamily: "'Geist', system-ui, sans-serif",
-            transition: "all 0.15s",
-            cursor: hasQuestions ? "pointer" : "not-allowed",
-          }}
-          className={hasQuestions ? "hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all" : ""}
+          className="gap-1.5 bg-white"
+          style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 13 }}
         >
           <Eye size={14} />
           Preview
-        </button>
+        </Button>
         <button
           onClick={onLaunch}
           disabled={!hasQuestions}
@@ -2479,7 +2462,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", paddingTop: 64 }}>
       <Topbar
         sessionName={sessionName}
         onNameChange={setSessionName}
