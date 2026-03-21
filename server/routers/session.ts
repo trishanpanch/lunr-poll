@@ -30,7 +30,7 @@ const QuestionSchema = z.object({
 });
 
 export const sessionRouter = router({
-  // ── URL fetcher (unchanged) ────────────────────────────────────────────────
+  // ── URL fetcher ────────────────────────────────────────────────────────────
   fetchUrl: publicProcedure
     .input(z.object({ url: z.string().url() }))
     .mutation(async ({ input }) => {
@@ -69,8 +69,12 @@ export const sessionRouter = router({
 
   // ── Session CRUD ───────────────────────────────────────────────────────────
 
-  /** Save (create or update) a session. Returns the session id and join code. */
-  save: protectedProcedure
+  /**
+   * Save (create or update) a session.
+   * NOTE: Auth is optional — works without login for testing.
+   * When logged in, sessions are owned by the user; otherwise userId is null.
+   */
+  save: publicProcedure
     .input(
       z.object({
         id: z.number().optional(),
@@ -79,6 +83,7 @@ export const sessionRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      const userId = (ctx as { user?: { id: number } }).user?.id ?? null;
       if (input.id) {
         const existing = await getSessionById(input.id);
         if (!existing) throw new Error("Session not found");
@@ -89,7 +94,7 @@ export const sessionRouter = router({
         return { id: updated!.id, code: updated!.code };
       }
       const result = await createSession({
-        userId: ctx.user.id,
+        userId,
         name: input.name,
         questions: input.questions as Question[],
       });
@@ -97,28 +102,27 @@ export const sessionRouter = router({
       return result;
     }),
 
-  /** List all sessions for the logged-in professor */
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return getSessionsByUser(ctx.user.id);
+  /** List sessions — returns all sessions (no-auth mode) or user's sessions (logged in) */
+  list: publicProcedure.query(async ({ ctx }) => {
+    const userId = (ctx as { user?: { id: number } }).user?.id ?? null;
+    return getSessionsByUser(userId);
   }),
 
-  /** Get a single session by id (professor view) */
-  get: protectedProcedure
+  /** Get a single session by id */
+  get: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       return session;
     }),
 
   /** Delete a session and all its responses */
-  delete: protectedProcedure
+  delete: publicProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       await deleteSession(input.id);
       return { success: true };
     }),
@@ -126,12 +130,11 @@ export const sessionRouter = router({
   // ── Live Mode ──────────────────────────────────────────────────────────────
 
   /** Launch a session (set status to live, record launchedAt) */
-  launch: protectedProcedure
+  launch: publicProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       return updateSession(input.id, {
         status: "live",
         currentQuestionIndex: 0,
@@ -140,12 +143,11 @@ export const sessionRouter = router({
     }),
 
   /** Close a session */
-  close: protectedProcedure
+  close: publicProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       return updateSession(input.id, {
         status: "closed",
         closedAt: new Date(),
@@ -153,35 +155,32 @@ export const sessionRouter = router({
     }),
 
   /** Advance to the next question in live mode */
-  nextQuestion: protectedProcedure
+  nextQuestion: publicProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       const questions = (session.questions as Question[]) ?? [];
       const next = Math.min(session.currentQuestionIndex + 1, questions.length - 1);
       return updateSession(input.id, { currentQuestionIndex: next });
     }),
 
   /** Go back to the previous question */
-  prevQuestion: protectedProcedure
+  prevQuestion: publicProcedure
     .input(z.object({ id: z.number() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       const prev = Math.max(session.currentQuestionIndex - 1, 0);
       return updateSession(input.id, { currentQuestionIndex: prev });
     }),
 
   /** Professor polls for latest session state + response counts (live mode) */
-  liveState: protectedProcedure
+  liveState: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       const allResponses = await getResponsesForSession(input.id);
       return { session, responses: allResponses };
     }),
@@ -257,22 +256,16 @@ export const sessionRouter = router({
 
   // ── CSV Export ────────────────────────────────────────────────────────────
 
-  /**
-   * Export all responses for a session as a CSV string.
-   * Returns: questionText, questionType, studentId, answer, submittedAt
-   */
-  exportCsv: protectedProcedure
+  exportCsv: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
 
       const questions = (session.questions as Question[]) ?? [];
       const qMap = new Map(questions.map((q) => [q.id, q]));
       const allResponses = await getResponsesForSession(input.id);
 
-      // Build CSV rows
       const header = ["Question #", "Question Text", "Question Type", "Student ID", "Answer", "Submitted At"];
       const rows = allResponses.map((r) => {
         const q = qMap.get(r.questionId);
@@ -280,7 +273,6 @@ export const sessionRouter = router({
         const qText = q?.text ?? r.questionId;
         const qType = q?.type ?? "Unknown";
         const submittedAt = r.createdAt ? new Date(r.createdAt).toISOString() : "";
-        // Escape CSV fields (wrap in quotes if they contain commas/quotes/newlines)
         const escape = (v: string | number) => {
           const s = String(v);
           if (s.includes(",") || s.includes('"') || s.includes("\n")) {
@@ -295,9 +287,42 @@ export const sessionRouter = router({
       return { csv, sessionName: session.name, totalResponses: allResponses.length };
     }),
 
+  // ── Session Results (closed sessions) ─────────────────────────────────────
+
+  results: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+
+      const questions = (session.questions as Question[]) ?? [];
+      const allResponses = await getResponsesForSession(input.id);
+      const participantCount = await getParticipantCount(input.id);
+
+      const questionResults = questions.map((q) => {
+        const qResponses = allResponses.filter((r) => r.questionId === q.id);
+        const tally: Record<string, number> = {};
+        for (const r of qResponses) {
+          tally[r.answer] = (tally[r.answer] ?? 0) + 1;
+        }
+        return {
+          question: q,
+          total: qResponses.length,
+          tally,
+          rawAnswers: q.type === "Short Text" ? qResponses.map((r) => r.answer) : [],
+        };
+      });
+
+      return {
+        session,
+        questionResults,
+        totalResponses: allResponses.length,
+        participantCount,
+      };
+    }),
+
   // ── Participant Count ─────────────────────────────────────────────────────
 
-  /** Count unique students who have submitted at least one response */
   participantCount: publicProcedure
     .input(z.object({ sessionId: z.number() }))
     .query(async ({ input }) => {
@@ -306,18 +331,16 @@ export const sessionRouter = router({
     }),
 
   /** Get response counts per question for a live session (professor) */
-  responseCounts: protectedProcedure
+  responseCounts: publicProcedure
     .input(z.object({ id: z.number() }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const session = await getSessionById(input.id);
       if (!session) throw new Error("Session not found");
-      if (session.userId !== ctx.user.id) throw new Error("Forbidden");
       const questions = (session.questions as Question[]) ?? [];
       const allResponses = await getResponsesForSession(input.id);
 
       return questions.map((q) => {
         const qResponses = allResponses.filter((r) => r.questionId === q.id);
-        // For MC/TF, tally each option
         const tally: Record<string, number> = {};
         for (const r of qResponses) {
           tally[r.answer] = (tally[r.answer] ?? 0) + 1;

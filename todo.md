@@ -89,3 +89,18 @@
 - [x] Participant count: track unique student IDs that have polled/joined; expose via tRPC
 - [x] Participant count: show live count in student waiting room ("N students joined")
 - [x] Participant count: show live count in professor Live Mode header
+
+## Sprint — Past Sessions Tab
+- [ ] Backend: tRPC procedure `session.results` — returns a closed session with all questions and their full response tallies
+- [ ] Backend: tRPC procedure `session.closedList` — returns only closed sessions for the professor (or reuse `session.list` with a filter)
+- [ ] UI: "Past Sessions" tab on the professor dashboard (Sessions.tsx) — lists closed sessions with date, question count, total responses
+- [ ] UI: `/results/:id` page — shows all questions with final response charts (bar, T/F, star, word cloud), total response count, and CSV download button
+- [ ] Route: register `/results/:id` in App.tsx
+- [ ] Vitest: add tests for `session.results` procedure
+
+## Sprint — Remove Auth Gate for Testing
+- [x] Frontend: remove login redirect from Sessions.tsx (professor dashboard)
+- [x] Frontend: remove login redirect from Home.tsx (session builder) — no redirect existed
+- [x] Frontend: remove login redirect from LiveSession.tsx — no redirect existed
+- [x] Backend: convert professor tRPC procedures to publicProcedure with optional userId
+- [x] Keep auth infrastructure intact (protectedProcedure, useAuth) for easy re-enabling later

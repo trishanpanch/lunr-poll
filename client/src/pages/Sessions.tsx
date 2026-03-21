@@ -391,7 +391,7 @@ export default function Sessions() {
 
   const utils = trpc.useUtils();
   const { data: sessions, isLoading } = trpc.session.list.useQuery(undefined, {
-    enabled: !!user,
+    enabled: !authLoading, // load once auth check completes (works with or without login)
   });
 
   const deleteMut = trpc.session.delete.useMutation({
@@ -409,12 +409,6 @@ export default function Sessions() {
     },
     onError: (err) => toast.error(err.message),
   });
-
-  // Redirect to login if not authenticated
-  if (!authLoading && !user) {
-    window.location.href = getLoginUrl();
-    return null;
-  }
 
   if (authLoading || isLoading) {
     return (

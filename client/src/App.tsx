@@ -10,6 +10,7 @@ import Join from "./pages/Join";
 import Sessions from "./pages/Sessions";
 import LiveSession from "./pages/LiveSession";
 import StudentSession from "./pages/StudentSession";
+import SessionResults from "./pages/SessionResults";
 import DesignSystemPage from "./pages/DesignSystem";
 import Changelog from "./pages/Changelog";
 import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, ChevronDown, ChevronUp } from "lucide-react";
@@ -22,7 +23,7 @@ function BottomNav() {
 
   // Hide bottom nav on live/student session pages to avoid clutter
   const isFullscreen =
-    location.startsWith("/live/") || location.startsWith("/student/session/");
+    location.startsWith("/live/") || location.startsWith("/student/session/") || location.startsWith("/results/");
   if (isFullscreen) return null;
 
   const tabs = [
@@ -144,7 +145,7 @@ function BottomNav() {
 function Router() {
   const [location] = useLocation();
   const isFullscreen =
-    location.startsWith("/live/") || location.startsWith("/student/session/");
+    location.startsWith("/live/") || location.startsWith("/student/session/") || location.startsWith("/results/");
 
   return (
     <>
@@ -156,6 +157,7 @@ function Router() {
           <Route path="/session/:id" component={Home} />
           <Route path="/sessions" component={Sessions} />
           <Route path="/live/:id" component={LiveSession} />
+          <Route path="/results/:id" component={SessionResults} />
           {/* Student routes */}
           <Route path="/join" component={Join} />
           <Route path="/join/:code" component={Join} />

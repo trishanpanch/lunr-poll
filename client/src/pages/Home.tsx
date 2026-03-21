@@ -216,7 +216,7 @@ function Topbar({
                 background: "transparent",
                 border: "none",
                 borderBottom: "1.5px solid transparent",
-                padding: "2px 4px 2px 0",
+                padding: "2px 4px 2px 4px",
                 outline: "none",
                 minWidth: 120,
                 width: `${Math.max((sessionName || "").length, 10)}ch`,
@@ -237,7 +237,7 @@ function Topbar({
           style={{
             fontSize: 12,
             color: "oklch(0.556 0 0)",
-            paddingLeft: 4,
+            paddingLeft: 0,
             letterSpacing: "0.03em", marginTop: '-4px',
           }}
         >

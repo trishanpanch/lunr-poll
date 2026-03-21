@@ -150,9 +150,13 @@ export async function getSessionByCode(code: string) {
   return rows[0] ?? null;
 }
 
-export async function getSessionsByUser(userId: number) {
+export async function getSessionsByUser(userId: number | null) {
   const db = getDb();
   if (!db) return [];
+  if (userId === null) {
+    // No-auth mode: return all sessions
+    return db.select().from(sessions).orderBy(desc(sessions.updatedAt));
+  }
   return db
     .select()
     .from(sessions)
