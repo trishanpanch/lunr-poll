@@ -912,28 +912,25 @@ function QuestionCard({
           </p>
         )}
         {/* True / False answer display */}
-        {question.type === "True / False" && (
-          <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
-            {["True", "False"].map((label) => (
-              <span
-                key={label}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 5,
-                  fontSize: 11.5,
-                  padding: "3px 10px",
-                  borderRadius: 20,
-                  background: label === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.96 0.04 10)",
-                  color: label === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.42 0.14 10)",
-                  fontWeight: 600,
-                  fontFamily: "'Geist', system-ui, sans-serif",
-                  border: label === "True" ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.08 10)",
-                }}
-              >
-                {label}
-              </span>
-            ))}
+        {question.type === "True / False" && question.tfAnswer && (
+          <div style={{ marginTop: 8 }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                fontSize: 11.5,
+                padding: "3px 10px",
+                borderRadius: 20,
+                background: question.tfAnswer === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.96 0.04 10)",
+                color: question.tfAnswer === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.42 0.14 10)",
+                fontWeight: 600,
+                fontFamily: "'Geist', system-ui, sans-serif",
+                border: question.tfAnswer === "True" ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.08 10)",
+              }}
+            >
+              Answer: {question.tfAnswer}
+            </span>
           </div>
         )}
         {/* Multiple Choice options preview */}
@@ -958,10 +955,7 @@ function QuestionCard({
                     border: isCorrect ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.04 290)",
                   }}
                 >
-                  {isCorrect
-                    ? <CheckCircle2 size={11} />
-                    : <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 10, fontWeight: 700 }}>{String.fromCharCode(65 + i)}</span>
-                  }
+                  <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 10, fontWeight: 700 }}>{String.fromCharCode(65 + i)}</span>
                   {opt}
                 </span>
               );
@@ -1533,6 +1527,7 @@ function AiPanel({
   const [count, setCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
+  const [transformingIdx, setTransformingIdx] = useState<Set<number>>(new Set());
   const [isDragging, setIsDragging] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [urlChips, setUrlChips] = useState<string[]>([]);
@@ -1638,6 +1633,39 @@ function AiPanel({
       toast.error("Generation failed — check your content and try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const transformQuestion = async (i: number, toType: QuestionType) => {
+    const q = generated[i];
+    if (!q || q.type === toType) return;
+    setTransformingIdx((prev) => new Set(prev).add(i));
+    try {
+      const res = await fetch("/api/transform-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: q.text,
+          fromType: q.type,
+          toType,
+          sourceContext: content || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json() as { question: { text: string; type: string; options?: string[]; correctAnswer?: string; modelAnswer?: string } };
+      const transformed = data.question;
+      updateGenerated(i, {
+        type: toType,
+        text: transformed.text ?? q.text,
+        options: transformed.options,
+        correctAnswer: transformed.correctAnswer,
+        modelAnswer: transformed.modelAnswer,
+      });
+    } catch (err) {
+      console.error("[transform-question] error:", err);
+      toast.error("Transform failed — try again.");
+    } finally {
+      setTransformingIdx((prev) => { const s = new Set(prev); s.delete(i); return s; });
     }
   };
 
@@ -2069,25 +2097,22 @@ function AiPanel({
                               fontFamily: "'Geist', system-ui, sans-serif",
                             }}>{q.type}</span>
                           </div>
-                          {/* Type switcher pills */}
+                          {/* Type switcher pills — only transformable types */}
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                            {(Object.keys(TYPE_META) as QuestionType[]).map((t) => {
+                            {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
                               const tm = TYPE_META[t];
                               const active = q.type === t;
+                              const isTransforming = transformingIdx.has(i);
                               return (
                                 <button
                                   key={t}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (active) return;
-                                    // When switching type, keep text but clear type-specific data
-                                    const patch: Partial<AiGenQuestion> = { type: t };
-                                    if (t === "True / False") patch.correctAnswer = "True";
-                                    else if (t === "Multiple Choice") patch.correctAnswer = undefined;
-                                    else { patch.options = undefined; patch.correctAnswer = undefined; }
-                                    updateGenerated(i, patch);
+                                    if (active || isTransforming) return;
+                                    transformQuestion(i, t);
                                   }}
-                                  title={tm.desc}
+                                  title={active ? q.type : `Switch to ${t}`}
+                                  disabled={isTransforming}
                                   style={{
                                     display: "inline-flex", alignItems: "center", gap: 4,
                                     padding: "3px 8px",
@@ -2097,14 +2122,19 @@ function AiPanel({
                                     color: active ? tm.color : "oklch(0.65 0 0)",
                                     fontSize: 10.5, fontWeight: active ? 700 : 500,
                                     fontFamily: "'Geist', system-ui, sans-serif",
-                                    cursor: active ? "default" : "pointer",
+                                    cursor: active || isTransforming ? "default" : "pointer",
+                                    opacity: isTransforming && !active ? 0.45 : 1,
                                     transition: "all 0.12s",
                                     letterSpacing: "0.01em",
                                   }}
                                 >
-                                  <span style={{ display: "flex", alignItems: "center", opacity: active ? 1 : 0.6, fontSize: 10 }}>
-                                    {TYPE_META_SMALL[t]}
-                                  </span>
+                                  {isTransforming && !active ? (
+                                    <Loader2 size={9} style={{ animation: "spin 1s linear infinite" }} />
+                                  ) : (
+                                    <span style={{ display: "flex", alignItems: "center", opacity: active ? 1 : 0.6, fontSize: 10 }}>
+                                      {TYPE_META_SMALL[t]}
+                                    </span>
+                                  )}
                                   {t}
                                 </button>
                               );
@@ -2227,9 +2257,7 @@ function AiPanel({
                                       e.currentTarget.style.borderColor = "transparent";
                                     }}
                                   />
-                                  {isCorrect && (
-                                    <CheckCircle2 size={15} style={{ color: "oklch(0.52 0.18 160)", flexShrink: 0 }} />
-                                  )}
+
                                 </div>
                               );
                             })}

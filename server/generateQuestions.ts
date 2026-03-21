@@ -95,7 +95,7 @@ CRITICAL RULES:
 - Every question MUST reference specific names, numbers, terms, or claims from the source material. Never write generic questions like "What was the main takeaway?" or "Summarize today's content."
 - If the text mentions a specific person, date, formula, law, or term — use it in the question.
 - Multiple Choice: the 3 wrong options must be plausible but clearly incorrect based on the text.
-- True / False: the statement must be directly verifiable from the text (not opinion).
+- True / False: write a direct declarative statement about the subject matter itself. NEVER say "The article mentions...", "According to the text...", or any meta-reference to a source. The statement must stand alone as a factual claim.
 - Return ONLY a valid JSON array. No markdown, no explanation, no code fences.
 - For Short Text questions, include a "modelAnswer" field with a concise ideal answer (1–3 sentences) grounded in the source material.
 
@@ -158,6 +158,61 @@ Return ONLY the JSON array.`;
     return res
       .status(500)
       .json({ error: "Generation failed", detail: String(err) });
+  }
+});
+
+// ── Transform a single question to a new type ─────────────────────────────
+interface TransformRequest {
+  text: string;
+  fromType: QuestionType;
+  toType: QuestionType;
+  sourceContext?: string; // original source material for grounding
+}
+
+router.post("/api/transform-question", async (req: Request, res: Response) => {
+  const { text, fromType, toType, sourceContext } = req.body as TransformRequest;
+
+  if (!text || !toType) {
+    return res.status(400).json({ error: "text and toType are required" });
+  }
+
+  const contextSection = sourceContext
+    ? `\n\nOriginal source material for grounding:\n---\n${sourceContext.slice(0, 4000)}\n---`
+    : "";
+
+  let typeInstruction = "";
+  if (toType === "Multiple Choice")
+    typeInstruction = `Transform it into a Multiple Choice question. Provide exactly 4 answer options in an "options" array. Set "correctAnswer" to the exact text of the correct option.`;
+  else if (toType === "True / False")
+    typeInstruction = `Transform it into a True / False question. Write a direct declarative statement about the subject matter itself — NEVER phrase it as "The article mentions..." or "According to the text..." or any meta-reference to a source. The statement should be a standalone factual claim that is verifiably true or false based on the content. Set "correctAnswer" to exactly "True" or "False".`;
+  else
+    typeInstruction = `Transform it into an open-ended Short Text question. Include a "modelAnswer" field with a concise ideal answer (1–3 sentences).`;
+
+  const systemPrompt = `You are an expert educator. You will be given a question and asked to transform it into a different question type while preserving the underlying knowledge atom being tested. Keep the core fact or concept identical — only change the question format.\n\nReturn ONLY a valid JSON object. No markdown, no explanation.\n\nJSON schema: { "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only), "modelAnswer": "string" (Short Text only) }`;
+
+  const userPrompt = `Original question (${fromType}):\n"${text}"${contextSection}\n\n${typeInstruction}\n\nReturn ONLY the JSON object.`;
+
+  try {
+    const result = await invokeLLM({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      maxTokens: 600,
+    });
+
+    const raw: string = (result.choices?.[0]?.message?.content as string) ?? "";
+    let cleaned = raw.replace(/^```[\w]*\n?/gm, "").replace(/\n?```/gm, "").trim();
+    const objStart = cleaned.indexOf("{");
+    const objEnd = cleaned.lastIndexOf("}");
+    if (objStart !== -1 && objEnd !== -1) cleaned = cleaned.slice(objStart, objEnd + 1);
+    cleaned = cleaned.replace(/,\s*([\]\}])/g, "$1");
+
+    const parsed = JSON.parse(cleaned) as GeneratedQuestion;
+    return res.json({ question: { ...parsed, type: toType } });
+  } catch (err) {
+    console.error("[transform-question] error:", err);
+    return res.status(500).json({ error: "Transform failed", detail: String(err) });
   }
 });
 
