@@ -132,7 +132,7 @@ export default function Landing() {
 
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 400, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
@@ -140,7 +140,7 @@ export default function Landing() {
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 400, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
@@ -148,19 +148,12 @@ export default function Landing() {
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 400, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
             lineHeight: 1.08, letterSpacing: "-0.03em",
-            color: CRIMSON, margin: "0 0 24px",
+            color: CRIMSON, margin: "0 0 32px",
           }}>
             connected classroom.
           </h1>
-
-          <p style={{
-            fontSize: 17, lineHeight: 1.65, color: TEXT_MID,
-            margin: "0 0 36px", maxWidth: 420,
-          }}>
-            Empower your lectures with instant student feedback and live polls.
-          </p>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Link
