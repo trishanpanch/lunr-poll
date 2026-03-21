@@ -159,7 +159,7 @@ export default function Landing() {
             fontSize: 17, lineHeight: 1.65, color: TEXT_MID,
             margin: "0 0 36px", maxWidth: 420,
           }}>
-            Empower your lectures with instant student feedback, live polls, and AI-generated questions — all in one place.
+            Empower your lectures with instant student feedback and live polls.
           </p>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
