@@ -730,18 +730,42 @@ function QuestionCard({
   index,
   onRemove,
   onUpdate,
+  onUpdateModelAnswer,
   iconNudge = 1,
 }: {
   question: Question;
   index: number;
   onRemove: () => void;
   onUpdate: (text: string) => void;
+  onUpdateModelAnswer?: (answer: string) => void;
   iconNudge?: number;
 }) {
   const meta = TYPE_META[question.type];
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(question.text);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Model answer inline edit state
+  const [editingAnswer, setEditingAnswer] = useState(false);
+  const [answerDraft, setAnswerDraft] = useState(question.modelAnswer ?? "");
+  const answerRef = useRef<HTMLTextAreaElement>(null);
+
+  const startEditAnswer = () => {
+    setAnswerDraft(question.modelAnswer ?? "");
+    setEditingAnswer(true);
+    setTimeout(() => {
+      answerRef.current?.focus();
+      answerRef.current?.select();
+    }, 0);
+  };
+
+  const commitAnswerEdit = () => {
+    const trimmed = answerDraft.trim();
+    if (onUpdateModelAnswer) {
+      if (trimmed !== (question.modelAnswer ?? "")) onUpdateModelAnswer(trimmed);
+    }
+    setEditingAnswer(false);
+  };
 
   const startEdit = () => {
     setDraft(question.text);
@@ -928,8 +952,8 @@ function QuestionCard({
             })}
           </div>
         )}
-        {/* Short Text model answer */}
-        {question.type === "Short Text" && question.modelAnswer && (
+        {/* Short Text model answer — always shown for Short Text, click to edit */}
+        {question.type === "Short Text" && (
           <div style={{ marginTop: 10 }}>
             <p
               style={{
@@ -944,21 +968,55 @@ function QuestionCard({
             >
               Model Answer
             </p>
-            <p
-              style={{
-                fontSize: 12.5,
-                color: "oklch(0.3 0.12 264)",
-                lineHeight: 1.55,
-                margin: 0,
-                padding: "7px 10px",
-                background: "oklch(0.97 0.02 264 / 0.35)",
-                borderRadius: 8,
-                border: "1px solid oklch(0.88 0.06 264)",
-                fontFamily: "'Geist', system-ui, sans-serif",
-              }}
-            >
-              {question.modelAnswer}
-            </p>
+            {editingAnswer ? (
+              <textarea
+                ref={answerRef}
+                value={answerDraft}
+                onChange={(e) => setAnswerDraft(e.target.value)}
+                onBlur={commitAnswerEdit}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") { setAnswerDraft(question.modelAnswer ?? ""); setEditingAnswer(false); }
+                }}
+                placeholder="Write a model answer…"
+                style={{
+                  width: "100%",
+                  fontSize: 12.5,
+                  color: "oklch(0.145 0 0)",
+                  lineHeight: 1.55,
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  border: "1.5px solid oklch(0.45 0.22 264)",
+                  borderRadius: 8,
+                  padding: "7px 10px",
+                  resize: "none",
+                  outline: "none",
+                  background: "oklch(0.97 0.02 264 / 0.4)",
+                  boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
+                  minHeight: 60,
+                }}
+              />
+            ) : (
+              <p
+                onClick={startEditAnswer}
+                title="Click to edit model answer"
+                style={{
+                  fontSize: 12.5,
+                  color: question.modelAnswer ? "oklch(0.3 0.12 264)" : "oklch(0.65 0.04 264)",
+                  lineHeight: 1.55,
+                  margin: 0,
+                  padding: "7px 10px",
+                  background: "oklch(0.97 0.02 264 / 0.35)",
+                  borderRadius: 8,
+                  border: "1px solid oklch(0.88 0.06 264)",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  cursor: "text",
+                  fontStyle: question.modelAnswer ? "normal" : "italic",
+                  transition: "background 0.12s, border-color 0.12s",
+                }}
+                className="hover:bg-[oklch(0.95_0.03_264_/_0.5)] hover:border-[oklch(0.78_0.1_264)]"
+              >
+                {question.modelAnswer || "Click to add a model answer…"}
+              </p>
+            )}
           </div>
         )}
         <div style={{ marginTop: 8 }}>
@@ -1043,9 +1101,10 @@ function AddQuestionModal({
   open: boolean;
   type: QuestionType | null;
   onClose: () => void;
-  onConfirm: (text: string, options?: string[], correctIndex?: number, tfAnswer?: "True" | "False") => void;
+  onConfirm: (text: string, options?: string[], correctIndex?: number, tfAnswer?: "True" | "False", modelAnswer?: string) => void;
 }) {
   const [text, setText] = useState("");
+  const [modelAnswer, setModelAnswer] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [options, setOptions] = useState<string[]>(["", ""]);
   const [correctIndex, setCorrectIndex] = useState<number | null>(null);
@@ -1053,6 +1112,7 @@ function AddQuestionModal({
   const suggestions = type ? SUGGESTIONS[type] : [];
   const isMultipleChoice = type === "Multiple Choice";
   const isTrueFalse = type === "True / False";
+  const isShortText = type === "Short Text";
   const [tfAnswer, setTfAnswer] = useState<"True" | "False" | null>(null);
   const filledOptions = options.map((o, i) => ({ text: o, idx: i })).filter((o) => o.text.trim() !== "");
   const canSubmit = text.trim() !== ""
@@ -1068,6 +1128,7 @@ function AddQuestionModal({
   useEffect(() => {
     if (open) {
       setText("");
+      setModelAnswer("");
       setShowSuggestions(false);
       setOptions(["", ""]);
       setCorrectIndex(null);
@@ -1243,6 +1304,33 @@ function AddQuestionModal({
             </div>
           )}
 
+          {/* Short Text model answer field */}
+          {isShortText && (
+            <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+              <Label
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "oklch(0.205 0 0)",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+              >
+                Model Answer
+                <span style={{ fontSize: 11, fontWeight: 400, color: "oklch(0.556 0 0)" }}>(optional)</span>
+              </Label>
+              <Textarea
+                value={modelAnswer}
+                onChange={(e) => setModelAnswer(e.target.value)}
+                placeholder="Write the ideal answer teachers expect…"
+                rows={3}
+                style={{ borderRadius: 10, fontSize: 13, resize: "none" }}
+              />
+            </div>
+          )}
+
           {/* Multiple Choice options editor */}
           {isMultipleChoice && (
             <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -1380,6 +1468,7 @@ function AddQuestionModal({
               isMultipleChoice ? filledOptions.map(o => o.text) : undefined,
               isMultipleChoice && correctIndex !== null ? correctIndex : undefined,
               isTrueFalse ? (tfAnswer ?? undefined) : undefined,
+              isShortText && modelAnswer.trim() ? modelAnswer.trim() : undefined,
             ) }
             disabled={!canSubmit}
             style={{
@@ -2120,16 +2209,16 @@ function AiPanel({
             {generated.length === 0 ? (
               <button
                 onClick={generate}
-                disabled={!content.trim() || loading}
+                disabled={(!content.trim() && urlChips.length === 0) || loading}
                 style={{
                   width: "100%",
                   padding: "10px 0",
                   borderRadius: 10,
                   border: "none",
-                  background: !content.trim() || loading
+                  background: (!content.trim() && urlChips.length === 0) || loading
                     ? "oklch(0.88 0 0)"
                     : "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
-                  color: !content.trim() || loading ? "oklch(0.6 0 0)" : "#fff",
+                  color: (!content.trim() && urlChips.length === 0) || loading ? "oklch(0.6 0 0)" : "#fff",
                   fontSize: 13,
                   fontWeight: 700,
                   fontFamily: "'Geist', system-ui, sans-serif",
@@ -2137,9 +2226,9 @@ function AiPanel({
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 7,
-                  cursor: !content.trim() || loading ? "not-allowed" : "pointer",
+                  cursor: (!content.trim() && urlChips.length === 0) || loading ? "not-allowed" : "pointer",
                   transition: "all 0.15s",
-                  boxShadow: !content.trim() || loading ? "none" : "0 2px 10px oklch(0.52 0.22 290 / 0.28)",
+                  boxShadow: (!content.trim() && urlChips.length === 0) || loading ? "none" : "0 2px 10px oklch(0.52 0.22 290 / 0.28)",
                 }}
               >
                 {loading ? <><Loader2 size={14} className="animate-spin" /> Generating…</> : <><Sparkles size={14} /> Generate Questions</>}
@@ -2185,8 +2274,23 @@ function generateCode() {
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function Home() {
-  // If lunr_new_session flag is set, clear all builder state and start fresh
+  // If lunr_new_session flag is set, clear all builder state and start fresh.
+  // If lunr_edit_session is set, load that session's code/name/questions.
   const [sessionCode] = useState(() => {
+    const editId = localStorage.getItem("lunr_edit_session");
+    if (editId) {
+      localStorage.removeItem("lunr_edit_session");
+      // Load the session metadata from the sessions list
+      try {
+        const sessions = JSON.parse(localStorage.getItem("lunr_sessions") || "[]") as Array<{ id: string; name: string; code: string }>;
+        const found = sessions.find((s) => s.id === editId);
+        if (found) {
+          localStorage.setItem("lunr_session_code", found.code);
+          localStorage.setItem("lunr_session_name", found.name);
+          return found.code;
+        }
+      } catch { /* fall through */ }
+    }
     const isNew = localStorage.getItem("lunr_new_session") === "true";
     if (isNew) {
       localStorage.removeItem("lunr_new_session");
@@ -2319,12 +2423,12 @@ export default function Home() {
     setAddModalOpen(true);
   };
 
-  const confirmAdd = (text: string, options?: string[], correctIndex?: number) => {
+  const confirmAdd = (text: string, options?: string[], correctIndex?: number, tfAnswer?: "True" | "False", modelAnswer?: string) => {
     if (!addModalType) return;
     const meta = TYPE_META[addModalType];
     setQuestions((prev) => [
       ...prev,
-      { id: uid(), type: addModalType, icon: meta.icon, text, color: meta.color, options, correctIndex },
+      { id: uid(), type: addModalType, icon: meta.icon, text, color: meta.color, options, correctIndex, tfAnswer, modelAnswer },
     ]);
     setAddModalOpen(false);
     toast.success(`${addModalType} question added`);
@@ -2412,6 +2516,7 @@ export default function Home() {
                   index={i}
                   onRemove={() => removeQuestion(q.id)}
                   onUpdate={(text) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, text } : item))}
+                  onUpdateModelAnswer={(answer) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, modelAnswer: answer || undefined } : item))}
                   iconNudge={iconNudge}
                 />
               ))}

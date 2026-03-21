@@ -651,7 +651,7 @@ export default function Sessions() {
               <SessionCard
                 key={session.id}
                 session={session}
-                onEdit={() => navigate("/session")}
+                onEdit={() => { localStorage.setItem("lunr_edit_session", session.id); navigate("/session"); }}
                 onDelete={() => handleDelete(session.id)}
                 onViewResults={() => {}}
                 onGoLive={() => handleGoLive(session.id)}

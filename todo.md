@@ -28,3 +28,7 @@
 - [x] URL source material — add URL input to AI panel; server fetches page and extracts text; extracted text populates the source material textarea
 - [x] URL source material — rework: URL should be stored as a chip (not pasted into textarea); text is fetched invisibly at generate time on the server
 - [x] Short Text model answer — show model answer on the question card in the builder canvas (currently only visible in the AI preview, disappears after adding)
+- [x] Editable model answer on card — click-to-edit inline, same pattern as question text
+- [x] Editable model answer on card — click-to-edit inline on Short Text cards
+- [x] Manual Short Text modal — add optional model answer field
+- [x] Session edit flow — Edit button on session card loads saved questions and name into builder
