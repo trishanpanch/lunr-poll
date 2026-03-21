@@ -48,7 +48,7 @@ const features = [
 ];
 
 export default function Landing() {
-  const [heroSize, setHeroSize] = useState(56);
+  const [heroLineHeight, setHeroLineHeight] = useState(1.08);
 
   return (
     <div style={{ minHeight: "100vh", background: BG, fontFamily: "'Inter', system-ui, sans-serif", paddingBottom: 80 }}>
@@ -135,24 +135,24 @@ export default function Landing() {
 
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 500, fontSize: heroSize,
-            lineHeight: 1.08, letterSpacing: "-0.03em",
+            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
+            lineHeight: heroLineHeight, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
             Real-time insights
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 500, fontSize: heroSize,
-            lineHeight: 1.08, letterSpacing: "-0.03em",
+            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
+            lineHeight: heroLineHeight, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
             from the
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 500, fontSize: heroSize,
-            lineHeight: 1.08, letterSpacing: "-0.03em",
+            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
+            lineHeight: heroLineHeight, letterSpacing: "-0.03em",
             color: CRIMSON, margin: "0 0 32px",
           }}>
             connected classroom.
@@ -441,20 +441,20 @@ export default function Landing() {
         minWidth: 220,
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: TEXT_MUTED }}>Hero title size</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: TEXT_DARK, fontFamily: "monospace" }}>{heroSize}px</span>
+          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: TEXT_MUTED }}>Title line spacing</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: TEXT_DARK, fontFamily: "monospace" }}>{heroLineHeight.toFixed(2)}</span>
         </div>
         <input
           type="range"
-          min={24}
-          max={80}
-          value={heroSize}
-          onChange={(e) => setHeroSize(Number(e.target.value))}
+          min={80}
+          max={160}
+          value={Math.round(heroLineHeight * 100)}
+          onChange={(e) => setHeroLineHeight(Number(e.target.value) / 100)}
           style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }}
         />
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>24px</span>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>80px</span>
+          <span style={{ fontSize: 10, color: TEXT_MUTED }}>tight (0.80)</span>
+          <span style={{ fontSize: 10, color: TEXT_MUTED }}>loose (1.60)</span>
         </div>
       </div>
 
