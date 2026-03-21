@@ -151,6 +151,7 @@ function Topbar({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
+  const [nameFocused, setNameFocused] = useState(false);
 
   const commitName = () => {
     onNameSave(sessionName);
@@ -205,14 +206,15 @@ function Topbar({
               ref={inputRef}
               value={sessionName}
               onChange={(e) => onNameChange(e.target.value)}
-              onBlur={commitName}
+              onFocus={() => setNameFocused(true)}
+              onBlur={() => { setNameFocused(false); commitName(); }}
               onKeyDown={(e) => e.key === "Enter" && (e.currentTarget as HTMLInputElement).blur()}
               placeholder="Untitled Session"
               style={{
                 fontFamily: "'Geist', system-ui, sans-serif",
                 fontWeight: 700,
                 fontSize: 17,
-                color: isUntitled ? "oklch(0.65 0.01 264)" : "oklch(0.145 0 0)",
+                color: (isUntitled && !nameFocused) ? "oklch(0.65 0.01 264)" : "oklch(0.145 0 0)",
                 background: "transparent",
                 border: "none",
                 borderBottom: "1.5px solid transparent",
