@@ -5,7 +5,8 @@ import { useParams } from "next/navigation";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { Session } from "@/lib/types";
-import { IS_DEMO_MODE } from "@/lib/config";
+import { IS_DEMO_MODE } from "@/lib/utils";
+import { getLocalSession } from "@/lib/storage";
 import { SessionBuilder } from "@/components/professor/SessionBuilder";
 import { LiveDashboard } from "@/components/professor/LiveDashboard";
 import { SynthesisView } from "@/components/professor/SynthesisView";
@@ -29,16 +30,8 @@ export default function SessionCommandCenter() {
                 return;
             }
             setTimeout(() => {
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    const sessions = JSON.parse(localSessionsStr) as Session[];
-                    const found = sessions.find(s => s.id === id);
-                    if (found) {
-                        setSession(found);
-                    } else {
-                        setSession(null);
-                    }
-                }
+                const found = getLocalSession(id);
+                setSession(found);
                 setLoading(false);
             }, 0);
             return;

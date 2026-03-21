@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth as adminAuth, db as adminDb } from "@/lib/firebase/server";
 import { Timestamp } from "firebase-admin/firestore";
-
-function generateSessionCode() {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let result = "";
-    for (let i = 0; i < 6; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
+import { generateSessionCode } from "@/lib/utils";
 
 export async function POST(req: Request) {
     try {

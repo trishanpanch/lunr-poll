@@ -1,7 +1,7 @@
 "use client";
 
 import { Session, Question, QuestionType } from "@/lib/types";
-import { IS_DEMO_MODE } from "@/lib/config";
+import { isDemoSession, updateLocalSession } from "@/lib/storage";
 import { auth } from "@/lib/firebase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -182,21 +182,10 @@ export function SessionBuilder({ session }: { session: Session }) {
         }
 
         // Local Demo Mode Write Fallback
-        if (
-            IS_DEMO_MODE &&
-            session.id &&
-            (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")
-        ) {
+        if (isDemoSession(session)) {
             try {
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    const sessions = JSON.parse(localSessionsStr) as Session[];
-                    const updatedSessions = sessions.map((s) =>
-                        s.id === session.id ? { ...s, questions: newQuestions } : s
-                    );
-                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
-                    toast.success("Saved locally");
-                }
+                updateLocalSession(session.id!, { questions: newQuestions });
+                toast.success("Saved locally");
             } catch (e) {
                 console.error(e);
                 toast.error("Failed to save local session");
@@ -323,17 +312,10 @@ export function SessionBuilder({ session }: { session: Session }) {
         }
 
         // Local Demo Mode Launch Fallback
-        if (IS_DEMO_MODE && session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
-            const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-            if (localSessionsStr) {
-                const sessions = JSON.parse(localSessionsStr) as Session[];
-                const updatedSessions = sessions.map((s) =>
-                    s.id === session.id ? { ...s, status: "OPEN" as const } : s
-                );
-                localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
-                toast.success("Session is LIVE (Local)!");
-                window.location.reload(); // Simple reload to refresh parent state
-            }
+        if (isDemoSession(session)) {
+            updateLocalSession(session.id!, { status: "OPEN" });
+            toast.success("Session is LIVE (Local)!");
+            window.location.reload();
             return;
         }
 
