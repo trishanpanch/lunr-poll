@@ -1022,6 +1022,9 @@ function QuestionCard({
                   cursor: "text",
                   fontStyle: question.modelAnswer ? "normal" : "italic",
                   transition: "background 0.12s, border-color 0.12s",
+                  minHeight: 60,
+                  boxSizing: "border-box",
+                  display: "block",
                 }}
                 className="hover:bg-[oklch(0.95_0.03_264_/_0.5)] hover:border-[oklch(0.78_0.1_264)]"
               >
