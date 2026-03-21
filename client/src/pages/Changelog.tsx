@@ -159,10 +159,52 @@ const DAYS: ChangelogDay[] = [
         color: "oklch(0.52 0.22 290)",
         items: [
           {
+            title: "AI panel converted to a fixed right-side drawer",
+            description:
+              "The AI generation panel was redesigned from an inline flex column into a fixed right-side drawer that slides in over the canvas. It features a backdrop blur, a Sparkles tab handle on the left edge for toggling, and a dedicated scrollable body so the Generate/Add buttons always stay anchored at the bottom regardless of content length.",
+            tag: "Feature",
+          },
+          {
             title: "Curved tab handle with gradient",
             description:
-              "The AI drawer tab handle has been redesigned from a rectangular button into a smooth SVG shape with concave bezier curves on the top and bottom corners, flowing organically into the drawer edge. The fill now uses the same diagonal purple-to-pink gradient as the AI banner in the sidebar, and deepens when the drawer is open.",
+              "The AI drawer tab handle was redesigned from a rectangular button into a smooth SVG shape with concave bezier curves on the top and bottom corners, flowing organically into the drawer edge. The fill uses the same diagonal purple-to-pink gradient as the AI banner in the sidebar, and deepens when the drawer is open.",
             tag: "Polish",
+          },
+          {
+            title: "Tab handle positioned below the topbar",
+            description:
+              "The drawer tab was moved from the vertical centre of the screen to top: 80px, placing it just below the 64px topbar. This keeps it visually anchored to the content area rather than floating in the middle of the page.",
+            tag: "Polish",
+          },
+          {
+            title: "Tab handle open/close wired correctly",
+            description:
+              "The tab's onClick was previously only wired for closing. It now correctly opens the drawer when closed and closes it when open, so the tab is a reliable toggle in both directions.",
+            tag: "Reliability",
+          },
+          {
+            title: "Real AI generation via server-side API",
+            description:
+              "Generation now calls a dedicated /api/generate-questions backend route that uses the server-side API key via the invokeLLM helper. The system prompt enforces knowledge-atom extraction — every question must reference specific names, terms, numbers, or claims from the source text rather than writing generic questions. Question types are distributed evenly across the requested count.",
+            tag: "Feature",
+          },
+          {
+            title: "URL as source material",
+            description:
+              "A URL input row sits between the file drop zone and the paste textarea. Entering a URL and pressing Enter or clicking Fetch sends it to the server, which strips navigation and footer noise with cheerio and returns up to 12,000 characters of readable text. The extracted content is appended to the source material field.",
+            tag: "Feature",
+          },
+          {
+            title: "URL chips replace inline text injection",
+            description:
+              "Fetched URLs are now stored as removable pill chips in the AI panel rather than dumping their text into the textarea. At generation time the server fetches each chip URL and merges the extracted text with any pasted content before calling the LLM. The Generate button activates when at least one URL chip is present, even if the textarea is empty.",
+            tag: "UX Flow",
+          },
+          {
+            title: "Duplicate URL warning",
+            description:
+              "Adding a URL that is already in the source chips list now shows a warning toast: \"Already added — This URL is already in your source list.\" The input is cleared and no duplicate chip is created.",
+            tag: "Validation",
           },
           {
             title: "Generated questions start selected by default",
@@ -171,10 +213,82 @@ const DAYS: ChangelogDay[] = [
             tag: "UX Flow",
           },
           {
+            title: "Auto-height textareas on generated question cards",
+            description:
+              "Question text, Multiple Choice options, and model answers in the AI preview panel now use auto-height textareas so long content is never clipped. Cards expand to fit their content rather than truncating.",
+            tag: "Polish",
+          },
+          {
             title: "Robust JSON parsing for AI responses",
             description:
               "The generation endpoint now extracts the JSON array by bracket-matching rather than relying on the model returning a perfectly clean response. Trailing commas before ] or } are automatically removed, preventing occasional parse failures when the model adds extra text or formatting around the JSON.",
             tag: "Reliability",
+          },
+        ],
+      },
+      {
+        category: "Question Builder",
+        color: "oklch(0.55 0.2 250)",
+        items: [
+          {
+            title: "True / False question type",
+            description:
+              "A fifth question type — True / False — has been added with a ToggleLeft icon and green color. The Add Question modal shows a correct-answer selector (True or False buttons). The question card displays both answer pills. AI generation supports True / False with a correct answer badge shown in the preview.",
+            tag: "Feature",
+          },
+          {
+            title: "Suggested question templates in the Add Question modal",
+            description:
+              "Each question type now has 4–6 curated example questions. A \"Show common questions\" toggle button reveals a dropdown list — clicking any suggestion populates the text field instantly and closes the list. Hidden by default to keep the modal clean.",
+            tag: "Feature",
+          },
+          {
+            title: "Model answer field on Short Text questions",
+            description:
+              "Short Text question cards now show an editable model answer box below the question text. The Add Question modal includes an optional Model Answer textarea. AI-generated Short Text questions carry their model answer through when added to the session. The answer renders in an indigo-tinted box matching the AI preview style.",
+            tag: "Feature",
+          },
+          {
+            title: "Edit session loads saved state into the builder",
+            description:
+              "Tapping Edit on a session card in My Sessions now loads that session's saved code, name, and questions into the builder instead of opening a blank session. New Session navigation sets a flag that clears the old session state on mount so there is no bleed-through.",
+            tag: "Feature",
+          },
+          {
+            title: "\"Add another question\" button uses Plus icon",
+            description:
+              "The icon on the \"Add another question\" row at the bottom of the question list was changed from ChevronRight to Plus, which more clearly communicates the action.",
+            tag: "Polish",
+          },
+        ],
+      },
+      {
+        category: "Design System",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "True / False added to question type reference",
+            description:
+              "The Design System now documents True / False as the fifth question type alongside Short Text, Multiple Choice, File Upload, and Star Rating.",
+            tag: "Documentation",
+          },
+          {
+            title: "Missing color tokens added",
+            description:
+              "The --green, --green-light, --green-border, --amber, --amber-light, --amber-border, and --destructive-light tokens were missing from index.css, causing color swatches to render incorrectly. All tokens are now defined and the swatches render correctly.",
+            tag: "Tokens",
+          },
+          {
+            title: "Null state pattern updated with concrete examples",
+            description:
+              "The null state pattern in the Design System now shows two concrete examples — the session builder empty state and the My Sessions empty state — with full-opacity emojis and real copy, replacing the generic placeholder.",
+            tag: "Documentation",
+          },
+          {
+            title: "Changelog tag badges use Geist Mono",
+            description:
+              "Tag badges (Validation, UX Flow, Feature, Polish, etc.) in the Changelog now use Geist Mono, matching the monospace font used for session codes throughout the app.",
+            tag: "Polish",
           },
         ],
       },
