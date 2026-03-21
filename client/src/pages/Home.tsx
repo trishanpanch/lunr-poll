@@ -122,9 +122,17 @@ function Topbar({
   isDirty: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [copied, setCopied] = useState(false);
 
   const commitName = () => {
     onNameSave(sessionName);
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(sessionCode).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   return (
@@ -199,14 +207,23 @@ function Topbar({
         >
           Code:{" "}
           <span
+            onClick={handleCopyCode}
+            title="Click to copy"
             style={{
+              position: "relative",
               fontWeight: 700,
-              color: "oklch(0.45 0.22 264)",
+              color: copied ? "oklch(0.52 0.18 160)" : "oklch(0.45 0.22 264)",
               letterSpacing: "0.1em",
               fontFamily: "'Geist Mono', monospace",
+              cursor: "pointer",
+              borderRadius: 4,
+              padding: "1px 4px",
+              background: copied ? "oklch(0.92 0.08 160)" : "transparent",
+              transition: "color 0.2s, background 0.2s",
+              userSelect: "none",
             }}
           >
-            {sessionCode}
+            {copied ? "Copied!" : sessionCode}
           </span>
         </span>
       </div>
@@ -1618,6 +1635,11 @@ function AiPanel({
   const toggleSelect = (i: number) =>
     setGenerated((prev) => prev.map((q, idx) => idx === i ? { ...q, selected: !q.selected } : q));
 
+  const toggleAll = () => {
+    const allSelected = generated.every((q) => q.selected);
+    setGenerated((prev) => prev.map((q) => ({ ...q, selected: !allSelected })));
+  };
+
   const updateGenerated = (i: number, patch: Partial<AiGenQuestion>) =>
     setGenerated((prev) => prev.map((q, idx) => idx === i ? { ...q, ...patch } : q));
 
@@ -1960,12 +1982,26 @@ function AiPanel({
                   <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
                     {generated.length} questions generated
                   </p>
-                  <button
-                    onClick={() => { setGenerated([]); }}
-                    style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "oklch(0.55 0.2 250)", fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600 }}
-                  >
-                    ← Regenerate
-                  </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <button
+                      onClick={toggleAll}
+                      style={{
+                        background: "none", border: "none", cursor: "pointer",
+                        fontSize: 12, fontWeight: 600,
+                        color: generated.every((q) => q.selected) ? "oklch(0.52 0.18 160)" : "oklch(0.55 0.2 250)",
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        padding: 0,
+                      }}
+                    >
+                      {generated.every((q) => q.selected) ? "Deselect all" : "Select all"}
+                    </button>
+                    <button
+                      onClick={() => { setGenerated([]); }}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "oklch(0.55 0.2 250)", fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600 }}
+                    >
+                      ← Regenerate
+                    </button>
+                  </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
                   {generated.map((q, i) => {
