@@ -4,7 +4,7 @@
    Step tracker onboarding, 2×2 question type grid, AI banner hero.
 */
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Link as LinkIcon } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type QuestionType = "Short Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False";
@@ -60,6 +61,14 @@ const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; de
   "File Upload":     { icon: <Paperclip size={18} />,   color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
   "Star Rating":     { icon: <Star size={18} />,        color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
   "True / False":    { icon: <ToggleLeft size={18} />,  color: "oklch(0.42 0.14 60)",  desc: "True or false answer" },
+};
+
+const TYPE_META_SMALL: Record<QuestionType, React.ReactNode> = {
+  "Short Text":      <Type size={10} />,
+  "Multiple Choice": <ListChecks size={10} />,
+  "File Upload":     <Paperclip size={10} />,
+  "Star Rating":     <Star size={10} />,
+  "True / False":    <ToggleLeft size={10} />,
 };
 
 const PRESETS = [
@@ -2047,17 +2056,60 @@ function AiPanel({
                           {q.selected ? "✓" : ""}
                         </div>
 
-                        {/* Type label */}
-                        <div style={{
-                          display: "inline-flex", alignItems: "center", gap: 6,
-                          marginBottom: 10,
-                        }}>
-                          <span style={{ color: meta.color, display: "flex", alignItems: "center" }}>{meta.icon}</span>
-                          <span style={{
-                            fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-                            letterSpacing: "0.09em", color: meta.color,
-                            fontFamily: "'Geist', system-ui, sans-serif",
-                          }}>{q.type}</span>
+                        {/* Type label + switcher */}
+                        <div style={{ marginBottom: 10 }}>
+                          <div style={{
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            marginBottom: 7,
+                          }}>
+                            <span style={{ color: meta.color, display: "flex", alignItems: "center" }}>{meta.icon}</span>
+                            <span style={{
+                              fontSize: 11, fontWeight: 800, textTransform: "uppercase",
+                              letterSpacing: "0.09em", color: meta.color,
+                              fontFamily: "'Geist', system-ui, sans-serif",
+                            }}>{q.type}</span>
+                          </div>
+                          {/* Type switcher pills */}
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                            {(Object.keys(TYPE_META) as QuestionType[]).map((t) => {
+                              const tm = TYPE_META[t];
+                              const active = q.type === t;
+                              return (
+                                <button
+                                  key={t}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (active) return;
+                                    // When switching type, keep text but clear type-specific data
+                                    const patch: Partial<AiGenQuestion> = { type: t };
+                                    if (t === "True / False") patch.correctAnswer = "True";
+                                    else if (t === "Multiple Choice") patch.correctAnswer = undefined;
+                                    else { patch.options = undefined; patch.correctAnswer = undefined; }
+                                    updateGenerated(i, patch);
+                                  }}
+                                  title={tm.desc}
+                                  style={{
+                                    display: "inline-flex", alignItems: "center", gap: 4,
+                                    padding: "3px 8px",
+                                    borderRadius: 20,
+                                    border: active ? `1.5px solid ${tm.color}` : "1.5px solid oklch(0.91 0 0)",
+                                    background: active ? tm.color + "18" : "transparent",
+                                    color: active ? tm.color : "oklch(0.65 0 0)",
+                                    fontSize: 10.5, fontWeight: active ? 700 : 500,
+                                    fontFamily: "'Geist', system-ui, sans-serif",
+                                    cursor: active ? "default" : "pointer",
+                                    transition: "all 0.12s",
+                                    letterSpacing: "0.01em",
+                                  }}
+                                >
+                                  <span style={{ display: "flex", alignItems: "center", opacity: active ? 1 : 0.6, fontSize: 10 }}>
+                                    {TYPE_META_SMALL[t]}
+                                  </span>
+                                  {t}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
 
                         {/* Question text — inline editable */}
