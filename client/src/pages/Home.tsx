@@ -1833,6 +1833,50 @@ function AiPanel({
     localStorage.setItem("lunr_objectives", JSON.stringify(next));
   };
 
+  // Suggested objectives from AI — shown as dismissible preview chips
+  const [suggestingObjectives, setSuggestingObjectives] = useState(false);
+  const [suggestedObjectives, setSuggestedObjectives] = useState<string[]>([]);
+
+  const handleSuggestObjectives = async () => {
+    const combinedContent = content.trim();
+    if (!combinedContent && urlChips.length === 0 && fileChips.length === 0) return;
+    setSuggestingObjectives(true);
+    setSuggestedObjectives([]);
+    try {
+      const res = await fetch("/api/suggest-objectives", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: [
+            combinedContent,
+            ...fileChips.map((f) => f.text),
+          ].filter(Boolean).join("\n\n"),
+          urls: urlChips.length > 0 ? urlChips : undefined,
+        }),
+      });
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
+      const data = await res.json() as { objectives: string[] };
+      setSuggestedObjectives(data.objectives ?? []);
+    } catch (err) {
+      console.error("[suggest-objectives]", err);
+      toast.error("Could not suggest objectives — try again.");
+    } finally {
+      setSuggestingObjectives(false);
+    }
+  };
+
+  const acceptSuggested = (obj: string) => {
+    if (objectives.includes(obj)) return;
+    const next = [...objectives, obj];
+    setObjectives(next);
+    localStorage.setItem("lunr_objectives", JSON.stringify(next));
+    setSuggestedObjectives((prev) => prev.filter((o) => o !== obj));
+  };
+
+  const dismissSuggested = (obj: string) => {
+    setSuggestedObjectives((prev) => prev.filter((o) => o !== obj));
+  };
+
   const handleAddUrl = () => {
     const trimmed = urlInput.trim();
     if (!trimmed) return;
@@ -2312,11 +2356,91 @@ function AiPanel({
                     <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                       Learning Objectives
                     </p>
-                    <span style={{ fontSize: 10.5, color: "oklch(0.65 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>optional</span>
+                    <button
+                      onClick={handleSuggestObjectives}
+                      disabled={suggestingObjectives || (!content.trim() && urlChips.length === 0 && fileChips.length === 0)}
+                      title={(!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "Add source material first" : "Suggest objectives from your source material"}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "oklch(0.7 0 0)" : "oklch(0.45 0.18 160)",
+                        background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "oklch(0.94 0 0)" : "oklch(0.94 0.06 160)",
+                        border: "1px solid " + ((!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "oklch(0.88 0 0)" : "oklch(0.84 0.1 160)"),
+                        borderRadius: 6,
+                        padding: "3px 8px",
+                        cursor: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "not-allowed" : "pointer",
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      {suggestingObjectives
+                        ? <><Loader2 size={10} className="animate-spin" /> Suggesting…</>
+                        : <><Sparkles size={10} /> Suggest</>}
+                    </button>
                   </div>
                   <p style={{ margin: "0 0 8px", fontSize: 11.5, color: "oklch(0.55 0 0)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.5 }}>
                     What should students be able to do after this session? AI will steer questions toward these goals.
                   </p>
+                  {/* AI-suggested objectives — accept or dismiss */}
+                  {suggestedObjectives.length > 0 && (
+                    <div style={{ marginBottom: 10 }}>
+                      <p style={{ margin: "0 0 5px", fontSize: 10.5, fontWeight: 700, color: "oklch(0.52 0.22 290)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                        Suggestions — click to add
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        {suggestedObjectives.map((obj, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 6,
+                              padding: "7px 10px",
+                              borderRadius: 8,
+                              background: "oklch(0.97 0.03 290)",
+                              border: "1px solid oklch(0.88 0.06 290)",
+                            }}
+                          >
+                            <span style={{ flex: 1, fontSize: 12, color: "oklch(0.32 0.14 290)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
+                              {obj}
+                            </span>
+                            <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 1 }}>
+                              <button
+                                onClick={() => acceptSuggested(obj)}
+                                title="Add this objective"
+                                style={{
+                                  background: "oklch(0.52 0.18 160)",
+                                  border: "none",
+                                  borderRadius: 5,
+                                  color: "#fff",
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  fontFamily: "'Geist', system-ui, sans-serif",
+                                  padding: "2px 7px",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 3,
+                                }}
+                              >
+                                + Add
+                              </button>
+                              <button
+                                onClick={() => dismissSuggested(obj)}
+                                title="Dismiss"
+                                style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.6 0.06 290)", display: "flex", alignItems: "center", padding: 2 }}
+                              >
+                                <X size={11} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {/* Objective chips */}
                   {objectives.length > 0 && (
                     <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 8 }}>

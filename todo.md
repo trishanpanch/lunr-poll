@@ -50,3 +50,9 @@
 
 ## Canvas Inline Edit Fix
 - [x] Inline edit textarea auto-resizes to show full question text (no clipping)
+
+## Suggest Objectives from Material
+- [x] Add /api/suggest-objectives server endpoint (takes content + urls, returns 3–5 objectives)
+- [x] Add "Suggest from material" button to Learning Objectives section in AI panel
+- [x] Show suggested objectives as dismissible chips (accept/reject individually)
+- [x] Disable suggest button when no source material is present

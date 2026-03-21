@@ -229,6 +229,74 @@ router.post("/api/transform-question", async (req: Request, res: Response) => {
   }
 });
 
+// ── Suggest learning objectives from source material ────────────────────────
+interface SuggestObjectivesRequest {
+  content: string;
+  urls?: string[];
+}
+
+router.post("/api/suggest-objectives", async (req: Request, res: Response) => {
+  const { content, urls } = req.body as SuggestObjectivesRequest;
+
+  if ((!content || content.trim().length === 0) && (!urls || urls.length === 0)) {
+    return res.status(400).json({ error: "content or at least one URL is required" });
+  }
+
+  // Fetch URL content server-side and merge with pasted content
+  let combinedContent = (content || "").trim();
+  if (urls && urls.length > 0) {
+    const urlTexts = await Promise.all(urls.map(fetchUrlText));
+    const urlContent = urlTexts.filter(Boolean).join("\n\n");
+    if (urlContent) {
+      combinedContent = combinedContent ? combinedContent + "\n\n" + urlContent : urlContent;
+    }
+  }
+
+  if (!combinedContent) {
+    return res.status(400).json({ error: "Could not extract any content from the provided sources" });
+  }
+
+  const systemPrompt = `You are an expert instructional designer. Given source material from a lecture, article, or lesson, extract 3–5 concise learning objectives that a student should be able to demonstrate after engaging with this content.
+
+Rules:
+- Each objective must start with an action verb (e.g. Explain, Identify, Compare, Apply, Analyse, Evaluate).
+- Objectives must be specific and directly grounded in the source material — never generic.
+- Write at the appropriate Bloom's taxonomy level for the content (favour Understand/Apply/Analyse over Remember).
+- Keep each objective to one sentence, maximum 20 words.
+- Return ONLY a valid JSON array of strings. No markdown, no explanation, no code fences.
+
+Example output: ["Explain the three causes of X described in the text", "Compare Y and Z using the criteria discussed"]`;
+
+  const userPrompt = `Source material:\n---\n${combinedContent.slice(0, 8000)}\n---\n\nReturn ONLY the JSON array of 3–5 learning objective strings.`;
+
+  try {
+    const result = await invokeLLM({
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      maxTokens: 600,
+    });
+
+    const raw: string = (result.choices?.[0]?.message?.content as string) ?? "";
+    let cleaned = raw.replace(/^```[\w]*\n?/gm, "").replace(/\n?```/gm, "").trim();
+    const arrStart = cleaned.indexOf("[");
+    const arrEnd = cleaned.lastIndexOf("]");
+    if (arrStart !== -1 && arrEnd !== -1) cleaned = cleaned.slice(arrStart, arrEnd + 1);
+    cleaned = cleaned.replace(/,\s*([\]\}])/g, "$1");
+
+    const objectives = JSON.parse(cleaned) as string[];
+    if (!Array.isArray(objectives) || objectives.length === 0) {
+      return res.status(500).json({ error: "No objectives returned from model" });
+    }
+
+    return res.json({ objectives: objectives.slice(0, 5) });
+  } catch (err) {
+    console.error("[suggest-objectives] error:", err);
+    return res.status(500).json({ error: "Suggestion failed", detail: String(err) });
+  }
+});
+
 // ── Extract text from an uploaded file ──────────────────────────────────────
 router.post("/api/extract-file", upload.single("file"), async (req: Request, res: Response) => {
   const file = (req as any).file as Express.Multer.File | undefined;
