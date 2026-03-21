@@ -1979,29 +1979,34 @@ function AiPanel({
             {generated.length > 0 && (
               <>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
-                    {generated.length} questions generated
-                  </p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <button
+                    onClick={() => { setGenerated([]); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 5,
+                      background: "none", border: "none", cursor: "pointer",
+                      fontSize: 12, color: "oklch(0.45 0 0)",
+                      fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600,
+                      padding: 0,
+                    }}
+                    className="hover:text-[oklch(0.55_0.2_250)] transition-colors"
+                  >
+                    <ArrowLeft size={13} />
+                    Back
+                  </button>
+                  {!generated.every((q) => q.selected) && (
                     <button
                       onClick={toggleAll}
                       style={{
                         background: "none", border: "none", cursor: "pointer",
                         fontSize: 12, fontWeight: 600,
-                        color: generated.every((q) => q.selected) ? "oklch(0.52 0.18 160)" : "oklch(0.55 0.2 250)",
+                        color: "oklch(0.55 0.2 250)",
                         fontFamily: "'Geist', system-ui, sans-serif",
                         padding: 0,
                       }}
                     >
-                      {generated.every((q) => q.selected) ? "Deselect all" : "Select all"}
+                      Select all
                     </button>
-                    <button
-                      onClick={() => { setGenerated([]); }}
-                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "oklch(0.55 0.2 250)", fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600 }}
-                    >
-                      ← Regenerate
-                    </button>
-                  </div>
+                  )}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
                   {generated.map((q, i) => {
