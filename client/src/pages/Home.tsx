@@ -219,7 +219,7 @@ function Topbar({
                 padding: "2px 4px 2px 4px",
                 outline: "none",
                 minWidth: 120,
-                width: `${Math.max((sessionName || "").length, 10)}ch`,
+                width: `${Math.max((sessionName || "").length || "Untitled Session".length, 10)}ch`,
                 maxWidth: 320,
                 transition: "border-color 0.15s, background 0.15s",
                 cursor: "text",
