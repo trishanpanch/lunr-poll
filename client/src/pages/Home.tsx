@@ -136,6 +136,7 @@ function Topbar({
   onBack,
   onSaveDraft,
   isDirty,
+  hasEverSaved,
 }: {
   sessionName: string;
   onNameChange: (v: string) => void;
@@ -148,6 +149,7 @@ function Topbar({
   onBack: () => void;
   onSaveDraft: () => void;
   isDirty: boolean;
+  hasEverSaved: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState(false);
@@ -225,13 +227,9 @@ function Topbar({
                 cursor: "text",
                 borderRadius: "4px 4px 0 0",
               }}
-              className="hover:border-b-[oklch(0.82_0.04_264)] focus:border-b-[oklch(0.45_0.22_264)] placeholder:text-[oklch(0.65_0.01_264)] placeholder:font-bold"
+              className="hover:border-b-[oklch(0.82_0.04_264)] focus:border-b-[oklch(0.45_0.22_264)] placeholder:text-[oklch(0.82_0.005_264)] placeholder:font-bold"
             />
-            <Pencil
-              size={13}
-              style={{ color: "oklch(0.65 0.04 264)", flexShrink: 0, pointerEvents: "none" }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
-            />
+
           </div>
         <span
           style={{
@@ -273,7 +271,7 @@ function Topbar({
           className="gap-1.5 bg-white"
           style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 13 }}
         >
-          {!isDirty ? (
+          {!isDirty && hasEverSaved ? (
             <><CheckCircle2 size={14} className="text-green-600" /> Saved</>
           ) : (
             "Save Draft"
@@ -3131,6 +3129,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   };
 
   // Track whether there are unsaved changes
+  // hasEverSaved: true only after the user has explicitly saved at least once
+  const [hasEverSaved, setHasEverSaved] = useState(false);
   const [savedDraft, setSavedDraft] = useState(false);
   const isDirty = (questions.length > 0 || hasNamed) && !savedDraft;
 
@@ -3153,6 +3153,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         window.history.replaceState(null, "", `/session?id=${result.id}`);
       }
       setSavedDraft(true);
+      setHasEverSaved(true);
       toast.success("Draft saved");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Save failed";
@@ -3273,6 +3274,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         onBack={handleBack}
         onSaveDraft={handleSaveDraft}
         isDirty={isDirty}
+        hasEverSaved={hasEverSaved}
       />
 
       <div style={{ display: "flex", flex: 1, alignItems: "flex-start" }}>

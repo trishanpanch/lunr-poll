@@ -141,3 +141,8 @@
 
 ## Sprint — UI Polish (cont. 2)
 - [x] Session name input: "Untitled Session" is now a true HTML placeholder — clears on focus, typed text is always black, reverts to gray placeholder if left empty
+
+## Sprint — UI Polish (cont. 3)
+- [x] Remove pencil icon from session name input hover state
+- [x] Lighten placeholder text color in session name input
+- [x] Fix "Saved" button state — should not show "Saved" on a brand-new unsaved session
