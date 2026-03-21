@@ -1,6 +1,13 @@
 import { Router, Request, Response } from "express";
 import { invokeLLM } from "./_core/llm";
 import * as cheerio from "cheerio";
+import multer from "multer";
+import { createRequire } from "module";
+const _require = createRequire(import.meta.url);
+const pdfParse: (buffer: Buffer) => Promise<{ text: string }> = _require("pdf-parse");
+import mammoth from "mammoth";
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
 async function fetchUrlText(url: string): Promise<string> {
   try {
@@ -213,6 +220,44 @@ router.post("/api/transform-question", async (req: Request, res: Response) => {
   } catch (err) {
     console.error("[transform-question] error:", err);
     return res.status(500).json({ error: "Transform failed", detail: String(err) });
+  }
+});
+
+// ── Extract text from an uploaded file ──────────────────────────────────────
+router.post("/api/extract-file", upload.single("file"), async (req: Request, res: Response) => {
+  const file = (req as any).file as Express.Multer.File | undefined;
+  if (!file) return res.status(400).json({ error: "No file uploaded" });
+
+  const mime = file.mimetype;
+  const name = file.originalname?.toLowerCase() ?? "";
+
+  try {
+    let text = "";
+
+    if (mime === "application/pdf" || name.endsWith(".pdf")) {
+      const result = await pdfParse(file.buffer);
+      text = result.text;
+    } else if (
+      mime === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      name.endsWith(".docx")
+    ) {
+      const result = await mammoth.extractRawText({ buffer: file.buffer });
+      text = result.value;
+    } else if (mime.startsWith("text/") || name.endsWith(".txt") || name.endsWith(".md")) {
+      text = file.buffer.toString("utf-8");
+    } else {
+      return res.status(400).json({ error: "Unsupported file type. Please upload a PDF, DOCX, or TXT file." });
+    }
+
+    // Clean up whitespace
+    text = text.replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+
+    if (!text) return res.status(422).json({ error: "Could not extract any text from this file" });
+
+    return res.json({ text, filename: file.originalname, size: file.size });
+  } catch (err) {
+    console.error("[extract-file] error:", err);
+    return res.status(500).json({ error: "File extraction failed", detail: String(err) });
   }
 });
 

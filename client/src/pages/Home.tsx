@@ -421,7 +421,7 @@ function Sidebar({
             gap: 8,
           }}
         >
-          {(Object.keys(TYPE_META) as QuestionType[]).map((type) => {
+          {(["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
             const meta = TYPE_META[type];
             return (
               <button
@@ -751,6 +751,113 @@ function EmptyState({
   );
 }
 
+// ── MC Option Row ─────────────────────────────────────────────────────────
+function MCOptionRow({
+  index,
+  value,
+  isCorrect,
+  canRemove,
+  onToggleCorrect,
+  onChangeText,
+  onRemove,
+}: {
+  index: number;
+  value: string;
+  isCorrect: boolean;
+  canRemove: boolean;
+  onToggleCorrect: () => void;
+  onChangeText: (val: string) => void;
+  onRemove: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const commit = () => {
+    setEditing(false);
+    const trimmed = draft.trim();
+    if (trimmed !== value) onChangeText(trimmed || value);
+  };
+
+  // Keep draft in sync if parent updates the value
+  useEffect(() => { if (!editing) setDraft(value); }, [value, editing]);
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      {/* Letter badge — click to mark correct */}
+      <button
+        onClick={onToggleCorrect}
+        title={isCorrect ? "Unmark correct" : "Mark as correct"}
+        style={{
+          width: 22, height: 22, borderRadius: "50%",
+          border: isCorrect ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid oklch(0.88 0 0)",
+          background: isCorrect ? "oklch(0.92 0.08 160)" : "oklch(0.97 0 0)",
+          color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          flexShrink: 0, fontSize: 10, fontWeight: 700,
+          fontFamily: "'Geist Mono', monospace",
+          cursor: "pointer", transition: "all 0.15s", padding: 0,
+        }}
+      >
+        {String.fromCharCode(65 + index)}
+      </button>
+
+      {/* Option text — click to edit */}
+      {editing ? (
+        <input
+          ref={inputRef}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") { e.preventDefault(); commit(); }
+            if (e.key === "Escape") { setDraft(value); setEditing(false); }
+          }}
+          autoFocus
+          style={{
+            flex: 1, height: 28, padding: "0 8px",
+            borderRadius: 7, border: "1.5px solid oklch(0.52 0.22 290)",
+            fontSize: 12.5, fontFamily: "'Geist', system-ui, sans-serif",
+            color: "oklch(0.205 0 0)", background: "#fff", outline: "none",
+            boxShadow: "0 0 0 3px oklch(0.52 0.22 290 / 0.12)",
+          }}
+        />
+      ) : (
+        <span
+          onClick={() => setEditing(true)}
+          title="Click to edit"
+          style={{
+            flex: 1, fontSize: 12.5, padding: "3px 6px",
+            borderRadius: 6, cursor: "text",
+            color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.205 0 0)",
+            fontWeight: isCorrect ? 600 : 400,
+            fontFamily: "'Geist', system-ui, sans-serif",
+            transition: "background 0.12s",
+          }}
+          className="hover:bg-[oklch(0.97_0.02_264_/_0.4)]"
+        >
+          {value || <span style={{ color: "oklch(0.75 0 0)" }}>Option {String.fromCharCode(65 + index)}</span>}
+        </span>
+      )}
+
+      {/* Remove button */}
+      {canRemove && (
+        <button
+          onClick={onRemove}
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            color: "oklch(0.75 0.01 264)", display: "flex",
+            alignItems: "center", padding: "3px 4px", borderRadius: 5, flexShrink: 0,
+          }}
+          className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.52_0.22_10)] transition-colors"
+        >
+          <X size={12} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── Question Card ───────────────────────────────────────────────────────────
 function QuestionCard({
   question,
@@ -758,6 +865,7 @@ function QuestionCard({
   onRemove,
   onUpdate,
   onUpdateModelAnswer,
+  onUpdateOptions,
   iconNudge = 1,
 }: {
   question: Question;
@@ -765,6 +873,7 @@ function QuestionCard({
   onRemove: () => void;
   onUpdate: (text: string) => void;
   onUpdateModelAnswer?: (answer: string) => void;
+  onUpdateOptions?: (options: string[], correctIndex: number | undefined) => void;
   iconNudge?: number;
 }) {
   const meta = TYPE_META[question.type];
@@ -972,33 +1081,72 @@ function QuestionCard({
             </span>
           </div>
         )}
-        {/* Multiple Choice options preview */}
+        {/* Multiple Choice options — inline editable */}
         {question.type === "Multiple Choice" && question.options && question.options.length > 0 && (
-          <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 5 }}>
+          <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 5 }}>
             {question.options.map((opt, i) => {
               const isCorrect = question.correctIndex === i;
               return (
-                <span
+                <MCOptionRow
                   key={i}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 5,
-                    fontSize: 11.5,
-                    padding: "3px 9px",
-                    borderRadius: 20,
-                    background: isCorrect ? "oklch(0.92 0.08 160)" : "oklch(0.96 0.04 290)",
-                    color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.38 0.18 290)",
-                    fontWeight: 500,
-                    fontFamily: "'Geist', system-ui, sans-serif",
-                    border: isCorrect ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.04 290)",
+                  index={i}
+                  value={opt}
+                  isCorrect={isCorrect}
+                  canRemove={(question.options?.length ?? 0) > 2}
+                  onToggleCorrect={() => {
+                    if (onUpdateOptions) {
+                      const newCorrect = isCorrect ? undefined : i;
+                      onUpdateOptions(question.options!, newCorrect);
+                    }
                   }}
-                >
-                  <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 10, fontWeight: 700 }}>{String.fromCharCode(65 + i)}</span>
-                  {opt}
-                </span>
+                  onChangeText={(val) => {
+                    if (onUpdateOptions) {
+                      const newOpts = question.options!.map((o, idx) => idx === i ? val : o);
+                      onUpdateOptions(newOpts, question.correctIndex);
+                    }
+                  }}
+                  onRemove={() => {
+                    if (onUpdateOptions) {
+                      const newOpts = question.options!.filter((_, idx) => idx !== i);
+                      const newCorrect = question.correctIndex === i
+                        ? undefined
+                        : question.correctIndex !== undefined && question.correctIndex > i
+                        ? question.correctIndex - 1
+                        : question.correctIndex;
+                      onUpdateOptions(newOpts, newCorrect);
+                    }
+                  }}
+                />
               );
             })}
+            {/* Add option button */}
+            {onUpdateOptions && (
+              <button
+                onClick={() => {
+                  const newOpts = [...(question.options ?? []), ""];
+                  onUpdateOptions(newOpts, question.correctIndex);
+                }}
+                style={{
+                  alignSelf: "flex-start",
+                  marginTop: 2,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: "oklch(0.52 0.22 290)",
+                  background: "oklch(0.96 0.04 290)",
+                  border: "1px solid oklch(0.88 0.04 290)",
+                  borderRadius: 7,
+                  padding: "4px 9px",
+                  cursor: "pointer",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                }}
+                className="hover:opacity-80 transition-opacity"
+              >
+                + Add option
+              </button>
+            )}
           </div>
         )}
         {/* Short Text model answer — always shown for Short Text, click to edit */}
@@ -1571,6 +1719,8 @@ function AiPanel({
   const [isDragging, setIsDragging] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [urlChips, setUrlChips] = useState<string[]>([]);
+  const [fileChips, setFileChips] = useState<{ name: string; text: string }[]>([]);
+  const [fileUploading, setFileUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollBodyRef = useRef<HTMLDivElement>(null);
@@ -1613,13 +1763,26 @@ function AiPanel({
     });
   };
 
-  const handleFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setContent((prev) => prev + (prev ? "\n\n" : "") + (e.target?.result as string));
-      scrollTextareaToBottom();
-    };
-    reader.readAsText(file);
+  const handleFile = async (file: File) => {
+    setFileUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/extract-file", { method: "POST", body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Upload failed" }));
+        toast.error(err.error || "File upload failed");
+        return;
+      }
+      const data = await res.json() as { text: string; filename: string };
+      setFileChips((prev) => [...prev, { name: data.filename, text: data.text }]);
+    } catch (e) {
+      toast.error("File upload failed");
+    } finally {
+      setFileUploading(false);
+      // reset input so same file can be re-uploaded
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -1630,9 +1793,15 @@ function AiPanel({
   };
 
   const generate = async () => {
-    if ((!content.trim() && urlChips.length === 0) || loading) return;
+    if ((!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading) return;
     setLoading(true);
     setGenerated([]);
+
+    // Merge file chip texts into content
+    const allContent = [
+      content.trim(),
+      ...fileChips.map((f) => f.text),
+    ].filter(Boolean).join("\n\n");
 
     const typeList = Array.from(selectedTypes);
 
@@ -1641,7 +1810,7 @@ function AiPanel({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: content.slice(0, 8000),
+          content: allContent.slice(0, 8000),
           count,
           types: typeList,
           urls: urlChips.length > 0 ? urlChips : undefined,
@@ -1838,10 +2007,10 @@ function AiPanel({
 
                 {/* Drop zone */}
                 <div
-                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragOver={(e) => { e.preventDefault(); if (!fileUploading) setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
+                  onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (!fileUploading) { const f = e.dataTransfer.files[0]; if (f) handleFile(f); } }}
+                  onClick={() => { if (!fileUploading) fileInputRef.current?.click(); }}
                   style={{
                     border: `1.5px dashed ${isDragging ? "oklch(0.52 0.22 290)" : "oklch(0.82 0.01 264)"}`,
                     borderRadius: 10,
@@ -1850,20 +2019,58 @@ function AiPanel({
                     flexDirection: "column",
                     alignItems: "center",
                     gap: 6,
-                    cursor: "pointer",
+                    cursor: fileUploading ? "not-allowed" : "pointer",
                     background: isDragging ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
+                    opacity: fileUploading ? 0.6 : 1,
                     transition: "all 0.15s",
-                    marginBottom: 10,
+                    marginBottom: fileChips.length > 0 ? 8 : 10,
                   }}
-                  className="hover:border-[oklch(0.52_0.22_290)] hover:bg-[oklch(0.97_0.03_290)] transition-all"
+                  className={fileUploading ? "" : "hover:border-[oklch(0.52_0.22_290)] hover:bg-[oklch(0.97_0.03_290)] transition-all"}
                 >
-                  <Upload size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
+                  {fileUploading
+                    ? <Loader2 size={18} className="animate-spin" style={{ color: "oklch(0.52 0.22 290)" }} />
+                    : <Upload size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
+                  }
                   <span style={{ fontSize: 12, color: "oklch(0.45 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center", lineHeight: 1.4 }}>
-                    <strong>Drop a file</strong> or click to upload<br />
-                    <span style={{ color: "oklch(0.65 0 0)", fontSize: 11 }}>TXT, PDF, DOCX supported</span>
+                    {fileUploading ? "Extracting text…" : <><strong>Drop a file</strong> or click to upload</>}<br />
+                    <span style={{ color: "oklch(0.65 0 0)", fontSize: 11 }}>PDF, DOCX, TXT supported</span>
                   </span>
                   <input ref={fileInputRef} type="file" accept=".txt,.pdf,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
                 </div>
+
+                {/* File attachment chips */}
+                {fileChips.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                    {fileChips.map((fc, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 5,
+                          padding: "4px 10px",
+                          borderRadius: 20,
+                          background: "oklch(0.96 0.04 290)",
+                          border: "1px solid oklch(0.88 0.04 290)",
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: "oklch(0.38 0.18 290)",
+                          fontFamily: "'Geist', system-ui, sans-serif",
+                          maxWidth: 200,
+                        }}
+                      >
+                        <FileText size={12} style={{ flexShrink: 0 }} />
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fc.name}</span>
+                        <button
+                          onClick={() => setFileChips((prev) => prev.filter((_, idx) => idx !== i))}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.52 0.22 290)", display: "flex", alignItems: "center", padding: 0, marginLeft: 2 }}
+                        >
+                          <X size={11} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* URL chip input */}
                 <div style={{ marginBottom: 10 }}>
@@ -1993,7 +2200,7 @@ function AiPanel({
                   Question types
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-                  {(Object.keys(TYPE_META) as QuestionType[]).map((t) => {
+                  {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
                     const meta = TYPE_META[t];
                     const active = selectedTypes.has(t);
                     return (
@@ -2731,6 +2938,7 @@ export default function Home() {
                       onRemove={() => removeQuestion(q.id)}
                       onUpdate={(text) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, text } : item))}
                       onUpdateModelAnswer={(answer) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, modelAnswer: answer || undefined } : item))}
+                      onUpdateOptions={(options, correctIndex) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, options, correctIndex } : item))}
                       iconNudge={iconNudge}
                     />
                   ))}
