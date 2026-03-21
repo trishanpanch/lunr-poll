@@ -12,7 +12,7 @@ import {
   RotateCcw, GripVertical, X, ChevronRight, CheckCircle2,
   Circle, Pencil, ArrowLeft, ToggleLeft, Upload, FileText,
   Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
-  ChevronLeft, ChevronRight as ChevronRightIcon,
+  ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
 } from "lucide-react";
 import {
   Dialog,
@@ -200,31 +200,39 @@ function Topbar({
           <ArrowLeft size={16} />
         </button>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <input
-            ref={inputRef}
-            value={sessionName}
-            onChange={(e) => onNameChange(e.target.value)}
-            onBlur={commitName}
-            onKeyDown={(e) => e.key === "Enter" && (e.currentTarget as HTMLInputElement).blur()}
-            placeholder="Untitled Session"
-            style={{
-              fontFamily: "'Geist', system-ui, sans-serif",
-              fontWeight: 700,
-              fontSize: 17,
-              color: "oklch(0.145 0 0)",
-              background: "transparent",
-              border: "none",
-              borderBottom: "1.5px solid transparent",
-              padding: "2px 0",
-              outline: "none",
-              minWidth: 160,
-              width: `${Math.max(sessionName.length, 10)}ch`,
-              maxWidth: 320,
-              transition: "border-color 0.15s",
-              cursor: "text",
-            }}
-            className="focus:border-b-[oklch(0.45_0.22_264)] placeholder:text-[oklch(0.65_0.01_264)] placeholder:font-bold"
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }} className="group">
+            <input
+              ref={inputRef}
+              value={sessionName}
+              onChange={(e) => onNameChange(e.target.value)}
+              onBlur={commitName}
+              onKeyDown={(e) => e.key === "Enter" && (e.currentTarget as HTMLInputElement).blur()}
+              placeholder="Untitled Session"
+              style={{
+                fontFamily: "'Geist', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 17,
+                color: "oklch(0.145 0 0)",
+                background: "transparent",
+                border: "none",
+                borderBottom: "1.5px solid transparent",
+                padding: "2px 4px 2px 0",
+                outline: "none",
+                minWidth: 120,
+                width: `${Math.max((sessionName || "").length, 10)}ch`,
+                maxWidth: 320,
+                transition: "border-color 0.15s, background 0.15s",
+                cursor: "text",
+                borderRadius: "4px 4px 0 0",
+              }}
+              className="hover:border-b-[oklch(0.82_0.04_264)] focus:border-b-[oklch(0.45_0.22_264)] placeholder:text-[oklch(0.65_0.01_264)] placeholder:font-bold"
+            />
+            <Pencil
+              size={13}
+              style={{ color: "oklch(0.65 0.04 264)", flexShrink: 0, pointerEvents: "none" }}
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+            />
+          </div>
         <span
           style={{
             fontSize: 12,
@@ -902,6 +910,20 @@ function QuestionCard({
 
   // Inline type switching state
   const [transforming, setTransforming] = useState(false);
+  const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
+  const typeDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!typeDropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (typeDropdownRef.current && !typeDropdownRef.current.contains(e.target as Node)) {
+        setTypeDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [typeDropdownOpen]);
 
   const handleSwitchType = async (toType: QuestionType) => {
     if (!onUpdateType || question.type === toType || transforming) return;
@@ -1041,56 +1063,102 @@ function QuestionCard({
 
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Type label + inline type switcher */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
-          <p
-            style={{
-              fontSize: 10.5,
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
-              color: meta.color,
-              margin: 0,
-              fontFamily: "'Geist', system-ui, sans-serif",
-            }}
-          >
-            {question.type}
-          </p>
-          {onUpdateType && (
-            <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-              {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).filter((t) => t !== question.type).map((t) => {
-                const tm = TYPE_META[t];
-                return (
-                  <button
-                    key={t}
-                    onClick={() => handleSwitchType(t)}
-                    disabled={transforming}
-                    title={`Switch to ${t}`}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 3,
-                      padding: "2px 7px",
-                      borderRadius: 20,
-                      border: `1px solid ${tm.color}50`,
-                      background: `${tm.color}0d`,
-                      color: tm.color,
-                      fontSize: 10,
-                      fontWeight: 600,
-                      fontFamily: "'Geist', system-ui, sans-serif",
-                      cursor: transforming ? "not-allowed" : "pointer",
-                      opacity: transforming ? 0.5 : 1,
-                      transition: "all 0.15s",
-                      whiteSpace: "nowrap",
-                    }}
-                    className="hover:opacity-80"
-                  >
-                    {transforming ? <Loader2 size={9} className="animate-spin" /> : tm.icon}
-                    {t}
-                  </button>
-                );
-              })}
+        {/* Type label — dropdown to switch type */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          {onUpdateType ? (
+            <div ref={typeDropdownRef} style={{ position: "relative" }}>
+              <button
+                onClick={() => !transforming && setTypeDropdownOpen((v) => !v)}
+                disabled={transforming}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "2px 7px 2px 5px",
+                  borderRadius: 6,
+                  border: `1px solid ${meta.color}40`,
+                  background: `${meta.color}0d`,
+                  color: meta.color,
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  textTransform: "uppercase" as const,
+                  letterSpacing: "0.08em",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  cursor: transforming ? "not-allowed" : "pointer",
+                  transition: "all 0.15s",
+                }}
+                className="hover:opacity-80"
+              >
+                {transforming
+                  ? <Loader2 size={10} className="animate-spin" />
+                  : <span style={{ color: meta.color, display: "flex", alignItems: "center" }}>{meta.icon}</span>}
+                {question.type}
+                {!transforming && <ChevronDown size={10} style={{ opacity: 0.6 }} />}
+              </button>
+              {typeDropdownOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 4px)",
+                    left: 0,
+                    zIndex: 50,
+                    background: "#fff",
+                    border: "1.5px solid oklch(0.91 0.005 264)",
+                    borderRadius: 10,
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+                    minWidth: 170,
+                    overflow: "hidden",
+                  }}
+                >
+                  {(["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((t, i, arr) => {
+                    const tm = TYPE_META[t];
+                    const isCurrent = t === question.type;
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => { setTypeDropdownOpen(false); if (!isCurrent) handleSwitchType(t); }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          width: "100%",
+                          padding: "8px 12px",
+                          background: isCurrent ? `${tm.color}10` : "transparent",
+                          border: "none",
+                          borderBottom: i < arr.length - 1 ? "1px solid oklch(0.95 0 0)" : "none",
+                          color: isCurrent ? tm.color : "oklch(0.25 0 0)",
+                          fontSize: 12.5,
+                          fontWeight: isCurrent ? 700 : 500,
+                          fontFamily: "'Geist', system-ui, sans-serif",
+                          cursor: isCurrent ? "default" : "pointer",
+                          textAlign: "left" as const,
+                          transition: "background 0.1s",
+                        }}
+                        className={isCurrent ? "" : "hover:bg-[oklch(0.97_0_0)]"}
+                      >
+                        <span style={{ color: tm.color, display: "flex", alignItems: "center", flexShrink: 0 }}>{tm.icon}</span>
+                        {t}
+                        {isCurrent && <CheckCircle2 size={12} style={{ marginLeft: "auto", color: tm.color }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+          ) : (
+            <p
+              style={{
+                fontSize: 10.5,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: meta.color,
+                margin: 0,
+                fontFamily: "'Geist', system-ui, sans-serif",
+              }}
+            >
+              {question.type}
+            </p>
           )}
         </div>
         {editing ? (

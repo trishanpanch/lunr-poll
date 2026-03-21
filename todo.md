@@ -56,3 +56,6 @@
 - [x] Add "Suggest from material" button to Learning Objectives section in AI panel
 - [x] Show suggested objectives as dismissible chips (accept/reject individually)
 - [x] Disable suggest button when no source material is present
+
+## Type Switcher Dropdown
+- [x] Replace horizontal type-switcher pills on canvas cards with a compact dropdown
