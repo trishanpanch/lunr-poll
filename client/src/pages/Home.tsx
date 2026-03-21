@@ -1693,71 +1693,37 @@ function AiPanel({
           borderLeft: "1px solid oklch(0.922 0 0)",
         }}
       >
-        {/* Tab handle — curved pill that flows into the drawer edge */}
+        {/* Tab handle — pill button that protrudes from the left edge of the drawer */}
         <button
           onClick={open ? onClose : onOpen}
           title={open ? "Close AI panel" : "Generate with AI"}
           style={{
             position: "absolute",
-            left: -52,
-            top: 72,
-            width: 52,
-            height: 52,
-            background: "none",
-            border: "none",
+            left: -44,
+            top: 80,
+            width: 44,
+            height: 44,
+            borderRadius: "12px 0 0 12px",
+            background: open
+              ? "linear-gradient(135deg, #c4b5fd 0%, #f9a8d4 100%)"
+              : "linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%)",
+            border: "1.5px solid #d8b4fe",
+            borderRight: "none",
             padding: 0,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-start",
+            justifyContent: "center",
+            boxShadow: "-3px 2px 12px rgba(139,92,246,0.20)",
+            transition: "background 0.2s ease",
+            zIndex: 202,
           }}
         >
-          {/* SVG tab: concave curves + gradient matching AI banner */}
-          <svg
-            width="52"
-            height="52"
-            viewBox="0 0 52 52"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ display: "block", filter: "drop-shadow(-2px 2px 8px rgba(120,60,200,0.18))" }}
-          >
-            <defs>
-              {/* Diagonal gradient: top-left purple → bottom-right pink, matching the AI banner */}
-              <linearGradient id="tab-grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="oklch(0.96 0.06 290)" />
-                <stop offset="100%" stopColor="oklch(0.97 0.04 10)" />
-              </linearGradient>
-              <linearGradient id="tab-grad-open" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="oklch(0.88 0.10 290)" />
-                <stop offset="100%" stopColor="oklch(0.92 0.07 10)" />
-              </linearGradient>
-            </defs>
-            {/* Concave-corner tab shape */}
-            <path
-              d={[
-                "M 52 0",
-                "C 36 0 28 4 26 14",
-                "L 26 38",
-                "C 28 48 36 52 52 52",
-                "Z",
-              ].join(" ")}
-              fill={open ? "url(#tab-grad-open)" : "url(#tab-grad)"}
-              stroke="oklch(0.88 0.06 290)"
-              strokeWidth="1"
-            />
-            {/* Hide right-edge stroke so it blends with the drawer border */}
-            <line x1="52" y1="0" x2="52" y2="52" stroke={open ? "oklch(0.88 0.10 290)" : "oklch(0.96 0.06 290)"} strokeWidth="2" />
-          </svg>
-          {/* Sparkles icon centered in the tab */}
           <Sparkles
-            size={14}
+            size={16}
             style={{
-              position: "absolute",
-              left: 16,
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "oklch(0.45 0.22 290)",
-              pointerEvents: "none",
+              color: open ? "#6d28d9" : "#7c3aed",
+              flexShrink: 0,
             }}
           />
         </button>
