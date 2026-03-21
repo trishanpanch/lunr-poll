@@ -2593,16 +2593,16 @@ function AiPanel({
             {generated.length === 0 ? (
               <button
                 onClick={generate}
-                disabled={(!content.trim() && urlChips.length === 0) || loading}
+                disabled={(!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading}
                 style={{
                   width: "100%",
                   padding: "10px 0",
                   borderRadius: 10,
                   border: "none",
-                  background: (!content.trim() && urlChips.length === 0) || loading
+                  background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading
                     ? "oklch(0.88 0 0)"
                     : "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
-                  color: (!content.trim() && urlChips.length === 0) || loading ? "oklch(0.6 0 0)" : "#fff",
+                  color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "oklch(0.6 0 0)" : "#fff",
                   fontSize: 13,
                   fontWeight: 700,
                   fontFamily: "'Geist', system-ui, sans-serif",
@@ -2610,9 +2610,9 @@ function AiPanel({
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 7,
-                  cursor: (!content.trim() && urlChips.length === 0) || loading ? "not-allowed" : "pointer",
+                  cursor: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "not-allowed" : "pointer",
                   transition: "all 0.15s",
-                  boxShadow: (!content.trim() && urlChips.length === 0) || loading ? "none" : "0 2px 10px oklch(0.52 0.22 290 / 0.28)",
+                  boxShadow: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "none" : "0 2px 10px oklch(0.52 0.22 290 / 0.28)",
                 }}
               >
                 {loading ? <><Loader2 size={14} className="animate-spin" /> Generating…</> : <><Sparkles size={14} /> Generate Questions</>}
