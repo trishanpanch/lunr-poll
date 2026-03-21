@@ -39,6 +39,25 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Link as LinkIcon } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type QuestionType = "Short Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False";
@@ -749,6 +768,20 @@ function QuestionCard({
   iconNudge?: number;
 }) {
   const meta = TYPE_META[question.type];
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: question.id });
+  const sortableStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(question.text);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -801,21 +834,27 @@ function QuestionCard({
 
   return (
     <div
+      ref={setNodeRef}
+      style={sortableStyle}
+    >
+    <div
       className="card-enter hover:shadow-md transition-all"
       style={{
         background: "#fff",
         borderRadius: 14,
-        border: "1.5px solid oklch(0.922 0 0)",
+        border: isDragging ? "1.5px solid oklch(0.55 0.2 250)" : "1.5px solid oklch(0.922 0 0)",
         padding: "16px 18px",
         display: "flex",
         alignItems: "flex-start",
         gap: 12,
-        boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+        boxShadow: isDragging ? "0 8px 24px rgba(0,0,0,0.12)" : "0 1px 4px rgba(0,0,0,0.04)",
         transition: "box-shadow 0.15s, border-color 0.15s",
       }}
     >
       {/* Drag handle */}
       <div
+        {...attributes}
+        {...listeners}
         style={{
           color: "oklch(0.82 0.005 264)",
           marginTop: 3,
@@ -1071,6 +1110,7 @@ function QuestionCard({
       >
         <X size={15} />
       </button>
+    </div>
     </div>
   );
 }
@@ -2483,6 +2523,29 @@ export default function Home() {
     localStorage.setItem(`lunr_questions_${sessionCode}`, JSON.stringify(serialisable));
   }, [questions, sessionCode]);
 
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+    if (over && active.id !== over.id) {
+      setQuestions((prev) => {
+        const oldIndex = prev.findIndex((q) => q.id === active.id);
+        const newIndex = prev.findIndex((q) => q.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }
+  };
+
   // Track whether there are unsaved changes (questions added or name changed)
   const [savedDraft, setSavedDraft] = useState(false);
   const isDirty = (questions.length > 0 || hasNamed) && !savedDraft;
@@ -2649,19 +2712,29 @@ export default function Home() {
 
           {/* Questions */}
           {questions.length > 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {questions.map((q, i) => (
-                <QuestionCard
-                  key={q.id}
-                  question={q}
-                  index={i}
-                  onRemove={() => removeQuestion(q.id)}
-                  onUpdate={(text) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, text } : item))}
-                  onUpdateModelAnswer={(answer) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, modelAnswer: answer || undefined } : item))}
-                  iconNudge={iconNudge}
-                />
-              ))}
-              {/* Add more row */}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={questions.map((q) => q.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {questions.map((q, i) => (
+                    <QuestionCard
+                      key={q.id}
+                      question={q}
+                      index={i}
+                      onRemove={() => removeQuestion(q.id)}
+                      onUpdate={(text) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, text } : item))}
+                      onUpdateModelAnswer={(answer) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, modelAnswer: answer || undefined } : item))}
+                      iconNudge={iconNudge}
+                    />
+                  ))}
+                  {/* Add more row */}
               <button
                 onClick={() => setTypePickerOpen(true)}
                 style={{
@@ -2684,7 +2757,40 @@ export default function Home() {
                 <PlusIcon size={15} />
                 Add another question
               </button>
-            </div>
+                </div>
+              </SortableContext>
+              <DragOverlay>
+                {activeId ? (() => {
+                  const q = questions.find((q) => q.id === activeId);
+                  if (!q) return null;
+                  const meta = TYPE_META[q.type];
+                  return (
+                    <div style={{
+                      background: "#fff",
+                      borderRadius: 14,
+                      border: "1.5px solid oklch(0.55 0.2 250)",
+                      padding: "16px 18px",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.15)",
+                      opacity: 0.95,
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 12,
+                    }}>
+                      <div style={{ color: "oklch(0.82 0.005 264)", marginTop: 3 }}>
+                        <GripVertical size={16} />
+                      </div>
+                      <div style={{ width: 28, height: 28, borderRadius: 7, background: `${meta.color}18`, display: "flex", alignItems: "center", justifyContent: "center", color: meta.color }}>
+                        {meta.icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: meta.color, margin: "0 0 4px" }}>{q.type}</p>
+                        <p style={{ fontSize: 14, fontWeight: 500, color: "oklch(0.145 0 0)", margin: 0, lineHeight: 1.5 }}>{q.text}</p>
+                      </div>
+                    </div>
+                  );
+                })() : null}
+              </DragOverlay>
+            </DndContext>
           ) : (
             <EmptyState
               onMagic={() => setAiPanelOpen(true)}
