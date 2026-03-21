@@ -5,6 +5,7 @@
    Fonts: Geist (headings), Inter (body)
 */
 
+import { useState } from "react";
 import { Link } from "wouter";
 import { Zap, BarChart2, Sparkles, GraduationCap, BookOpen, ArrowRight, ChevronRight } from "lucide-react";
 
@@ -47,6 +48,10 @@ const features = [
 ];
 
 export default function Landing() {
+  const [imgY, setImgY] = useState(50);       // objectPosition Y %
+  const [badgeX, setBadgeX] = useState(-16);  // left offset px
+  const [badgeY, setBadgeY] = useState(-16);  // bottom offset px
+
   return (
     <div style={{ minHeight: "100vh", background: BG, fontFamily: "'Inter', system-ui, sans-serif", paddingBottom: 80 }}>
 
@@ -203,12 +208,12 @@ export default function Landing() {
             <img
               src={HERO_IMG}
               alt="Live polling in a Harvard classroom"
-              style={{ width: "100%", display: "block" }}
+              style={{ width: "100%", display: "block", objectFit: "cover", objectPosition: `center ${imgY}%` }}
             />
           </div>
           {/* Floating stat badge */}
           <div style={{
-            position: "absolute", bottom: -16, left: -16,
+            position: "absolute", bottom: badgeY, left: badgeX,
             background: CARD_BG,
             borderRadius: 12, padding: "10px 16px",
             boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
@@ -411,6 +416,50 @@ export default function Landing() {
           </Link>
         </div>
       </section>
+
+      {/* ── Dev tuning panel ── */}
+      <div style={{
+        position: "fixed", bottom: 24, right: 24, zIndex: 200,
+        background: "#fff",
+        border: `1px solid ${BORDER}`,
+        borderRadius: 14,
+        padding: "14px 16px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
+        display: "flex", flexDirection: "column", gap: 10,
+        minWidth: 240,
+      }}>
+        <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: TEXT_MUTED }}>Hero tuning</p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 12, color: TEXT_DARK }}>Image Y</span>
+            <span style={{ fontSize: 12, fontFamily: "monospace", color: TEXT_DARK }}>{imgY}%</span>
+          </div>
+          <input type="range" min={0} max={100} value={imgY}
+            onChange={(e) => setImgY(Number(e.target.value))}
+            style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }} />
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 12, color: TEXT_DARK }}>Badge X (left)</span>
+            <span style={{ fontSize: 12, fontFamily: "monospace", color: TEXT_DARK }}>{badgeX}px</span>
+          </div>
+          <input type="range" min={-60} max={60} value={badgeX}
+            onChange={(e) => setBadgeX(Number(e.target.value))}
+            style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }} />
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 12, color: TEXT_DARK }}>Badge Y (bottom)</span>
+            <span style={{ fontSize: 12, fontFamily: "monospace", color: TEXT_DARK }}>{badgeY}px</span>
+          </div>
+          <input type="range" min={-60} max={60} value={badgeY}
+            onChange={(e) => setBadgeY(Number(e.target.value))}
+            style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }} />
+        </div>
+      </div>
 
       {/* ── Footer ── */}
       <footer style={{
