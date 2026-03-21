@@ -212,10 +212,14 @@
     .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; }
   }
 
-  /* ── Custom scrollbar ── */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: oklch(0.85 0 0); border-radius: 3px; }
+  /* ── Hide all scrollbars (content still scrollable) ── */
+  * {
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* IE / Edge */
+  }
+  *::-webkit-scrollbar {
+    display: none;               /* Chrome / Safari / Opera */
+  }
 
   /* ── Card entrance animation ── */
   @keyframes card-in {
