@@ -969,8 +969,12 @@ function QuestionCard({
     setDraft(question.text);
     setEditing(true);
     setTimeout(() => {
-      textareaRef.current?.focus();
-      textareaRef.current?.select();
+      const el = textareaRef.current;
+      if (el) {
+        el.focus();
+        el.select();
+        autoResize(el);
+      }
     }, 0);
   };
 
@@ -1093,13 +1097,13 @@ function QuestionCard({
           <textarea
             ref={textareaRef}
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => { setDraft(e.target.value); autoResize(e.target); }}
             onBlur={commitEdit}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); commitEdit(); }
               if (e.key === "Escape") { setDraft(question.text); setEditing(false); }
             }}
-            rows={2}
+            rows={1}
             style={{
               width: "100%",
               fontSize: 14,
@@ -1114,6 +1118,8 @@ function QuestionCard({
               outline: "none",
               background: "oklch(0.97 0.02 264 / 0.4)",
               boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
+              overflow: "hidden",
+              minHeight: "2.5em",
             }}
           />
         ) : (

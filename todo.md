@@ -47,3 +47,6 @@
 - [x] Update AI prompt to use objectives to steer question focus and Bloom's taxonomy level
 - [x] Persist objectives in localStorage so they survive panel close/reopen
 - [x] Show objectives count on Generate button when objectives are active
+
+## Canvas Inline Edit Fix
+- [x] Inline edit textarea auto-resizes to show full question text (no clipping)
