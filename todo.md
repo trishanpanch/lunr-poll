@@ -91,12 +91,12 @@
 - [x] Participant count: show live count in professor Live Mode header
 
 ## Sprint — Past Sessions Tab
-- [ ] Backend: tRPC procedure `session.results` — returns a closed session with all questions and their full response tallies
-- [ ] Backend: tRPC procedure `session.closedList` — returns only closed sessions for the professor (or reuse `session.list` with a filter)
-- [ ] UI: "Past Sessions" tab on the professor dashboard (Sessions.tsx) — lists closed sessions with date, question count, total responses
-- [ ] UI: `/results/:id` page — shows all questions with final response charts (bar, T/F, star, word cloud), total response count, and CSV download button
-- [ ] Route: register `/results/:id` in App.tsx
-- [ ] Vitest: add tests for `session.results` procedure
+- [x] Backend: tRPC procedure `session.results` — returns a closed session with all questions and their full response tallies
+- [x] Backend: tRPC procedure `session.closedList` — returns only closed sessions for the professor (or reuse `session.list` with a filter)
+- [x] UI: "Past Sessions" tab on the professor dashboard (Sessions.tsx) — lists closed sessions with date, question count, total responses
+- [x] UI: `/results/:id` page — shows all questions with final response charts (bar, T/F, star, word cloud), total response count, and CSV download button
+- [x] Route: register `/results/:id` in App.tsx
+- [x] Vitest: add tests for `session.results` procedure
 
 ## Sprint — Remove Auth Gate for Testing
 - [x] Frontend: remove login redirect from Sessions.tsx (professor dashboard)
@@ -104,3 +104,13 @@
 - [x] Frontend: remove login redirect from LiveSession.tsx — no redirect existed
 - [x] Backend: convert professor tRPC procedures to publicProcedure with optional userId
 - [x] Keep auth infrastructure intact (protectedProcedure, useAuth) for easy re-enabling later
+
+## Sprint — Word Cloud in Live Mode
+- [x] Add List / Word Cloud toggle to Short Text response panel in LiveSession.tsx
+- [x] Word cloud auto-refreshes with each polling cycle (every 2s)
+
+## Sprint — Past Sessions, Share Link, Word Cloud
+- [x] Past Sessions tab: dedicated tab in Sessions.tsx listing closed sessions with date, participant count, response count, and "View Results" link to /results/:id
+- [x] Share link button: "Copy join link" on session cards (copies https://alicepoll.com/join?code=XXXXXX)
+- [x] Share link button: "Copy join link" in Live Mode header
+- [x] Word cloud: List/Word Cloud toggle in Live Mode Short Text response panel (auto-refreshes with polling)

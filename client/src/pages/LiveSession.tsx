@@ -431,6 +431,17 @@ export default function LiveSession() {
           >
             <QrCode size={14} /> QR
           </button>
+          <button
+            onClick={() => {
+              const joinUrl = `${window.location.origin}/join?code=${session.code}`;
+              navigator.clipboard.writeText(joinUrl);
+              toast.success("Join link copied!");
+            }}
+            title="Copy join link"
+            style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "4px 8px", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: TEXT_MID }}
+          >
+            <Copy size={14} /> Share
+          </button>
         </div>
 
         {/* Actions */}
@@ -444,14 +455,25 @@ export default function LiveSession() {
           </Button>
         )}
         {isLive && (
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            disabled={closing}
-            style={{ borderColor: CRIMSON, color: CRIMSON, fontWeight: 600, fontSize: 13 }}
-          >
-            <X size={14} /> End Session
-          </Button>
+          <>
+            <Button
+              variant="outline"
+              onClick={handleDownloadCsv}
+              disabled={csvExport.isFetching}
+              style={{ fontSize: 13, fontWeight: 600 }}
+            >
+              {csvExport.isFetching ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+              Export CSV
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={closing}
+              style={{ borderColor: CRIMSON, color: CRIMSON, fontWeight: 600, fontSize: 13 }}
+            >
+              <X size={14} /> End Session
+            </Button>
+          </>
         )}
       </header>
 
@@ -559,7 +581,7 @@ export default function LiveSession() {
                 showWordCloud && currentQ.type === "Short Text" ? (
                   <div style={{ display: "flex", justifyContent: "center", padding: "8px 0" }}>
                     <WordCloud
-                      responses={Object.keys(currentStats.tally)}
+                      responses={(currentStats.responses ?? []).map((r: { answer: string }) => r.answer)}
                       width={480}
                       height={240}
                     />

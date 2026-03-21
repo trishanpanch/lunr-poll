@@ -1,6 +1,6 @@
 /**
  * Sessions Dashboard — "My Sessions"
- * DB-backed via tRPC. Requires professor to be logged in.
+ * DB-backed via tRPC. No login required for testing.
  */
 
 import { useState } from "react";
@@ -9,16 +9,16 @@ import {
   Plus, Rocket, ListChecks, Type, Paperclip, Star,
   Clock, CheckCircle2, XCircle, ChevronRight, Search,
   BarChart2, BookOpen, Trash2, MoreHorizontal, Loader2,
-  ToggleLeft, QrCode,
+  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import QRCode from "qrcode";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type SessionStatus = "draft" | "live" | "closed";
+type DashboardTab = "active" | "past";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function timeAgo(ts: Date | string | number): string {
@@ -30,6 +30,13 @@ function timeAgo(ts: Date | string | number): string {
   if (hrs < 24) return `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
   return `${days}d ago`;
+}
+
+function formatDate(ts: Date | string | number | null | undefined): string {
+  if (!ts) return "—";
+  return new Date(ts).toLocaleDateString(undefined, {
+    month: "short", day: "numeric", year: "numeric",
+  });
 }
 
 // ── Status Badge ───────────────────────────────────────────────────────────────
@@ -116,7 +123,7 @@ function QRPopover({ code, onClose }: { code: string; onClose: () => void }) {
   );
 }
 
-// ── Session Card ───────────────────────────────────────────────────────────────
+// ── Session Card (active: draft/live) ─────────────────────────────────────────
 function SessionCard({
   session,
   onEdit,
@@ -139,6 +146,12 @@ function SessionCard({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
+
+  const handleCopyLink = () => {
+    const joinUrl = `${window.location.origin}/join?code=${session.code}`;
+    navigator.clipboard.writeText(joinUrl);
+    toast.success("Join link copied!");
+  };
 
   return (
     <>
@@ -171,6 +184,14 @@ function SessionCard({
               className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
             >
               <QrCode size={15} />
+            </button>
+            <button
+              onClick={handleCopyLink}
+              title="Copy join link"
+              style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
+              className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
+            >
+              <Link2 size={15} />
             </button>
             <div style={{ position: "relative" }}>
               <button
@@ -304,6 +325,135 @@ function SessionCard({
   );
 }
 
+// ── Past Session Row ───────────────────────────────────────────────────────────
+function PastSessionRow({
+  session,
+  onViewResults,
+  onDelete,
+}: {
+  session: {
+    id: number;
+    name: string;
+    code: string;
+    status: SessionStatus;
+    questions: { type: string }[];
+    updatedAt: Date;
+    closedAt?: Date | null;
+    launchedAt?: Date | null;
+  };
+  onViewResults: () => void;
+  onDelete: () => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleCopyLink = () => {
+    const joinUrl = `${window.location.origin}/join?code=${session.code}`;
+    navigator.clipboard.writeText(joinUrl);
+    toast.success("Join link copied!");
+  };
+
+  return (
+    <div style={{
+      background: "#fff", borderRadius: 12, border: "1.5px solid oklch(0.922 0 0)",
+      padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
+      boxShadow: "0 1px 4px rgba(0,0,0,0.03)", transition: "box-shadow 0.15s, border-color 0.15s",
+    }}
+      className="hover:shadow-md hover:border-[oklch(0.88_0_0)] transition-all"
+    >
+      {/* Left: name + meta */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{
+          margin: "0 0 4px", fontWeight: 700, fontSize: 15, color: "oklch(0.145 0 0)",
+          fontFamily: "'Geist', system-ui, sans-serif",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
+          {session.name}
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+            fontFamily: "'Geist Mono', monospace", color: "oklch(0.55 0 0)",
+          }}>
+            {session.code}
+          </span>
+          <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
+          <span style={{ fontSize: 12, color: "oklch(0.6 0 0)" }}>
+            {session.questions.length} {session.questions.length === 1 ? "question" : "questions"}
+          </span>
+          {session.questions.length > 0 && (
+            <>
+              <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
+              <TypeIcons questions={session.questions} />
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Dates */}
+      <div style={{ textAlign: "right", flexShrink: 0 }}>
+        <p style={{ margin: 0, fontSize: 12, color: "oklch(0.5 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+          Closed {formatDate(session.closedAt ?? session.updatedAt)}
+        </p>
+        {session.launchedAt && (
+          <p style={{ margin: "2px 0 0", fontSize: 11, color: "oklch(0.65 0 0)" }}>
+            Launched {formatDate(session.launchedAt)}
+          </p>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+        <button
+          onClick={handleCopyLink}
+          title="Copy join link"
+          style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
+          className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
+        >
+          <Copy size={14} />
+        </button>
+        <button
+          onClick={onViewResults}
+          style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "7px 14px", borderRadius: 9,
+            background: "oklch(0.96 0.04 264)", border: "1.5px solid oklch(0.88 0.04 264)",
+            color: "oklch(0.45 0.22 264)", fontSize: 13, fontWeight: 600,
+            fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
+            transition: "all 0.15s",
+          }}
+          className="hover:bg-[oklch(0.92_0.06_264)] transition-colors"
+        >
+          <BarChart2 size={13} /> View Results
+        </button>
+        <div style={{ position: "relative" }}>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
+            className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.4_0_0)] transition-colors"
+          >
+            <MoreHorizontal size={16} />
+          </button>
+          {menuOpen && (
+            <>
+              <div style={{ position: "fixed", inset: 0, zIndex: 10 }} onClick={() => setMenuOpen(false)} />
+              <div style={{
+                position: "absolute", right: 0, top: "calc(100% + 4px)",
+                background: "#fff", borderRadius: 10, border: "1.5px solid oklch(0.922 0 0)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.1)", zIndex: 20, minWidth: 140, overflow: "hidden",
+                fontFamily: "'Geist', system-ui, sans-serif",
+              }}>
+                <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "oklch(0.577 0.245 27.325)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.97_0.02_27)] transition-colors">
+                  <Trash2 size={13} /> Delete
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Empty State ────────────────────────────────────────────────────────────────
 function EmptyState({ onNew }: { onNew: () => void }) {
   return (
@@ -331,7 +481,21 @@ function EmptyState({ onNew }: { onNew: () => void }) {
   );
 }
 
-// ── Filter Tabs ────────────────────────────────────────────────────────────────
+function EmptyPastState() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center", gap: 12 }}>
+      <div style={{ fontSize: 48, marginBottom: 4 }}>📊</div>
+      <h3 style={{ fontSize: 18, fontWeight: 700, color: "oklch(0.205 0 0)", margin: 0, fontFamily: "'Geist', system-ui, sans-serif" }}>
+        No past sessions yet
+      </h3>
+      <p style={{ fontSize: 14, color: "oklch(0.6 0 0)", margin: 0, maxWidth: 300, lineHeight: 1.6, fontFamily: "'Geist', system-ui, sans-serif" }}>
+        Closed sessions will appear here with their full response history and analytics.
+      </p>
+    </div>
+  );
+}
+
+// ── Filter Tabs (for active tab) ───────────────────────────────────────────────
 type Filter = "all" | SessionStatus;
 
 function FilterTabs({ active, counts, onChange }: {
@@ -387,11 +551,12 @@ export default function Sessions() {
   const [, navigate] = useLocation();
   const [filter, setFilter] = useState<Filter>("all");
   const [search, setSearch] = useState("");
-  const { user, loading: authLoading } = useAuth();
+  const [dashTab, setDashTab] = useState<DashboardTab>("active");
+  const { loading: authLoading } = useAuth();
 
   const utils = trpc.useUtils();
   const { data: sessions, isLoading } = trpc.session.list.useQuery(undefined, {
-    enabled: !authLoading, // load once auth check completes (works with or without login)
+    enabled: !authLoading,
   });
 
   const deleteMut = trpc.session.delete.useMutation({
@@ -426,22 +591,34 @@ export default function Sessions() {
     status: "draft" | "live" | "closed";
     questions: { type: string }[];
     updatedAt: Date;
+    closedAt?: Date | null;
+    launchedAt?: Date | null;
   }[];
 
+  // Active = draft + live; Past = closed
+  const activeSessions = allSessions.filter((s) => s.status !== "closed");
+  const pastSessions = allSessions.filter((s) => s.status === "closed");
+
   const counts: Record<Filter, number> = {
-    all: allSessions.length,
-    draft: allSessions.filter((s) => s.status === "draft").length,
-    live: allSessions.filter((s) => s.status === "live").length,
-    closed: allSessions.filter((s) => s.status === "closed").length,
+    all: activeSessions.length,
+    draft: activeSessions.filter((s) => s.status === "draft").length,
+    live: activeSessions.filter((s) => s.status === "live").length,
+    closed: activeSessions.filter((s) => s.status === "closed").length,
   };
 
-  const filtered = allSessions.filter((s) => {
+  const filteredActive = activeSessions.filter((s) => {
     if (filter !== "all" && s.status !== filter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
       return s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q);
     }
     return true;
+  });
+
+  const filteredPast = pastSessions.filter((s) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q);
   });
 
   return (
@@ -458,7 +635,7 @@ export default function Sessions() {
             My Sessions
           </h1>
           <p style={{ fontSize: 12, color: "oklch(0.6 0 0)", margin: 0 }}>
-            {allSessions.length} {allSessions.length === 1 ? "session" : "sessions"} total
+            {activeSessions.length} active · {pastSessions.length} past
           </p>
         </div>
 
@@ -497,31 +674,107 @@ export default function Sessions() {
 
       {/* Body */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 32px" }}>
-        {allSessions.length > 0 && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-            <FilterTabs active={filter} counts={counts} onChange={setFilter} />
-          </div>
+
+        {/* Dashboard Tabs */}
+        <div style={{ display: "flex", gap: 0, borderBottom: "2px solid oklch(0.922 0 0)", marginBottom: 24 }}>
+          {([
+            { key: "active" as DashboardTab, label: "Active Sessions", icon: <LayoutGrid size={14} />, count: activeSessions.length },
+            { key: "past" as DashboardTab, label: "Past Sessions", icon: <History size={14} />, count: pastSessions.length },
+          ]).map((tab) => {
+            const isActive = dashTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setDashTab(tab.key)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 7,
+                  padding: "10px 20px", background: "none", border: "none",
+                  borderBottom: isActive ? "2px solid oklch(0.45 0.22 264)" : "2px solid transparent",
+                  marginBottom: -2,
+                  color: isActive ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
+                  fontSize: 14, fontWeight: isActive ? 700 : 500,
+                  fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                {tab.icon}
+                {tab.label}
+                {tab.count > 0 && (
+                  <span style={{
+                    fontSize: 11, fontWeight: 700, padding: "1px 7px", borderRadius: 20,
+                    background: isActive ? "oklch(0.96 0.04 264)" : "oklch(0.93 0 0)",
+                    color: isActive ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
+                  }}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active Sessions Tab */}
+        {dashTab === "active" && (
+          <>
+            {activeSessions.length > 0 && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                <FilterTabs active={filter} counts={counts} onChange={setFilter} />
+              </div>
+            )}
+
+            {filteredActive.length === 0 && activeSessions.length === 0 ? (
+              <EmptyState onNew={() => navigate("/session")} />
+            ) : filteredActive.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "60px 24px", color: "oklch(0.6 0 0)", fontSize: 14 }}>
+                No sessions match your search.
+              </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+                {filteredActive.map((session) => (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    onEdit={() => navigate(`/session/${session.id}`)}
+                    onDelete={() => deleteMut.mutate({ id: session.id })}
+                    onGoLive={() => launchMut.mutate({ id: session.id })}
+                    onViewLive={() => navigate(`/live/${session.id}`)}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
 
-        {filtered.length === 0 && allSessions.length === 0 ? (
-          <EmptyState onNew={() => navigate("/session")} />
-        ) : filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 24px", color: "oklch(0.6 0 0)", fontSize: 14 }}>
-            No sessions match your search.
-          </div>
-        ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-            {filtered.map((session) => (
-              <SessionCard
-                key={session.id}
-                session={session}
-                onEdit={() => navigate(`/session/${session.id}`)}
-                onDelete={() => deleteMut.mutate({ id: session.id })}
-                onGoLive={() => launchMut.mutate({ id: session.id })}
-                onViewLive={() => navigate(`/live/${session.id}`)}
-              />
-            ))}
-          </div>
+        {/* Past Sessions Tab */}
+        {dashTab === "past" && (
+          <>
+            {pastSessions.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ margin: 0, fontSize: 13, color: "oklch(0.6 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+                  {pastSessions.length} closed session{pastSessions.length !== 1 ? "s" : ""} — click "View Results" to see the full response breakdown.
+                </p>
+              </div>
+            )}
+
+            {filteredPast.length === 0 && pastSessions.length === 0 ? (
+              <EmptyPastState />
+            ) : filteredPast.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "60px 24px", color: "oklch(0.6 0 0)", fontSize: 14 }}>
+                No past sessions match your search.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {filteredPast.map((session) => (
+                  <PastSessionRow
+                    key={session.id}
+                    session={session}
+                    onViewResults={() => navigate(`/results/${session.id}`)}
+                    onDelete={() => deleteMut.mutate({ id: session.id })}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
