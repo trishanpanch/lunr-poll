@@ -16,7 +16,7 @@ import { useState } from "react";
 // ── Bottom Tab Nav ────────────────────────────────────────────────────────────
 function BottomNav() {
   const [location] = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const tabs = [
     { href: "/", label: "Home", icon: <HomeIcon size={16} /> },
     { href: "/session", label: "Session Builder", icon: <LayoutDashboard size={16} /> },

@@ -1993,18 +1993,17 @@ function AiPanel({
                           style={{
                             position: "absolute",
                             top: 14, right: 14,
-                            width: 26, height: 26, borderRadius: "50%",
-                            background: q.selected ? "oklch(0.92 0.08 160)" : "oklch(0.94 0 0)",
-                            color: q.selected ? "oklch(0.38 0.14 160)" : "oklch(0.75 0 0)",
-                            border: q.selected ? "1.5px solid oklch(0.82 0.1 160)" : "1.5px solid oklch(0.88 0 0)",
+                            width: 24, height: 24, borderRadius: "50%",
+                            background: q.selected ? "oklch(0.52 0.18 160)" : "transparent",
+                            color: q.selected ? "#fff" : "oklch(0.82 0 0)",
+                            border: q.selected ? "none" : "1.5px solid oklch(0.88 0 0)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             flexShrink: 0, cursor: "pointer",
+                            fontSize: 13, fontWeight: 700, lineHeight: 1,
                             transition: "all 0.15s",
                           }}
                         >
-                          {q.selected
-                            ? <CheckCircle2 size={14} />
-                            : <Circle size={14} />}
+                          {q.selected ? "✓" : ""}
                         </div>
 
                         {/* Type label */}
