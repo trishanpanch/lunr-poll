@@ -3499,6 +3499,7 @@ export default function Home() {
                         borderRadius: 8,
                         background: meta.color + "18",
                         color: meta.color,
+                        alignSelf: "flex-start",
                       }}
                     >
                       {meta.icon}
