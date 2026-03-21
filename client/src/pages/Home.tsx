@@ -1982,8 +1982,9 @@ function AiPanel({
                           padding: "12px 12px",
                           paddingRight: 36,
                           borderRadius: 10,
-                          border: `1.5px solid ${q.selected ? meta.color + "60" : "oklch(0.922 0 0)"}`,
-                          background: q.selected ? meta.color + "08" : "oklch(0.985 0 0)",
+                          border: `1.5px solid ${q.selected ? meta.color + "80" : "transparent"}`,
+                          background: q.selected ? "#fff" : "transparent",
+                          boxShadow: q.selected ? `0 1px 6px ${meta.color}18` : "none",
                           transition: "all 0.15s",
                         }}
                       >
@@ -1995,8 +1996,9 @@ function AiPanel({
                             position: "absolute",
                             top: 10, right: 10,
                             width: 22, height: 22, borderRadius: 6,
-                            background: q.selected ? meta.color + "20" : "oklch(0.93 0 0)",
-                            color: q.selected ? meta.color : "oklch(0.75 0 0)",
+                            background: q.selected ? meta.color + "18" : "transparent",
+                            color: q.selected ? meta.color : "oklch(0.82 0 0)",
+                            border: q.selected ? `1.5px solid ${meta.color}50` : "1.5px solid oklch(0.88 0 0)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             flexShrink: 0, cursor: "pointer",
                             transition: "all 0.15s",
