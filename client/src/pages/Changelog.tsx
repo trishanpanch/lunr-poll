@@ -1,7 +1,7 @@
 /*
   Changelog — Product & Design Improvements
   Design: Editorial / release-notes aesthetic.
-  Clean white background, strong typographic hierarchy using Geist + Playfair Display.
+  Clean white background, strong typographic hierarchy using Geist (headings/body) + Geist Mono (tags/codes).
   Indigo accent throughout. Category chips, entry cards with subtle hover lift.
   Per-day copy button formats content for Google Chat.
 */
@@ -104,6 +104,36 @@ const DAYS: ChangelogDay[] = [
               "The ring around the active step in the onboarding tracker now breathes in and out with a soft indigo pulse every 1.8 seconds. The animation stops automatically when the step is completed and the circle transitions to green.",
             tag: "Animation",
           },
+          {
+            title: "True / False question type",
+            description:
+              "A fifth question type — True / False — has been added with a ToggleLeft icon and green color. The Add Question modal shows a correct-answer selector (True or False buttons). The question card displays both answer pills. AI generation supports True / False with a correct answer badge shown in the preview.",
+            tag: "Feature",
+          },
+          {
+            title: "Suggested question templates in the Add Question modal",
+            description:
+              "Each question type now has 4–6 curated example questions. A \"Show common questions\" toggle button reveals a dropdown list — clicking any suggestion populates the text field instantly and closes the list. Hidden by default to keep the modal clean.",
+            tag: "Feature",
+          },
+          {
+            title: "Model answer field on Short Text questions",
+            description:
+              "Short Text question cards now show an editable model answer box below the question text. The Add Question modal includes an optional Model Answer textarea. AI-generated Short Text questions carry their model answer through when added to the session. The answer renders in an indigo-tinted box matching the AI preview style.",
+            tag: "Feature",
+          },
+          {
+            title: "Edit session loads saved state into the builder",
+            description:
+              "Tapping Edit on a session card in My Sessions now loads that session's saved code, name, and questions into the builder instead of opening a blank session. New Session navigation sets a flag that clears the old session state on mount so there is no bleed-through.",
+            tag: "Feature",
+          },
+          {
+            title: "\"Add another question\" button uses Plus icon",
+            description:
+              "The icon on the \"Add another question\" row at the bottom of the question list was changed from ChevronRight to Plus, which more clearly communicates the action.",
+            tag: "Polish",
+          },
         ],
       },
       {
@@ -133,6 +163,30 @@ const DAYS: ChangelogDay[] = [
             description:
               "Once the correct password is entered, the unlock state is persisted in localStorage. The password gate is skipped on all subsequent visits, so you only need to enter it once per browser.",
             tag: "UX Flow",
+          },
+          {
+            title: "True / False added to question type reference",
+            description:
+              "The Design System now documents True / False as the fifth question type alongside Short Text, Multiple Choice, File Upload, and Star Rating.",
+            tag: "Documentation",
+          },
+          {
+            title: "Missing color tokens added",
+            description:
+              "The --green, --green-light, --green-border, --amber, --amber-light, --amber-border, and --destructive-light tokens were missing from index.css, causing color swatches to render incorrectly. All tokens are now defined and the swatches render correctly.",
+            tag: "Tokens",
+          },
+          {
+            title: "Null state pattern updated with concrete examples",
+            description:
+              "The null state pattern in the Design System now shows two concrete examples — the session builder empty state and the My Sessions empty state — with full-opacity emojis and real copy, replacing the generic placeholder.",
+            tag: "Documentation",
+          },
+          {
+            title: "Changelog tag badges use Geist Mono",
+            description:
+              "Tag badges (Validation, UX Flow, Feature, Polish, etc.) in the Changelog now use Geist Mono, matching the monospace font used for session codes throughout the app.",
+            tag: "Polish",
           },
         ],
       },
@@ -223,72 +277,6 @@ const DAYS: ChangelogDay[] = [
             description:
               "The generation endpoint now extracts the JSON array by bracket-matching rather than relying on the model returning a perfectly clean response. Trailing commas before ] or } are automatically removed, preventing occasional parse failures when the model adds extra text or formatting around the JSON.",
             tag: "Reliability",
-          },
-        ],
-      },
-      {
-        category: "Question Builder",
-        color: "oklch(0.55 0.2 250)",
-        items: [
-          {
-            title: "True / False question type",
-            description:
-              "A fifth question type — True / False — has been added with a ToggleLeft icon and green color. The Add Question modal shows a correct-answer selector (True or False buttons). The question card displays both answer pills. AI generation supports True / False with a correct answer badge shown in the preview.",
-            tag: "Feature",
-          },
-          {
-            title: "Suggested question templates in the Add Question modal",
-            description:
-              "Each question type now has 4–6 curated example questions. A \"Show common questions\" toggle button reveals a dropdown list — clicking any suggestion populates the text field instantly and closes the list. Hidden by default to keep the modal clean.",
-            tag: "Feature",
-          },
-          {
-            title: "Model answer field on Short Text questions",
-            description:
-              "Short Text question cards now show an editable model answer box below the question text. The Add Question modal includes an optional Model Answer textarea. AI-generated Short Text questions carry their model answer through when added to the session. The answer renders in an indigo-tinted box matching the AI preview style.",
-            tag: "Feature",
-          },
-          {
-            title: "Edit session loads saved state into the builder",
-            description:
-              "Tapping Edit on a session card in My Sessions now loads that session's saved code, name, and questions into the builder instead of opening a blank session. New Session navigation sets a flag that clears the old session state on mount so there is no bleed-through.",
-            tag: "Feature",
-          },
-          {
-            title: "\"Add another question\" button uses Plus icon",
-            description:
-              "The icon on the \"Add another question\" row at the bottom of the question list was changed from ChevronRight to Plus, which more clearly communicates the action.",
-            tag: "Polish",
-          },
-        ],
-      },
-      {
-        category: "Design System",
-        color: "oklch(0.52 0.22 290)",
-        items: [
-          {
-            title: "True / False added to question type reference",
-            description:
-              "The Design System now documents True / False as the fifth question type alongside Short Text, Multiple Choice, File Upload, and Star Rating.",
-            tag: "Documentation",
-          },
-          {
-            title: "Missing color tokens added",
-            description:
-              "The --green, --green-light, --green-border, --amber, --amber-light, --amber-border, and --destructive-light tokens were missing from index.css, causing color swatches to render incorrectly. All tokens are now defined and the swatches render correctly.",
-            tag: "Tokens",
-          },
-          {
-            title: "Null state pattern updated with concrete examples",
-            description:
-              "The null state pattern in the Design System now shows two concrete examples — the session builder empty state and the My Sessions empty state — with full-opacity emojis and real copy, replacing the generic placeholder.",
-            tag: "Documentation",
-          },
-          {
-            title: "Changelog tag badges use Geist Mono",
-            description:
-              "Tag badges (Validation, UX Flow, Feature, Polish, etc.) in the Changelog now use Geist Mono, matching the monospace font used for session codes throughout the app.",
-            tag: "Polish",
           },
         ],
       },
@@ -430,13 +418,13 @@ export default function Changelog() {
           </div>
           <h1
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "'Geist', system-ui, sans-serif",
               fontSize: "clamp(28px, 4vw, 42px)",
-              fontWeight: 700,
+              fontWeight: 800,
               color: "oklch(0.145 0 0)",
               margin: "0 0 12px",
-              lineHeight: 1.15,
-              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+              letterSpacing: "-0.03em",
             }}
           >
             Session Builder Updates
@@ -486,12 +474,12 @@ export default function Changelog() {
                 </div>
                 <h2
                   style={{
-                    fontFamily: "'Playfair Display', Georgia, serif",
+                    fontFamily: "'Geist', system-ui, sans-serif",
                     fontSize: 22,
                     fontWeight: 700,
                     color: "oklch(0.145 0 0)",
                     margin: 0,
-                    letterSpacing: "-0.01em",
+                    letterSpacing: "-0.02em",
                   }}
                 >
                   {day.title}

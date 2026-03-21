@@ -1545,15 +1545,7 @@ function AiPanel({
 
   const scrollTextareaToBottom = scrollPanelToBottom;
 
-  useEffect(() => {
-    if (!open) {
-      setContent("");
-      setGenerated([]);
-      setLoading(false);
-      setUrlChips([]);
-      setUrlInput("");
-    }
-  }, [open]);
+  // State intentionally preserved when drawer closes — no reset on !open
 
   const toggleType = (t: QuestionType) => {
     setSelectedTypes((prev) => {
