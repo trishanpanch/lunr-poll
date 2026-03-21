@@ -2347,9 +2347,8 @@ export default function Home() {
       return [];
     }
   });
-  const [showOnboarding, setShowOnboarding] = useState(
-    () => localStorage.getItem("lunr_onboarding_done") !== "true"
-  );
+  // Always show onboarding on new sessions; persist dismissal only after launch
+  const [showOnboarding, setShowOnboarding] = useState(true);
 
   const iconNudge = -3;
 
