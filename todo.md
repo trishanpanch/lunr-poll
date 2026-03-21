@@ -140,4 +140,4 @@
 - [x] "Untitled Session" placeholder text should be gray in the session builder topbar
 
 ## Sprint — UI Polish (cont. 2)
-- [x] Session name input: text should be black when focused/typing, gray only when unfocused and untitled
+- [x] Session name input: "Untitled Session" is now a true HTML placeholder — clears on focus, typed text is always black, reverts to gray placeholder if left empty
