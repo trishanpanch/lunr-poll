@@ -5,7 +5,6 @@
    Fonts: Geist (headings), Inter (body)
 */
 
-import { useState } from "react";
 import { Link } from "wouter";
 import { Zap, BarChart2, Sparkles, GraduationCap, BookOpen, ArrowRight, ChevronRight } from "lucide-react";
 
@@ -48,10 +47,6 @@ const features = [
 ];
 
 export default function Landing() {
-  const [heroLineHeight, setHeroLineHeight] = useState(1.08);
-  const [heroWeight, setHeroWeight] = useState(500);
-  const [heroGap, setHeroGap] = useState(8);
-
   return (
     <div style={{ minHeight: "100vh", background: BG, fontFamily: "'Inter', system-ui, sans-serif", paddingBottom: 80 }}>
 
@@ -137,9 +132,9 @@ export default function Landing() {
 
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: heroWeight, fontSize: "clamp(36px, 5vw, 56px)",
-            lineHeight: heroLineHeight, letterSpacing: "-0.03em",
-            margin: "0 0 32px",
+            fontWeight: 500, fontSize: "clamp(36px, 5vw, 56px)",
+            lineHeight: 1, letterSpacing: "-0.03em",
+            margin: "0 0 16px",
           }}>
             <span style={{ display: "block", color: TEXT_DARK }}>Real-time insights</span>
             <span style={{ display: "block", color: TEXT_DARK }}>from the</span>
@@ -416,54 +411,6 @@ export default function Landing() {
           </Link>
         </div>
       </section>
-
-      {/* ── Font-size tuning slider (dev tool) ── */}
-      <div style={{
-        position: "fixed", bottom: 24, right: 24, zIndex: 200,
-        background: "#fff",
-        border: `1px solid ${BORDER}`,
-        borderRadius: 14,
-        padding: "12px 16px",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
-        display: "flex", flexDirection: "column", gap: 8,
-        minWidth: 220,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: TEXT_MUTED }}>Line height</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: TEXT_DARK, fontFamily: "monospace" }}>{heroLineHeight.toFixed(2)}</span>
-        </div>
-        <input type="range" min={80} max={160} value={Math.round(heroLineHeight * 100)}
-          onChange={(e) => setHeroLineHeight(Number(e.target.value) / 100)}
-          style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }} />
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>tight (0.80)</span>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>loose (1.60)</span>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: TEXT_MUTED }}>Gap between lines</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: TEXT_DARK, fontFamily: "monospace" }}>{heroGap}px</span>
-        </div>
-        <input type="range" min={0} max={32} value={heroGap}
-          onChange={(e) => setHeroGap(Number(e.target.value))}
-          style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }} />
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>0px</span>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>32px</span>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: TEXT_MUTED }}>Font weight</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: TEXT_DARK, fontFamily: "monospace" }}>{heroWeight}</span>
-        </div>
-        <input type="range" min={1} max={9} value={heroWeight / 100}
-          onChange={(e) => setHeroWeight(Number(e.target.value) * 100)}
-          style={{ width: "100%", accentColor: CRIMSON, cursor: "pointer" }} />
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>100</span>
-          <span style={{ fontSize: 10, color: TEXT_MUTED }}>900</span>
-        </div>
-      </div>
 
       {/* ── Footer ── */}
       <footer style={{
