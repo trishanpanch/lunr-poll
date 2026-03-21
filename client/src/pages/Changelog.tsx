@@ -282,6 +282,66 @@ const DAYS: ChangelogDay[] = [
       },
     ],
   },
+  {
+    date: "March 21, 2026",
+    title: "Canvas & AI Panel Improvements",
+    groups: [
+      {
+        category: "Question Builder",
+        color: "oklch(0.55 0.2 250)",
+        items: [
+          {
+            title: "Sidebar and AI panel extend full height",
+            description:
+              "The left sidebar and AI drawer now use sticky positioning (top: 64px, height: calc(100vh − 64px)) so they always extend to the bottom of the viewport while the canvas scrolls naturally. Previously both panels were clipped to the initial viewport height when the question list grew long.",
+            tag: "Polish",
+          },
+          {
+            title: "Cmd/Ctrl+S saves the draft",
+            description:
+              "Pressing Cmd+S (Mac) or Ctrl+S (Windows/Linux) anywhere in the session builder now triggers Save Draft instantly, without needing to reach for the button in the topbar.",
+            tag: "Feature",
+          },
+          {
+            title: "Question type switcher is now a dropdown",
+            description:
+              "The horizontal type-switcher pills that appeared inline on each canvas card have been replaced with a compact dropdown button showing the current type, its icon, and a chevron. Clicking opens a menu listing all five question types; the active type is highlighted with a checkmark. Selecting a different type triggers the same AI-powered transform as before.",
+            tag: "UX Flow",
+          },
+          {
+            title: "Inline edit textarea auto-resizes",
+            description:
+              "Clicking into a question card to edit it now opens a textarea that immediately expands to show the full question text. The textarea also grows as you type, so long questions are never clipped or hidden behind a scroll.",
+            tag: "Polish",
+          },
+          {
+            title: "Session name always editable",
+            description:
+              "The session name in the topbar is now a plain always-visible input field. Hovering reveals a subtle underline and a pencil icon to signal that it is editable. Previously the name required a two-step click-to-edit interaction.",
+            tag: "UX Flow",
+          },
+        ],
+      },
+      {
+        category: "AI Panel",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Learning Objectives",
+            description:
+              "A new Learning Objectives section sits between the source material and question types in the AI panel. Professors can add one or more objectives as numbered green chips (Enter or Add button to confirm, × to remove). Objectives persist in localStorage across panel close and reopen. When objectives are present, they are injected into the generation prompt so the AI steers every question toward assessing a specific objective. The Generate button shows the active count: \"Generate (2 objectives)\".",
+            tag: "Feature",
+          },
+          {
+            title: "AI-suggested learning objectives",
+            description:
+              "A Suggest button in the Learning Objectives header calls a new /api/suggest-objectives endpoint that reads the source material and returns 3–5 Bloom's-aligned draft objectives. Suggestions appear as purple preview chips with individual \"+ Add\" and dismiss (×) controls. The button is disabled until source material is present and shows a spinner while loading.",
+            tag: "Feature",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
