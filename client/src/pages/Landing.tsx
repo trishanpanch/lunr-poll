@@ -132,7 +132,7 @@ export default function Landing() {
 
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 800, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 400, fontSize: "clamp(36px, 5vw, 56px)",
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
@@ -140,7 +140,7 @@ export default function Landing() {
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 800, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 400, fontSize: "clamp(36px, 5vw, 56px)",
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: TEXT_DARK, margin: "0 0 8px",
           }}>
@@ -148,7 +148,7 @@ export default function Landing() {
           </h1>
           <h1 style={{
             fontFamily: "'Syne', system-ui, sans-serif",
-            fontWeight: 800, fontSize: "clamp(36px, 5vw, 56px)",
+            fontWeight: 400, fontSize: "clamp(36px, 5vw, 56px)",
             lineHeight: 1.08, letterSpacing: "-0.03em",
             color: CRIMSON, margin: "0 0 24px",
           }}>

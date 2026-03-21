@@ -26,6 +26,22 @@ async function fetchUrlText(url: string): Promise<string> {
   }
 }
 
+/**
+ * The model may return content as a plain string OR as an array of content
+ * parts (e.g. [{type:"thinking",...},{type:"text",text:"..."}]) when thinking
+ * tokens are enabled. This helper always returns the concatenated text parts.
+ */
+function extractTextContent(content: unknown): string {
+  if (typeof content === "string") return content;
+  if (Array.isArray(content)) {
+    return content
+      .filter((p: any) => p?.type === "text" && typeof p?.text === "string")
+      .map((p: any) => p.text as string)
+      .join("");
+  }
+  return "";
+}
+
 const router = Router();
 
 const QUESTION_TYPES = ["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as const;
@@ -134,8 +150,7 @@ Return ONLY the JSON array.`;
       maxTokens: 2000,
     });
 
-    const raw: string =
-      (result.choices?.[0]?.message?.content as string) ?? "";
+    const raw: string = extractTextContent(result.choices?.[0]?.message?.content);
 
     // 1. Strip markdown code fences
     let cleaned = raw
@@ -214,7 +229,7 @@ router.post("/api/transform-question", async (req: Request, res: Response) => {
       maxTokens: 600,
     });
 
-    const raw: string = (result.choices?.[0]?.message?.content as string) ?? "";
+    const raw: string = extractTextContent(result.choices?.[0]?.message?.content);
     let cleaned = raw.replace(/^```[\w]*\n?/gm, "").replace(/\n?```/gm, "").trim();
     const objStart = cleaned.indexOf("{");
     const objEnd = cleaned.lastIndexOf("}");
@@ -278,7 +293,7 @@ Example output: ["Explain the three causes of X described in the text", "Compare
       maxTokens: 600,
     });
 
-    const raw: string = (result.choices?.[0]?.message?.content as string) ?? "";
+    const raw: string = extractTextContent(result.choices?.[0]?.message?.content);
     let cleaned = raw.replace(/^```[\w]*\n?/gm, "").replace(/\n?```/gm, "").trim();
     const arrStart = cleaned.indexOf("[");
     const arrEnd = cleaned.lastIndexOf("]");
