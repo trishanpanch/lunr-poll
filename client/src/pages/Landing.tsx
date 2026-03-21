@@ -218,7 +218,7 @@ export default function Landing() {
             borderRadius: 12, padding: "10px 16px",
             boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
             border: `1px solid ${BORDER}`,
-            display: "flex", alignItems: "center", gap: 10,
+            display: "flex", alignItems: "center", gap: 10, paddingLeft: '10px',
           }}>
             <div style={{
               width: 36, height: 36, borderRadius: 8,
