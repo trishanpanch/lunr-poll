@@ -129,3 +129,6 @@
 
 ## Sprint — UI Polish
 - [x] LIVE indicator: change dot and label to red in StudentSession.tsx and LiveSession.tsx
+
+## Bug — Join Link Not Working
+- [x] /join?code=XSSNMY does not work — fixed: navigate path was /student/:id instead of /student/session/:id

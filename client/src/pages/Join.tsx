@@ -53,7 +53,7 @@ export default function Join() {
       if (!sessionStorage.getItem("studentId")) {
         sessionStorage.setItem("studentId", crypto.randomUUID());
       }
-      navigate(`/student/${data.id}`);
+      navigate(`/student/session/${data.id}`);
     },
     onError: (err) => {
       setError(err.message);
