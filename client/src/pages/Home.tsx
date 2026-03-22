@@ -3175,7 +3175,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   // Always show onboarding on new sessions
   const [showOnboarding, setShowOnboarding] = useState(true);
 
-  const [contentXOffset, setContentXOffset] = useState(-4);
+  const contentXOffset = -6;
 
   // tRPC save mutation
   const saveMutation = trpc.session.save.useMutation();
@@ -3402,49 +3402,6 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             />
           )}
 
-
-          {/* Dev: X-offset tuner */}
-          {questions.length > 0 && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "6px 12px",
-              background: "oklch(0.97 0.02 264)",
-              border: "1px solid oklch(0.88 0.04 264)",
-              borderRadius: 8,
-              fontSize: 11,
-              fontFamily: "'Geist Mono', monospace",
-              color: "oklch(0.45 0.18 264)",
-              userSelect: "none",
-              alignSelf: "flex-start",
-            }}>
-              <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>X offset</span>
-              <input
-                type="range"
-                min={-20}
-                max={20}
-                step={1}
-                value={contentXOffset}
-                onChange={(e) => setContentXOffset(Number(e.target.value))}
-                style={{ width: 120, accentColor: "oklch(0.55 0.2 264)" }}
-              />
-              <span style={{ minWidth: 28, textAlign: "right", fontWeight: 700 }}>{contentXOffset}px</span>
-              <button
-                onClick={() => setContentXOffset(-4)}
-                style={{
-                  fontSize: 10,
-                  padding: "2px 7px",
-                  borderRadius: 5,
-                  border: "1px solid oklch(0.82 0.06 264)",
-                  background: "#fff",
-                  color: "oklch(0.45 0.18 264)",
-                  cursor: "pointer",
-                  fontFamily: "'Geist Mono', monospace",
-                }}
-              >reset</button>
-            </div>
-          )}
 
           {/* Questions */}
           {questions.length > 0 ? (

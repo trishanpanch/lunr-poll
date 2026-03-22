@@ -87,6 +87,18 @@ const DAYS: ChangelogDay[] = [
         color: "oklch(0.55 0.2 250)",
         items: [
           {
+            title: "Type dropdown X position hardcoded to −6px",
+            description:
+              "A temporary dev slider was added to the session builder canvas to tune the horizontal position of the type dropdown button interactively. After testing, −6px was selected as the final value. The slider has been removed and the offset is now baked in permanently.",
+            tag: "Polish",
+          },
+          {
+            title: "Icon-to-label gap in type dropdown widened",
+            description:
+              "The gap between the question type icon and the label text inside the dropdown button was increased from 4px to 8px, giving the two elements more breathing room and improving readability.",
+            tag: "Polish",
+          },
+          {
             title: "Standalone type icon removed from question cards",
             description:
               "Each question card previously showed a standalone icon bubble alongside the type-switch dropdown, resulting in the icon appearing twice. The standalone bubble has been removed; the dropdown button (which already shows the icon and label together) is now the only type indicator on the card.",
