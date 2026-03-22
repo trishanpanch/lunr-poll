@@ -3388,6 +3388,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           #fff calc(100% - ${aiPanelOpen ? 320 : 0}px),
           #fff 100%
         )`,
+        /* Ensure the AI panel always has a visible left border via the canvas right border */
       }}>
         <Sidebar
           onAddType={openAddType}
@@ -3407,7 +3408,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             minHeight: "calc(100vh - 64px)",
             background: "transparent",
             borderLeft: "1px solid oklch(0.922 0 0)",
-            borderRight: aiPanelOpen ? "none" : "1px solid oklch(0.922 0 0)",
+            borderRight: "1px solid oklch(0.922 0 0)",
           }}
         >
           {/* Onboarding */}

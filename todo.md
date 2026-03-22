@@ -168,3 +168,6 @@
 
 ## Bug — Session Builder Sidebar Height
 - [x] Fix left sidebar and right panel not extending to bottom of page when scrolling
+
+## Bug — Session Builder AI Panel Divider
+- [x] Add divider line to the left of the AI panel (matching the right border of the left sidebar)
