@@ -20,8 +20,8 @@ const CRIMSON = "oklch(0.514 0.2 13.9)";
 const TEXT_DARK = "oklch(0.145 0 0)";
 const TEXT_MID = "oklch(0.4 0 0)";
 const TEXT_MUTED = "oklch(0.65 0 0)";
-const BORDER = "oklch(0.922 0 0)";
-const BG = "oklch(0.982 0.0107 271.3)";
+const BORDER = "var(--border)";
+const BG = "var(--background)";
 
 export default function Join() {
   const [, navigate] = useLocation();

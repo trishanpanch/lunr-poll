@@ -168,10 +168,10 @@ function Topbar({
   return (
     <header
       style={{
-        background: "rgba(255,255,255,0.88)",
+        background: "var(--card)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        borderBottom: "1px solid oklch(0.922 0 0)",
+        borderBottom: "1px solid var(--border)",
         height: 64,
         display: "flex",
         alignItems: "center",
@@ -193,8 +193,8 @@ function Topbar({
           style={{
             display: "flex", alignItems: "center", justifyContent: "center",
             width: 34, height: 34, borderRadius: 9,
-            background: "none", border: "1.5px solid oklch(0.922 0 0)",
-            color: "oklch(0.45 0 0)", cursor: "pointer", flexShrink: 0,
+            background: "none", border: "1.5px solid var(--border)",
+            color: "var(--foreground)", cursor: "pointer", flexShrink: 0,
             transition: "all 0.15s",
           }}
           className="hover:bg-[oklch(0.982_0.0107_271.3)] hover:border-[oklch(0.88_0.04_264)] hover:text-[oklch(0.45_0.22_264)] transition-all"
@@ -214,7 +214,7 @@ function Topbar({
                 fontFamily: "'Geist', system-ui, sans-serif",
                 fontWeight: 700,
                 fontSize: 17,
-                color: "oklch(0.145 0 0)",
+                color: "var(--foreground)",
                 background: "transparent",
                 border: "none",
                 borderBottom: "1.5px solid transparent",
@@ -234,7 +234,7 @@ function Topbar({
         <span
           style={{
             fontSize: 12,
-            color: "oklch(0.556 0 0)",
+            color: "var(--muted-foreground)",
             paddingLeft: '4px',
             letterSpacing: "0.03em", marginTop: '-4px',
           }}
@@ -302,8 +302,8 @@ function Topbar({
             border: "none",
             background: hasQuestions
               ? "linear-gradient(135deg, oklch(0.514 0.2 13.9) 0%, oklch(0.44 0.2 13.9) 100%)"
-              : "oklch(0.88 0 0)",
-            color: hasQuestions ? "#fff" : "oklch(0.6 0 0)",
+              : "var(--border)",
+            color: hasQuestions ? "#fff" : "var(--muted-foreground)",
             fontSize: 14,
             fontWeight: 700,
             fontFamily: "'Geist', system-ui, sans-serif",
@@ -351,8 +351,8 @@ function Sidebar({
       <div
         style={{
           margin: "16px 14px 0",
-          background: "linear-gradient(135deg, oklch(0.96 0.04 290) 0%, oklch(0.97 0.03 10) 100%)",
-          border: "1.5px solid oklch(0.88 0.06 290)",
+          background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
+          border: "1.5px solid var(--border)",
           borderRadius: 14,
           padding: "16px 16px 14px",
           display: "flex",
@@ -417,7 +417,7 @@ function Sidebar({
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.09em",
-            color: "oklch(0.556 0 0)",
+            color: "var(--muted-foreground)",
             marginBottom: 10,
           }}
         >
@@ -444,12 +444,12 @@ function Sidebar({
                   gap: 7,
                   padding: "14px 8px",
                   borderRadius: 12,
-                  border: "1.5px solid oklch(0.922 0 0)",
-                  background: "oklch(0.985 0 0)",
+                  border: "1.5px solid var(--border)",
+                  background: "var(--card)",
                   fontSize: 12,
                   fontWeight: 500,
                   fontFamily: "'Geist', system-ui, sans-serif",
-                  color: "oklch(0.205 0 0)",
+                  color: "var(--foreground)",
                   transition: "all 0.15s",
                 }}
                 className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
@@ -470,7 +470,7 @@ function Sidebar({
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.09em",
-            color: "oklch(0.556 0 0)",
+            color: "var(--muted-foreground)",
             marginBottom: 10,
           }}
         >
@@ -487,12 +487,12 @@ function Sidebar({
                 gap: 10,
                 padding: "10px 12px",
                 borderRadius: 10,
-                border: "1.5px solid oklch(0.922 0 0)",
-                background: "oklch(0.985 0 0)",
+                border: "1.5px solid var(--border)",
+                background: "var(--card)",
                 fontSize: 13,
                 fontWeight: 500,
                 fontFamily: "'Geist', system-ui, sans-serif",
-                color: "oklch(0.205 0 0)",
+                color: "var(--foreground)",
                 transition: "all 0.15s",
                 textAlign: "left",
               }}
@@ -549,9 +549,9 @@ function OnboardingSteps({
   return (
     <div
       style={{
-        background: "#fff",
+        background: "var(--card)",
         borderRadius: 16,
-        border: "1px solid oklch(0.922 0 0)",
+        border: "1px solid var(--border)",
         padding: "20px 24px",
         display: "flex",
         alignItems: "flex-start",
@@ -581,7 +581,7 @@ function OnboardingSteps({
                   height: "calc(100% - 8px)",
                   background: step.done
                     ? "oklch(0.75 0.12 160)"
-                    : "oklch(0.91 0.005 264)",
+                    : "var(--border)",
                   transition: "background 0.3s",
                 }}
               />
@@ -638,7 +638,7 @@ function OnboardingSteps({
               <p
                 style={{
                   fontSize: 12,
-                  color: "oklch(0.556 0 0)",
+                  color: "var(--muted-foreground)",
                   margin: "3px 0 0",
                   lineHeight: 1.55,
                 }}
@@ -653,7 +653,7 @@ function OnboardingSteps({
         onClick={onDismiss}
         style={{
           fontSize: 12,
-          color: "oklch(0.556 0 0)",
+          color: "var(--muted-foreground)",
           background: "none",
           border: "none",
           cursor: "pointer",
@@ -686,9 +686,9 @@ function EmptyState({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#fff",
+        background: "var(--card)",
         borderRadius: 16,
-        border: "2px dashed oklch(0.88 0 0)",
+        border: "2px dashed var(--border)",
         minHeight: 260,
         padding: 40,
         textAlign: "center",
@@ -703,7 +703,7 @@ function EmptyState({
           fontFamily: "'Geist', system-ui, sans-serif",
           fontWeight: 700,
           fontSize: 16,
-          color: "oklch(0.205 0 0)",
+          color: "var(--foreground)",
           margin: 0,
         }}
       >
@@ -712,7 +712,7 @@ function EmptyState({
       <p
         style={{
           fontSize: 13,
-          color: "oklch(0.556 0 0)",
+          color: "var(--muted-foreground)",
           maxWidth: 300,
           lineHeight: 1.6,
           margin: 0,
@@ -749,7 +749,7 @@ function EmptyState({
             borderRadius: 10,
             padding: "9px 20px",
             height: "auto",
-            background: "#fff",
+            background: "var(--card)",
           }}
           className="hover:border-[oklch(0.55_0.2_250)] hover:text-[oklch(0.55_0.2_250)] transition-all"
         >
@@ -799,7 +799,7 @@ function MCOptionRow({
         title={isCorrect ? "Unmark correct" : "Mark as correct"}
         style={{
           width: 22, height: 22, borderRadius: "50%",
-          border: isCorrect ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid oklch(0.88 0 0)",
+          border: isCorrect ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid var(--border)",
           background: isCorrect ? "oklch(0.92 0.08 160)" : "oklch(0.97 0 0)",
           color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -827,7 +827,7 @@ function MCOptionRow({
             flex: 1, height: 28, padding: "0 8px",
             borderRadius: 7, border: "1.5px solid oklch(0.52 0.22 290)",
             fontSize: 12.5, fontFamily: "'Geist', system-ui, sans-serif",
-            color: "oklch(0.205 0 0)", background: "#fff", outline: "none",
+            color: "var(--foreground)", background: "var(--card)", outline: "none",
             boxShadow: "0 0 0 3px oklch(0.52 0.22 290 / 0.12)",
           }}
         />
@@ -845,7 +845,7 @@ function MCOptionRow({
           }}
           className="hover:bg-[oklch(0.97_0.02_264_/_0.4)]"
         >
-          {value || <span style={{ color: "oklch(0.75 0 0)" }}>Option {String.fromCharCode(65 + index)}</span>}
+          {value || <span style={{ color: "var(--muted-foreground)" }}>Option {String.fromCharCode(65 + index)}</span>}
         </span>
       )}
 
@@ -855,7 +855,7 @@ function MCOptionRow({
           onClick={onRemove}
           style={{
             background: "none", border: "none", cursor: "pointer",
-            color: "oklch(0.75 0.01 264)", display: "flex",
+            color: "var(--muted-foreground)", display: "flex",
             alignItems: "center", padding: "3px 4px", borderRadius: 5, flexShrink: 0,
           }}
           className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.52_0.22_10)] transition-colors"
@@ -930,8 +930,8 @@ function QBadge({
             bottom: "calc(100% + 6px)",
             left: 0,
             zIndex: 200,
-            background: "#fff",
-            border: "1.5px solid oklch(0.91 0.005 264)",
+            background: "var(--card)",
+            border: "1.5px solid var(--border)",
             borderRadius: 10,
             boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
             padding: "4px",
@@ -1119,9 +1119,9 @@ function QuestionCard({
     <div
       className="card-enter hover:shadow-md transition-all"
       style={{
-        background: "#fff",
+        background: "var(--card)",
         borderRadius: 14,
-        border: isDragging ? "1.5px solid oklch(0.55 0.2 250)" : "1.5px solid oklch(0.922 0 0)",
+        border: isDragging ? "1.5px solid oklch(0.55 0.2 250)" : "1.5px solid var(--border)",
         padding: "16px 18px",
         display: "flex",
         alignItems: "flex-start",
@@ -1135,7 +1135,7 @@ function QuestionCard({
         {...attributes}
         {...listeners}
         style={{
-          color: "oklch(0.82 0.005 264)",
+          color: "var(--muted-foreground)",
           marginTop: 3,
           cursor: "grab",
           flexShrink: 0,
@@ -1187,8 +1187,8 @@ function QuestionCard({
                     top: "calc(100% + 4px)",
                     left: 0,
                     zIndex: 50,
-                    background: "#fff",
-                    border: "1.5px solid oklch(0.91 0.005 264)",
+                    background: "var(--card)",
+                    border: "1.5px solid var(--border)",
                     borderRadius: 10,
                     boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
                     minWidth: 170,
@@ -1210,7 +1210,7 @@ function QuestionCard({
                           padding: "8px 12px",
                           background: isCurrent ? `${tm.color}10` : "transparent",
                           border: "none",
-                          borderBottom: i < arr.length - 1 ? "1px solid oklch(0.95 0 0)" : "none",
+                          borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
                           color: isCurrent ? tm.color : "oklch(0.25 0 0)",
                           fontSize: 12.5,
                           fontWeight: isCurrent ? 700 : 500,
@@ -1261,7 +1261,7 @@ function QuestionCard({
               width: "100%",
               fontSize: 14,
               fontWeight: 500,
-              color: "oklch(0.145 0 0)",
+              color: "var(--foreground)",
               lineHeight: 1.5,
               fontFamily: "'Geist', system-ui, sans-serif",
               border: "1.5px solid oklch(0.45 0.22 264)",
@@ -1282,7 +1282,7 @@ function QuestionCard({
             style={{
               fontSize: 14,
               fontWeight: 500,
-              color: "oklch(0.145 0 0)",
+              color: "var(--foreground)",
               margin: 0,
               lineHeight: 1.5,
               fontFamily: "'Geist', system-ui, sans-serif",
@@ -1374,7 +1374,7 @@ function QuestionCard({
                   fontWeight: 600,
                   color: "oklch(0.52 0.22 290)",
                   background: "oklch(0.96 0.04 290)",
-                  border: "1px solid oklch(0.88 0.04 290)",
+                  border: "1px solid var(--border)",
                   borderRadius: 7,
                   padding: "4px 9px",
                   cursor: "pointer",
@@ -1417,7 +1417,7 @@ function QuestionCard({
                 style={{
                   width: "100%",
                   fontSize: 12.5,
-                  color: "oklch(0.145 0 0)",
+                  color: "var(--foreground)",
                   lineHeight: 1.55,
                   fontFamily: "'Geist', system-ui, sans-serif",
                   border: "1.5px solid oklch(0.45 0.22 264)",
@@ -1444,7 +1444,7 @@ function QuestionCard({
                   padding: "7px 10px",
                   background: "oklch(0.97 0.02 264 / 0.35)",
                   borderRadius: 8,
-                  border: "1px solid oklch(0.88 0.06 264)",
+                  border: "1px solid var(--border)",
                   fontFamily: "'Geist', system-ui, sans-serif",
                   cursor: "text",
                   fontStyle: question.modelAnswer ? "normal" : "italic",
@@ -1472,7 +1472,7 @@ function QuestionCard({
         style={{
           background: "none",
           border: "none",
-          color: "oklch(0.75 0.01 264)",
+          color: "var(--muted-foreground)",
           borderRadius: 7,
           padding: "4px 5px",
           display: "flex",
@@ -1590,7 +1590,7 @@ function AddQuestionModal({
             style={{
               fontSize: 13,
               fontWeight: 600,
-              color: "oklch(0.205 0 0)",
+              color: "var(--foreground)",
               fontFamily: "'Geist', system-ui, sans-serif",
             }}
           >
@@ -1634,7 +1634,7 @@ function AddQuestionModal({
               fontWeight: 600,
               color: "oklch(0.55 0.2 250)",
               background: "oklch(0.96 0.04 250)",
-              border: "1px solid oklch(0.88 0.04 250)",
+              border: "1px solid var(--border)",
               borderRadius: 7,
               padding: "5px 10px",
               cursor: "pointer",
@@ -1650,10 +1650,10 @@ function AddQuestionModal({
           {showSuggestions && (
             <div style={{
               marginTop: 4,
-              border: "1px solid oklch(0.922 0 0)",
+              border: "1px solid var(--border)",
               borderRadius: 10,
               overflow: "hidden",
-              background: "oklch(0.982 0.0107 271.3)",
+              background: "var(--background)",
             }}>
               {suggestions.map((s, i) => (
                 <button
@@ -1670,12 +1670,12 @@ function AddQuestionModal({
                     color: "oklch(0.25 0 0)",
                     background: "transparent",
                     border: "none",
-                    borderBottom: i < suggestions.length - 1 ? "1px solid oklch(0.922 0 0)" : "none",
+                    borderBottom: i < suggestions.length - 1 ? "1px solid var(--border)" : "none",
                     cursor: "pointer",
                     lineHeight: 1.45,
                     transition: "background 0.1s",
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#fff"; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "var(--card)"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                 >
                   {s}
@@ -1688,7 +1688,7 @@ function AddQuestionModal({
           {/* True / False answer selector */}
           {isTrueFalse && (
             <div style={{ marginTop: 10 }}>
-              <Label style={{ fontSize: 13, fontWeight: 600, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif", display: "block", marginBottom: 8 }}>
+              <Label style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", display: "block", marginBottom: 8 }}>
                 Correct answer
               </Label>
               <div style={{ display: "flex", gap: 8 }}>
@@ -1703,7 +1703,7 @@ function AddQuestionModal({
                       borderRadius: 10,
                       border: tfAnswer === label
                         ? "2px solid oklch(0.52 0.18 160)"
-                        : "1.5px solid oklch(0.88 0 0)",
+                        : "1.5px solid var(--border)",
                       background: tfAnswer === label
                         ? "oklch(0.92 0.08 160)"
                         : "oklch(0.985 0 0)",
@@ -1741,7 +1741,7 @@ function AddQuestionModal({
                 style={{
                   fontSize: 13,
                   fontWeight: 600,
-                  color: "oklch(0.205 0 0)",
+                  color: "var(--foreground)",
                   fontFamily: "'Geist', system-ui, sans-serif",
                   display: "flex",
                   alignItems: "center",
@@ -1749,7 +1749,7 @@ function AddQuestionModal({
                 }}
               >
                 Model Answer
-                <span style={{ fontSize: 11, fontWeight: 400, color: "oklch(0.556 0 0)" }}>(optional)</span>
+                <span style={{ fontSize: 11, fontWeight: 400, color: "var(--muted-foreground)" }}>(optional)</span>
               </Label>
               <Textarea
                 value={modelAnswer}
@@ -1765,8 +1765,8 @@ function AddQuestionModal({
           {isMultipleChoice && (
             <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-                <Label style={{ fontSize: 13, fontWeight: 600, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>Answer options</Label>
-                <span style={{ fontSize: 11, fontWeight: 400, color: "oklch(0.556 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>(min. 2)</span>
+                <Label style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Answer options</Label>
+                <span style={{ fontSize: 11, fontWeight: 400, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>(min. 2)</span>
               </div>
               {options.map((opt, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1777,7 +1777,7 @@ function AddQuestionModal({
                     title={correctIndex === i ? "Unmark correct answer" : "Mark as correct answer"}
                     style={{
                       width: 22, height: 22, borderRadius: "50%",
-                      border: correctIndex === i ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid oklch(0.88 0 0)",
+                      border: correctIndex === i ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid var(--border)",
                       background: correctIndex === i ? "oklch(0.92 0.08 160)" : "transparent",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       flexShrink: 0, fontSize: 10, fontWeight: 700,
@@ -1817,11 +1817,11 @@ function AddQuestionModal({
                       height: 34,
                       padding: "0 10px",
                       borderRadius: 8,
-                      border: "1.5px solid oklch(0.922 0 0)",
+                      border: "1.5px solid var(--border)",
                       fontSize: 13,
                       fontFamily: "'Geist', system-ui, sans-serif",
-                      color: "oklch(0.205 0 0)",
-                      background: "#fff",
+                      color: "var(--foreground)",
+                      background: "var(--card)",
                       outline: "none",
                       transition: "border-color 0.15s, box-shadow 0.15s",
                     }}
@@ -1830,7 +1830,7 @@ function AddQuestionModal({
                       e.currentTarget.style.boxShadow = "0 0 0 3px oklch(0.52 0.22 290 / 0.12)";
                     }}
                     onBlur={(e) => {
-                      e.currentTarget.style.borderColor = "oklch(0.922 0 0)";
+                      e.currentTarget.style.borderColor = "var(--border)";
                       e.currentTarget.style.boxShadow = "none";
                     }}
                   />
@@ -1840,7 +1840,7 @@ function AddQuestionModal({
                       onClick={() => removeOption(i)}
                       style={{
                         background: "none", border: "none", cursor: "pointer",
-                        color: "oklch(0.75 0.01 264)", display: "flex",
+                        color: "var(--muted-foreground)", display: "flex",
                         alignItems: "center", padding: 4, borderRadius: 6,
                         flexShrink: 0,
                       }}
@@ -1866,7 +1866,7 @@ function AddQuestionModal({
                   fontWeight: 600,
                   color: "oklch(0.52 0.22 290)",
                   background: "oklch(0.96 0.04 290)",
-                  border: "1px solid oklch(0.88 0.04 290)",
+                  border: "1px solid var(--border)",
                   borderRadius: 7,
                   padding: "5px 10px",
                   cursor: "pointer",
@@ -2231,7 +2231,7 @@ function AiPanel({
             width: 44,
             height: 44,
             borderRadius: "12px 0 0 12px",
-            background: "linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%)",
+            background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
             border: "1.5px solid #d8b4fe",
             borderRight: "none",
             padding: 0,
@@ -2269,11 +2269,11 @@ function AiPanel({
           {/* Header */}
           <div style={{
             padding: "16px 18px 14px",
-            borderBottom: "1px solid oklch(0.922 0 0)",
+            borderBottom: "1px solid var(--border)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(135deg, oklch(0.97 0.03 290) 0%, oklch(0.98 0.02 10) 100%)",
+            background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
             flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -2284,7 +2284,7 @@ function AiPanel({
             </div>
             <button
               onClick={onClose}
-              style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.556 0 0)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
               className="hover:bg-[oklch(0.93_0.03_290)] transition-colors"
             >
               <X size={15} />
@@ -2327,9 +2327,9 @@ function AiPanel({
                     ? <Loader2 size={18} className="animate-spin" style={{ color: "oklch(0.52 0.22 290)" }} />
                     : <Upload size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
                   }
-                  <span style={{ fontSize: 12, color: "oklch(0.45 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center", lineHeight: 1.4 }}>
+                  <span style={{ fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center", lineHeight: 1.4 }}>
                     {fileUploading ? "Extracting text…" : <><strong>Drop a file</strong> or click to upload</>}<br />
-                    <span style={{ color: "oklch(0.65 0 0)", fontSize: 11 }}>PDF, DOCX, TXT supported</span>
+                    <span style={{ color: "var(--muted-foreground)", fontSize: 11 }}>PDF, DOCX, TXT supported</span>
                   </span>
                   <input ref={fileInputRef} type="file" accept=".txt,.pdf,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
                 </div>
@@ -2347,7 +2347,7 @@ function AiPanel({
                           padding: "4px 10px",
                           borderRadius: 20,
                           background: "oklch(0.96 0.04 290)",
-                          border: "1px solid oklch(0.88 0.04 290)",
+                          border: "1px solid var(--border)",
                           fontSize: 12,
                           fontWeight: 500,
                           color: "oklch(0.38 0.18 290)",
@@ -2379,7 +2379,7 @@ function AiPanel({
                           left: 9,
                           top: "50%",
                           transform: "translateY(-50%)",
-                          color: "oklch(0.65 0 0)",
+                          color: "var(--muted-foreground)",
                           pointerEvents: "none",
                         }}
                       />
@@ -2396,17 +2396,17 @@ function AiPanel({
                           paddingLeft: 28,
                           paddingRight: 10,
                           borderRadius: 8,
-                          border: "1.5px solid oklch(0.88 0 0)",
+                          border: "1.5px solid var(--border)",
                           fontSize: 12,
                           fontFamily: "'Geist', system-ui, sans-serif",
-                          color: "oklch(0.205 0 0)",
-                          background: "#fff",
+                          color: "var(--foreground)",
+                          background: "var(--card)",
                           outline: "none",
                           boxSizing: "border-box",
                           transition: "border-color 0.15s",
                         }}
                         onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)"; }}
-                        onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.88 0 0)"; }}
+                        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
                       />
                     </div>
                     <button
@@ -2417,7 +2417,7 @@ function AiPanel({
                         padding: "0 12px",
                         borderRadius: 8,
                         border: "none",
-                        background: !urlInput.trim() || loading ? "oklch(0.88 0 0)" : "oklch(0.52 0.22 290)",
+                        background: !urlInput.trim() || loading ? "var(--border)" : "oklch(0.52 0.22 290)",
                         color: !urlInput.trim() || loading ? "oklch(0.6 0 0)" : "#fff",
                         fontSize: 12,
                         fontWeight: 700,
@@ -2446,7 +2446,7 @@ function AiPanel({
                             padding: "3px 8px 3px 7px",
                             borderRadius: 20,
                             background: "oklch(0.96 0.04 290)",
-                            border: "1px solid oklch(0.88 0.04 290)",
+                            border: "1px solid var(--border)",
                             fontSize: 11,
                             fontFamily: "'Geist', system-ui, sans-serif",
                             color: "oklch(0.38 0.18 290)",
@@ -2478,7 +2478,7 @@ function AiPanel({
                   )}
                 </div>
 
-                <p style={{ margin: "0 0 6px", fontSize: 11.5, fontWeight: 600, color: "oklch(0.65 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center" }}>or paste text</p>
+                <p style={{ margin: "0 0 6px", fontSize: 11.5, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center" }}>or paste text</p>
 
                 <Textarea
                   ref={contentTextareaRef}
@@ -2507,9 +2507,9 @@ function AiPanel({
                         gap: 4,
                         fontSize: 11,
                         fontWeight: 600,
-                        color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "oklch(0.7 0 0)" : "oklch(0.45 0.18 160)",
+                        color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--muted-foreground)" : "oklch(0.45 0.18 160)",
                         background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "oklch(0.94 0 0)" : "oklch(0.94 0.06 160)",
-                        border: "1px solid " + ((!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "oklch(0.88 0 0)" : "oklch(0.84 0.1 160)"),
+                        border: "1px solid " + ((!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--border)" : "oklch(0.84 0.1 160)"),
                         borderRadius: 6,
                         padding: "3px 8px",
                         cursor: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "not-allowed" : "pointer",
@@ -2542,7 +2542,7 @@ function AiPanel({
                               padding: "7px 10px",
                               borderRadius: 8,
                               background: "oklch(0.97 0.03 290)",
-                              border: "1px solid oklch(0.88 0.06 290)",
+                              border: "1px solid var(--border)",
                             }}
                           >
                             <span style={{ flex: 1, fontSize: 12, color: "oklch(0.32 0.14 290)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
@@ -2631,8 +2631,8 @@ function AiPanel({
                         border: "1.5px solid oklch(0.88 0.08 160)",
                         fontSize: 12,
                         fontFamily: "'Geist', system-ui, sans-serif",
-                        color: "oklch(0.205 0 0)",
-                        background: "#fff",
+                        color: "var(--foreground)",
+                        background: "var(--card)",
                         outline: "none",
                         transition: "border-color 0.15s, box-shadow 0.15s",
                       }}
@@ -2647,8 +2647,8 @@ function AiPanel({
                         padding: "0 12px",
                         borderRadius: 8,
                         border: "none",
-                        background: objectiveInput.trim() ? "oklch(0.52 0.18 160)" : "oklch(0.88 0 0)",
-                        color: objectiveInput.trim() ? "#fff" : "oklch(0.6 0 0)",
+                        background: objectiveInput.trim() ? "oklch(0.52 0.18 160)" : "var(--border)",
+                        color: objectiveInput.trim() ? "#fff" : "var(--muted-foreground)",
                         fontSize: 12,
                         fontWeight: 600,
                         fontFamily: "'Geist', system-ui, sans-serif",
@@ -2680,7 +2680,7 @@ function AiPanel({
                           gap: 5,
                           padding: "5px 10px",
                           borderRadius: 20,
-                          border: `1.5px solid ${active ? "oklch(0.52 0.22 290)" : "oklch(0.88 0 0)"}`,
+                          border: `1.5px solid ${active ? "oklch(0.52 0.22 290)" : "var(--border)"}`,
                           background: active ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
                           color: active ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
                           fontSize: 12,
@@ -2709,7 +2709,7 @@ function AiPanel({
                       style={{
                         width: 40, height: 36,
                         borderRadius: 8,
-                        border: `1.5px solid ${count === n ? "oklch(0.52 0.22 290)" : "oklch(0.88 0 0)"}`,
+                        border: `1.5px solid ${count === n ? "oklch(0.52 0.22 290)" : "var(--border)"}`,
                         background: count === n ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
                         color: count === n ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
                         fontSize: 13,
@@ -2735,7 +2735,7 @@ function AiPanel({
                     style={{
                       display: "flex", alignItems: "center", gap: 5,
                       background: "none", border: "none", cursor: "pointer",
-                      fontSize: 12, color: "oklch(0.45 0 0)",
+                      fontSize: 12, color: "var(--foreground)",
                       fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 600,
                       padding: 0,
                     }}
@@ -2770,8 +2770,8 @@ function AiPanel({
                           padding: "16px 16px 14px",
                           paddingRight: 44,
                           borderRadius: 14,
-                          border: "1.5px solid oklch(0.922 0 0)",
-                          background: "#fff",
+                          border: "1.5px solid var(--border)",
+                          background: "var(--card)",
                           boxShadow: "0 1px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04)",
                           transition: "box-shadow 0.15s, border-color 0.15s",
                           opacity: q.selected ? 1 : 0.45,
@@ -2788,7 +2788,7 @@ function AiPanel({
                             width: 24, height: 24, borderRadius: "50%",
                             background: q.selected ? "oklch(0.52 0.18 160)" : "transparent",
                             color: q.selected ? "#fff" : "oklch(0.82 0 0)",
-                            border: q.selected ? "none" : "1.5px solid oklch(0.88 0 0)",
+                            border: q.selected ? "none" : "1.5px solid var(--border)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             flexShrink: 0, cursor: "pointer",
                             fontSize: 13, fontWeight: 700, lineHeight: 1,
@@ -2872,7 +2872,7 @@ function AiPanel({
                             marginBottom: 12,
                             fontSize: 15,
                             fontWeight: 500,
-                            color: "oklch(0.145 0 0)",
+                            color: "var(--foreground)",
                             lineHeight: 1.55,
                             fontFamily: "'Geist', system-ui, sans-serif",
                             background: "transparent",
@@ -3023,7 +3023,7 @@ function AiPanel({
                                 lineHeight: 1.5,
                                 fontFamily: "'Geist', system-ui, sans-serif",
                                 background: "oklch(0.96 0.03 264 / 0.4)",
-                                border: "1px solid oklch(0.88 0.04 264)",
+                                border: "1px solid var(--border)",
                                 borderRadius: 8,
                                 padding: "6px 8px",
                                 resize: "none",
@@ -3041,7 +3041,7 @@ function AiPanel({
                                 e.currentTarget.style.background = "oklch(0.97 0.02 264)";
                               }}
                               onBlur={(e) => {
-                                e.currentTarget.style.borderColor = "oklch(0.88 0.04 264)";
+                                e.currentTarget.style.borderColor = "var(--border)";
                                 e.currentTarget.style.background = "oklch(0.96 0.03 264 / 0.4)";
                               }}
                             />
@@ -3056,7 +3056,7 @@ function AiPanel({
           </div>
 
           {/* Footer */}
-          <div style={{ padding: "14px 18px", borderTop: "1px solid oklch(0.922 0 0)", flexShrink: 0 }}>
+          <div style={{ padding: "14px 18px", borderTop: "1px solid var(--border)", flexShrink: 0 }}>
             {generated.length === 0 ? (
               <button
                 onClick={generate}
@@ -3067,7 +3067,7 @@ function AiPanel({
                   borderRadius: 10,
                   border: "none",
                   background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading
-                    ? "oklch(0.88 0 0)"
+                    ? "var(--border)"
                     : "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
                   color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "oklch(0.6 0 0)" : "#fff",
                   fontSize: 13,
@@ -3097,7 +3097,7 @@ function AiPanel({
                   padding: "10px 0",
                   borderRadius: 10,
                   border: "none",
-                  background: selectedCount === 0 ? "oklch(0.88 0 0)" : "oklch(0.45 0.22 264)",
+                  background: selectedCount === 0 ? "var(--border)" : "oklch(0.45 0.22 264)",
                   color: selectedCount === 0 ? "oklch(0.6 0 0)" : "#fff",
                   fontSize: 13,
                   fontWeight: 700,
@@ -3362,12 +3362,12 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
            The canvas border lines are on the <main> element itself. */
         background: `linear-gradient(
           to right,
-          #fff 0px,
-          #fff 280px,
-          oklch(0.9849 0.0029 264.5) 280px,
-          oklch(0.9849 0.0029 264.5) calc(100% - ${aiPanelOpen ? 320 : 0}px),
-          #fff calc(100% - ${aiPanelOpen ? 320 : 0}px),
-          #fff 100%
+          var(--card) 0px,
+          var(--card) 280px,
+          var(--background) 280px,
+          var(--background) calc(100% - ${aiPanelOpen ? 320 : 0}px),
+          var(--card) calc(100% - ${aiPanelOpen ? 320 : 0}px),
+          var(--card) 100%
         )`,
         /* Ensure the AI panel always has a visible left border via the canvas right border */
       }}>
@@ -3388,8 +3388,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             minWidth: 0,
             minHeight: "calc(100vh - 64px)",
             background: "transparent",
-            borderLeft: "1px solid oklch(0.922 0 0)",
-            borderRight: "1px solid oklch(0.922 0 0)",
+            borderLeft: "1px solid var(--border)",
+            borderRight: "1px solid var(--border)",
           }}
         >
           {/* Onboarding */}
@@ -3450,7 +3450,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                   borderRadius: 12,
                   border: "1.5px dashed oklch(0.82 0.01 264)",
                   background: "transparent",
-                  color: "oklch(0.556 0 0)",
+                  color: "var(--muted-foreground)",
                   fontSize: 13,
                   fontWeight: 500,
                   fontFamily: "'Geist', system-ui, sans-serif",
@@ -3471,7 +3471,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                   const meta = TYPE_META[q.type];
                   return (
                     <div style={{
-                      background: "#fff",
+                      background: "var(--card)",
                       borderRadius: 14,
                       border: "1.5px solid oklch(0.55 0.2 250)",
                       padding: "16px 18px",
@@ -3481,7 +3481,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       alignItems: "flex-start",
                       gap: 12,
                     }}>
-                      <div style={{ color: "oklch(0.82 0.005 264)", marginTop: 3 }}>
+                      <div style={{ color: "var(--muted-foreground)", marginTop: 3 }}>
                         <GripVertical size={16} />
                       </div>
                       <div style={{ width: 28, height: 28, borderRadius: 7, background: `${meta.color}18`, display: "flex", alignItems: "center", justifyContent: "center", color: meta.color }}>
@@ -3489,7 +3489,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: meta.color, margin: "0 0 4px" }}>{q.type}</p>
-                        <p style={{ fontSize: 14, fontWeight: 500, color: "oklch(0.145 0 0)", margin: 0, lineHeight: 1.5 }}>{q.text}</p>
+                        <p style={{ fontSize: 14, fontWeight: 500, color: "var(--foreground)", margin: 0, lineHeight: 1.5 }}>{q.text}</p>
                       </div>
                     </div>
                   );
@@ -3531,7 +3531,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: "#fff",
+              background: "var(--card)",
               borderRadius: 18,
               padding: "28px 28px 24px",
               width: 380,
@@ -3540,10 +3540,10 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "oklch(0.205 0 0)" }}>Choose question type</p>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--foreground)" }}>Choose question type</p>
               <button
                 onClick={() => setTypePickerOpen(false)}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.556 0 0)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
                 className="hover:bg-[oklch(0.96_0_0)] transition-colors"
               >
                 <X size={16} />
@@ -3566,8 +3566,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       gap: 8,
                       padding: "16px 14px",
                       borderRadius: 12,
-                      border: "1.5px solid oklch(0.922 0 0)",
-                      background: "oklch(0.985 0 0)",
+                      border: "1.5px solid var(--border)",
+                      background: "var(--card)",
                       cursor: "pointer",
                       textAlign: "left",
                       transition: "all 0.15s",
@@ -3590,8 +3590,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       {meta.icon}
                     </span>
                     <div>
-                      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "oklch(0.205 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>{type}</p>
-                      <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "oklch(0.556 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>{meta.desc}</p>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>{type}</p>
+                      <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>{meta.desc}</p>
                     </div>
                   </button>
                 );
@@ -3619,7 +3619,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: "#fff",
+              background: "var(--card)",
               borderRadius: 20,
               width: "100%",
               maxWidth: 560,
@@ -3634,25 +3634,25 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             {/* Preview header */}
             <div style={{
               padding: "16px 20px",
-              borderBottom: "1px solid oklch(0.922 0 0)",
+              borderBottom: "1px solid var(--border)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              background: "oklch(0.985 0 0)",
+              background: "var(--card)",
               flexShrink: 0,
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Eye size={15} style={{ color: "oklch(0.45 0.22 264)" }} />
-                <span style={{ fontWeight: 700, fontSize: 14, color: "oklch(0.205 0 0)" }}>
+                <span style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>
                   Student Preview
                 </span>
-                <span style={{ fontSize: 12, color: "oklch(0.556 0 0)", marginLeft: 4 }}>
+                <span style={{ fontSize: 12, color: "var(--muted-foreground)", marginLeft: 4 }}>
                   Question {previewIndex + 1} of {questions.length}
                 </span>
               </div>
               <button
                 onClick={() => setPreviewOpen(false)}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.556 0 0)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
                 className="hover:bg-[oklch(0.96_0_0)] transition-colors"
               >
                 <X size={15} />
@@ -3690,7 +3690,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                     </div>
 
                     {/* Question text */}
-                    <p style={{ fontSize: 20, fontWeight: 700, color: "oklch(0.145 0 0)", lineHeight: 1.4, margin: 0 }}>
+                    <p style={{ fontSize: 20, fontWeight: 700, color: "var(--foreground)", lineHeight: 1.4, margin: 0 }}>
                       {q.text}
                     </p>
 
@@ -3701,9 +3701,9 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                         rows={4}
                         disabled
                         style={{
-                          width: "100%", borderRadius: 12, border: "1.5px solid oklch(0.88 0 0)",
+                          width: "100%", borderRadius: 12, border: "1.5px solid var(--border)",
                           padding: "12px 14px", fontSize: 14, resize: "none",
-                          background: "oklch(0.985 0 0)", color: "oklch(0.556 0 0)",
+                          background: "var(--card)", color: "var(--muted-foreground)",
                           fontFamily: "'Geist', system-ui, sans-serif",
                         }}
                       />
@@ -3714,19 +3714,19 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                           <div key={i} style={{
                             display: "flex", alignItems: "center", gap: 12,
                             padding: "12px 16px", borderRadius: 12,
-                            border: "1.5px solid oklch(0.88 0 0)",
-                            background: "oklch(0.985 0 0)", cursor: "default",
+                            border: "1.5px solid var(--border)",
+                            background: "var(--card)", cursor: "default",
                           }}>
                             <span style={{
                               width: 26, height: 26, borderRadius: "50%",
                               border: "1.5px solid oklch(0.82 0 0)",
                               display: "flex", alignItems: "center", justifyContent: "center",
-                              fontSize: 11, fontWeight: 700, color: "oklch(0.556 0 0)",
+                              fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)",
                               fontFamily: "'Geist Mono', monospace", flexShrink: 0,
                             }}>
                               {String.fromCharCode(65 + i)}
                             </span>
-                            <span style={{ fontSize: 14, color: "oklch(0.205 0 0)" }}>{opt}</span>
+                            <span style={{ fontSize: 14, color: "var(--foreground)" }}>{opt}</span>
                           </div>
                         ))}
                       </div>
@@ -3736,8 +3736,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                         {["True", "False"].map((label) => (
                           <div key={label} style={{
                             flex: 1, padding: "14px 0", borderRadius: 12,
-                            border: "1.5px solid oklch(0.88 0 0)",
-                            background: "oklch(0.985 0 0)",
+                            border: "1.5px solid var(--border)",
+                            background: "var(--card)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             fontSize: 15, fontWeight: 600, color: "oklch(0.35 0 0)",
                             cursor: "default",
@@ -3756,17 +3756,17 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                     )}
                     {q.type === "File Upload" && (
                       <div style={{
-                        border: "2px dashed oklch(0.88 0 0)", borderRadius: 12,
+                        border: "2px dashed var(--border)", borderRadius: 12,
                         padding: "28px 20px", textAlign: "center",
-                        background: "oklch(0.985 0 0)",
+                        background: "var(--card)",
                       }}>
-                        <Paperclip size={22} style={{ color: "oklch(0.65 0 0)", margin: "0 auto 8px" }} />
-                        <p style={{ fontSize: 14, color: "oklch(0.556 0 0)", margin: 0 }}>Click to upload a file</p>
+                        <Paperclip size={22} style={{ color: "var(--muted-foreground)", margin: "0 auto 8px" }} />
+                        <p style={{ fontSize: 14, color: "var(--muted-foreground)", margin: 0 }}>Click to upload a file</p>
                       </div>
                     )}
 
                     {/* Preview-only notice */}
-                    <p style={{ fontSize: 11.5, color: "oklch(0.65 0 0)", textAlign: "center", margin: 0 }}>
+                    <p style={{ fontSize: 11.5, color: "var(--muted-foreground)", textAlign: "center", margin: 0 }}>
                       This is a read-only preview — students will interact with this live.
                     </p>
                   </div>
@@ -3777,12 +3777,12 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             {/* Navigation footer */}
             <div style={{
               padding: "14px 20px",
-              borderTop: "1px solid oklch(0.922 0 0)",
+              borderTop: "1px solid var(--border)",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               flexShrink: 0,
-              background: "oklch(0.985 0 0)",
+              background: "var(--card)",
             }}>
               <button
                 onClick={() => setPreviewIndex((i) => Math.max(0, i - 1))}
@@ -3790,8 +3790,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
                   padding: "8px 16px", borderRadius: 9,
-                  border: "1.5px solid oklch(0.88 0 0)",
-                  background: "#fff", fontSize: 13, fontWeight: 500,
+                  border: "1.5px solid var(--border)",
+                  background: "var(--card)", fontSize: 13, fontWeight: 500,
                   color: previewIndex === 0 ? "oklch(0.75 0 0)" : "oklch(0.205 0 0)",
                   cursor: previewIndex === 0 ? "not-allowed" : "pointer",
                   fontFamily: "'Geist', system-ui, sans-serif",
@@ -3799,7 +3799,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
               >
                 <ChevronLeft size={14} /> Previous
               </button>
-              <span style={{ fontSize: 12, color: "oklch(0.556 0 0)" }}>
+              <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
                 {previewIndex + 1} / {questions.length}
               </span>
               {previewIndex < questions.length - 1 ? (

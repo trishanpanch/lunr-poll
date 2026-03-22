@@ -112,11 +112,11 @@ function QRPopover({ code, onClose }: { code: string; onClose: () => void }) {
   });
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 16, padding: "24px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 280, width: "100%" }}>
-        <p style={{ margin: 0, fontWeight: 700, fontSize: 16, color: "oklch(0.145 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scan to Join</p>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 16, padding: "24px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 280, width: "100%" }}>
+        <p style={{ margin: 0, fontWeight: 700, fontSize: 16, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scan to Join</p>
         {dataUrl ? <img src={dataUrl} alt="QR" style={{ width: 160, height: 160, borderRadius: 8 }} /> : <Loader2 size={24} style={{ color: "oklch(0.55 0.2 250)", animation: "spin 1s linear infinite" }} />}
         <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 20, fontWeight: 800, letterSpacing: "0.15em", color: "oklch(0.55 0.2 250)" }}>{code}</span>
-        <button onClick={onClose} style={{ fontSize: 12, color: "oklch(0.6 0 0)", background: "none", border: "none", cursor: "pointer" }}>Close</button>
+        <button onClick={onClose} style={{ fontSize: 12, color: "var(--muted-foreground)", background: "none", border: "none", cursor: "pointer" }}>Close</button>
       </div>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
@@ -156,7 +156,7 @@ function SessionCard({
   return (
     <>
       <div style={{
-        background: "#fff", borderRadius: 16, border: "1.5px solid oklch(0.922 0 0)",
+        background: "var(--card)", borderRadius: 16, border: "1.5px solid var(--border)",
         padding: "20px 20px 16px", display: "flex", flexDirection: "column", gap: 0,
         boxShadow: "0 1px 6px rgba(0,0,0,0.04)", transition: "box-shadow 0.15s, border-color 0.15s",
         position: "relative",
@@ -206,11 +206,11 @@ function SessionCard({
                   <div style={{ position: "fixed", inset: 0, zIndex: 10 }} onClick={() => setMenuOpen(false)} />
                   <div style={{
                     position: "absolute", right: 0, top: "calc(100% + 4px)",
-                    background: "#fff", borderRadius: 10, border: "1.5px solid oklch(0.922 0 0)",
+                    background: "var(--card)", borderRadius: 10, border: "1.5px solid var(--border)",
                     boxShadow: "0 4px 20px rgba(0,0,0,0.1)", zIndex: 20, minWidth: 148, overflow: "hidden",
                     fontFamily: "'Geist', system-ui, sans-serif",
                   }}>
-                    <button onClick={() => { onEdit(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "oklch(0.205 0 0)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors">
+                    <button onClick={() => { onEdit(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--foreground)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors">
                       <BookOpen size={13} /> Edit Session
                     </button>
                     <div style={{ height: 1, background: "oklch(0.94 0 0)", margin: "2px 0" }} />
@@ -226,7 +226,7 @@ function SessionCard({
 
         {/* Name */}
         <h3 style={{
-          fontSize: 16, fontWeight: 700, color: "oklch(0.145 0 0)", margin: "0 0 4px",
+          fontSize: 16, fontWeight: 700, color: "var(--foreground)", margin: "0 0 4px",
           fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.35,
           overflow: "hidden", display: "-webkit-box",
           WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
@@ -236,7 +236,7 @@ function SessionCard({
 
         {/* Meta */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-          <span style={{ fontSize: 12, color: "oklch(0.6 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+          <span style={{ fontSize: 12, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>
             {session.questions.length} {session.questions.length === 1 ? "question" : "questions"}
           </span>
           <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
@@ -259,7 +259,7 @@ function SessionCard({
                 onClick={onEdit}
                 style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                  padding: "9px 14px", borderRadius: 10, background: "oklch(0.982 0.0107 271.3)",
+                  padding: "9px 14px", borderRadius: 10, background: "var(--background)",
                   border: "1.5px solid oklch(0.88 0.04 264)", color: "oklch(0.45 0.22 264)",
                   fontSize: 13, fontWeight: 600, fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                   transition: "all 0.15s",
@@ -354,7 +354,7 @@ function PastSessionRow({
 
   return (
     <div style={{
-      background: "#fff", borderRadius: 12, border: "1.5px solid oklch(0.922 0 0)",
+      background: "var(--card)", borderRadius: 12, border: "1.5px solid var(--border)",
       padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
       boxShadow: "0 1px 4px rgba(0,0,0,0.03)", transition: "box-shadow 0.15s, border-color 0.15s",
     }}
@@ -363,7 +363,7 @@ function PastSessionRow({
       {/* Left: name + meta */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{
-          margin: "0 0 4px", fontWeight: 700, fontSize: 15, color: "oklch(0.145 0 0)",
+          margin: "0 0 4px", fontWeight: 700, fontSize: 15, color: "var(--foreground)",
           fontFamily: "'Geist', system-ui, sans-serif",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>
@@ -377,7 +377,7 @@ function PastSessionRow({
             {session.code}
           </span>
           <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
-          <span style={{ fontSize: 12, color: "oklch(0.6 0 0)" }}>
+          <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
             {session.questions.length} {session.questions.length === 1 ? "question" : "questions"}
           </span>
           {session.questions.length > 0 && (
@@ -438,7 +438,7 @@ function PastSessionRow({
               <div style={{ position: "fixed", inset: 0, zIndex: 10 }} onClick={() => setMenuOpen(false)} />
               <div style={{
                 position: "absolute", right: 0, top: "calc(100% + 4px)",
-                background: "#fff", borderRadius: 10, border: "1.5px solid oklch(0.922 0 0)",
+                background: "var(--card)", borderRadius: 10, border: "1.5px solid var(--border)",
                 boxShadow: "0 4px 20px rgba(0,0,0,0.1)", zIndex: 20, minWidth: 140, overflow: "hidden",
                 fontFamily: "'Geist', system-ui, sans-serif",
               }}>
@@ -459,10 +459,10 @@ function EmptyState({ onNew }: { onNew: () => void }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center", gap: 12 }}>
       <div style={{ fontSize: 48, marginBottom: 4 }}>📋</div>
-      <h3 style={{ fontSize: 18, fontWeight: 700, color: "oklch(0.205 0 0)", margin: 0, fontFamily: "'Geist', system-ui, sans-serif" }}>
+      <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--foreground)", margin: 0, fontFamily: "'Geist', system-ui, sans-serif" }}>
         No sessions yet
       </h3>
-      <p style={{ fontSize: 14, color: "oklch(0.6 0 0)", margin: 0, maxWidth: 280, lineHeight: 1.6, fontFamily: "'Geist', system-ui, sans-serif" }}>
+      <p style={{ fontSize: 14, color: "var(--muted-foreground)", margin: 0, maxWidth: 280, lineHeight: 1.6, fontFamily: "'Geist', system-ui, sans-serif" }}>
         Build your first session and it'll appear here. Launch it when you're ready to teach.
       </p>
       <button
@@ -485,10 +485,10 @@ function EmptyPastState() {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 24px", textAlign: "center", gap: 12 }}>
       <div style={{ fontSize: 48, marginBottom: 4 }}>📊</div>
-      <h3 style={{ fontSize: 18, fontWeight: 700, color: "oklch(0.205 0 0)", margin: 0, fontFamily: "'Geist', system-ui, sans-serif" }}>
+      <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--foreground)", margin: 0, fontFamily: "'Geist', system-ui, sans-serif" }}>
         No past sessions yet
       </h3>
-      <p style={{ fontSize: 14, color: "oklch(0.6 0 0)", margin: 0, maxWidth: 300, lineHeight: 1.6, fontFamily: "'Geist', system-ui, sans-serif" }}>
+      <p style={{ fontSize: 14, color: "var(--muted-foreground)", margin: 0, maxWidth: 300, lineHeight: 1.6, fontFamily: "'Geist', system-ui, sans-serif" }}>
         Closed sessions will appear here with their full response history and analytics.
       </p>
     </div>
@@ -577,7 +577,7 @@ export default function Sessions() {
 
   if (authLoading || isLoading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "oklch(0.982 0.0107 271.3)" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--background)" }}>
         <Loader2 size={28} style={{ color: "oklch(0.55 0.2 250)", animation: "spin 1s linear infinite" }} />
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -622,19 +622,19 @@ export default function Sessions() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "oklch(0.982 0.0107 271.3)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "var(--background)", fontFamily: "'Geist', system-ui, sans-serif" }}>
       {/* Header */}
       <header style={{
         background: "rgba(255,255,255,0.88)", backdropFilter: "blur(12px)",
-        borderBottom: "1px solid oklch(0.922 0 0)", padding: "0 32px", height: 64,
+        borderBottom: "1px solid var(--border)", padding: "0 32px", height: 64,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 8px rgba(0,0,0,0.04)",
       }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: "oklch(0.145 0 0)", margin: 0, letterSpacing: "-0.02em" }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--foreground)", margin: 0, letterSpacing: "-0.02em" }}>
             My Sessions
           </h1>
-          <p style={{ fontSize: 12, color: "oklch(0.6 0 0)", margin: 0 }}>
+          <p style={{ fontSize: 12, color: "var(--muted-foreground)", margin: 0 }}>
             {activeSessions.length} active · {pastSessions.length} past
           </p>
         </div>
@@ -649,12 +649,12 @@ export default function Sessions() {
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 height: 36, paddingLeft: 30, paddingRight: 12, borderRadius: 9,
-                border: "1.5px solid oklch(0.922 0 0)", fontSize: 13, color: "oklch(0.205 0 0)",
-                background: "oklch(0.982 0.0107 271.3)", outline: "none", width: 200,
+                border: "1.5px solid var(--border)", fontSize: 13, color: "var(--foreground)",
+                background: "var(--background)", outline: "none", width: 200,
                 fontFamily: "'Geist', system-ui, sans-serif", transition: "border-color 0.15s",
               }}
               onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.45 0.22 264)"; }}
-              onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.922 0 0)"; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
             />
           </div>
           <button
@@ -663,7 +663,7 @@ export default function Sessions() {
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 36, height: 36, borderRadius: 9,
-              background: "none", border: "1.5px solid oklch(0.922 0 0)",
+              background: "none", border: "1.5px solid var(--border)",
               color: "oklch(0.45 0 0)", cursor: "pointer",
               transition: "all 0.15s",
             }}
@@ -689,7 +689,7 @@ export default function Sessions() {
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 32px" }}>
 
         {/* Dashboard Tabs */}
-        <div style={{ display: "flex", gap: 0, borderBottom: "2px solid oklch(0.922 0 0)", marginBottom: 24 }}>
+        <div style={{ display: "flex", gap: 0, borderBottom: "2px solid var(--border)", marginBottom: 24 }}>
           {([
             { key: "active" as DashboardTab, label: "Active Sessions", icon: <LayoutGrid size={14} />, count: activeSessions.length },
             { key: "past" as DashboardTab, label: "Past Sessions", icon: <History size={14} />, count: pastSessions.length },
@@ -738,7 +738,7 @@ export default function Sessions() {
             {filteredActive.length === 0 && activeSessions.length === 0 ? (
               <EmptyState onNew={() => navigate("/session")} />
             ) : filteredActive.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "60px 24px", color: "oklch(0.6 0 0)", fontSize: 14 }}>
+              <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--muted-foreground)", fontSize: 14 }}>
                 No sessions match your search.
               </div>
             ) : (
@@ -763,7 +763,7 @@ export default function Sessions() {
           <>
             {pastSessions.length > 0 && (
               <div style={{ marginBottom: 16 }}>
-                <p style={{ margin: 0, fontSize: 13, color: "oklch(0.6 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+                <p style={{ margin: 0, fontSize: 13, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>
                   {pastSessions.length} closed session{pastSessions.length !== 1 ? "s" : ""} — click "View Results" to see the full response breakdown.
                 </p>
               </div>
@@ -772,7 +772,7 @@ export default function Sessions() {
             {filteredPast.length === 0 && pastSessions.length === 0 ? (
               <EmptyPastState />
             ) : filteredPast.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "60px 24px", color: "oklch(0.6 0 0)", fontSize: 14 }}>
+              <div style={{ textAlign: "center", padding: "60px 24px", color: "var(--muted-foreground)", fontSize: 14 }}>
                 No past sessions match your search.
               </div>
             ) : (

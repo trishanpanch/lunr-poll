@@ -186,3 +186,12 @@
 - [x] Slider should only shift the dropdown button X position, not the whole content area
 - [x] Revert content area marginLeft to 0 (remove the -4 nudge from the whole block)
 - [x] Increase gap between icon and label text inside the dropdown by 4px
+
+## Feature — Dark Mode
+- [x] Research Manus dark mode color values
+- [x] Update index.css .dark variables to match Manus dark mode
+- [x] Wire ThemeProvider to support light/dark toggle
+- [x] Fix hardcoded oklch/hex colors in Home.tsx for dark mode
+- [x] Fix hardcoded colors in Sessions.tsx, Settings.tsx, other pages
+- [x] Add theme toggle button to app header/nav
+- [x] Update changelog with dark mode entry

@@ -34,11 +34,11 @@ import type { Question } from "@shared/types";
 // ── Colour tokens ─────────────────────────────────────────────────────────────
 const INDIGO = "oklch(0.55 0.2 250)";
 const INDIGO_LIGHT = "oklch(0.96 0.04 250)";
-const BORDER = "oklch(0.922 0 0)";
+const BORDER = "var(--border)";
 const TEXT_DARK = "oklch(0.145 0 0)";
 const TEXT_MID = "oklch(0.4 0 0)";
 const TEXT_MUTED = "oklch(0.556 0 0)";
-const BG = "oklch(0.982 0.0107 271.3)";
+const BG = "var(--background)";
 const GREEN = "oklch(0.52 0.18 160)";
 const GREEN_LIGHT = "oklch(0.92 0.08 160)";
 
@@ -368,7 +368,7 @@ export default function SessionResults() {
               : []),
           ].map((card, i) => (
             <div key={i} style={{
-              background: "#fff", borderRadius: 14, border: `1px solid ${BORDER}`,
+              background: "var(--card)", borderRadius: 14, border: `1px solid ${BORDER}`,
               padding: "16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
@@ -395,7 +395,7 @@ export default function SessionResults() {
           <div style={{
             display: "flex", alignItems: "center", gap: 16,
             padding: "12px 18px", borderRadius: 12,
-            background: "#fff", border: `1px solid ${BORDER}`,
+            background: "var(--card)", border: `1px solid ${BORDER}`,
             marginBottom: 24, fontSize: 13, color: TEXT_MID,
           }}>
             <span>
@@ -418,7 +418,7 @@ export default function SessionResults() {
         {/* Per-question results */}
         {questionResults.length === 0 ? (
           <div style={{
-            background: "#fff", borderRadius: 16, border: `2px dashed ${BORDER}`,
+            background: "var(--card)", borderRadius: 16, border: `2px dashed ${BORDER}`,
             padding: "48px 32px", textAlign: "center",
           }}>
             <p style={{ fontSize: 15, fontWeight: 600, color: TEXT_MUTED, margin: 0 }}>
@@ -431,7 +431,7 @@ export default function SessionResults() {
               const q = qr.question as Question;
               return (
                 <div key={q.id} style={{
-                  background: "#fff", borderRadius: 16, border: `1px solid ${BORDER}`,
+                  background: "var(--card)", borderRadius: 16, border: `1px solid ${BORDER}`,
                   padding: "24px 28px", boxShadow: "0 1px 6px rgba(0,0,0,0.04)",
                 }}>
                   {/* Question header */}

@@ -14,13 +14,15 @@ import SessionResults from "./pages/SessionResults";
 import DesignSystemPage from "./pages/DesignSystem";
 import Changelog from "./pages/Changelog";
 import Settings from "./pages/Settings";
-import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, Settings as SettingsIcon, ChevronDown, ChevronUp } from "lucide-react";
+import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, Settings as SettingsIcon, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "./contexts/ThemeContext";
 
 // ── Bottom Tab Nav ────────────────────────────────────────────────────────────
 function BottomNav() {
   const [location] = useLocation();
   const [collapsed, setCollapsed] = useState(true);
+  const { theme, toggleTheme } = useTheme();
 
   // Hide bottom nav on live/student session pages to avoid clutter
   const isFullscreen =
@@ -61,13 +63,13 @@ function BottomNav() {
           width: 48,
           height: 20,
           borderRadius: "8px 8px 0 0",
-          border: "1px solid oklch(0.91 0.005 264)",
+          border: "1px solid var(--border)",
           borderBottom: "none",
-          background: "rgba(255,255,255,0.95)",
+          background: "var(--card)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           cursor: "pointer",
-          color: "oklch(0.65 0 0)",
+          color: "var(--muted-foreground)",
           boxShadow: "0 -2px 8px rgba(0,0,0,0.04)",
           transition: "color 0.15s",
           padding: 0,
@@ -81,10 +83,10 @@ function BottomNav() {
       <nav
         style={{
           width: "100%",
-          background: "rgba(255,255,255,0.92)",
+          background: "var(--card)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          borderTop: "1px solid oklch(0.91 0.005 264)",
+          borderTop: "1px solid var(--border)",
           display: "flex",
           alignItems: "center",
           gap: 4,
@@ -100,7 +102,7 @@ function BottomNav() {
           style={{
             fontSize: 11,
             fontFamily: "'Geist Mono', 'Fira Mono', monospace",
-            color: "oklch(0.65 0 0)",
+            color: "var(--muted-foreground)",
             whiteSpace: "nowrap",
             marginRight: 8,
             flexShrink: 0,
@@ -127,9 +129,9 @@ function BottomNav() {
                   fontFamily: "'Geist Mono', 'Fira Mono', monospace",
                   textDecoration: "none",
                   transition: "all 0.15s",
-                  background: active ? "oklch(0.982 0.0107 271.3)" : "transparent",
-                  color: active ? "oklch(0.55 0.2 250)" : "oklch(0.556 0 0)",
-                  border: active ? "1px solid oklch(0.88 0.04 250)" : "1px solid transparent",
+                  background: active ? "var(--accent)" : "transparent",
+                  color: active ? "var(--primary)" : "var(--muted-foreground)",
+                  border: active ? "1px solid var(--border)" : "1px solid transparent",
                   whiteSpace: "nowrap",
                 }}
               >
@@ -138,6 +140,30 @@ function BottomNav() {
             );
           })}
         </div>
+
+        {/* Theme toggle */}
+        {toggleTheme && (
+          <button
+            onClick={toggleTheme}
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              border: "1px solid var(--border)",
+              background: "transparent",
+              color: "var(--muted-foreground)",
+              cursor: "pointer",
+              flexShrink: 0,
+              transition: "all 0.15s",
+            }}
+          >
+            {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+        )}
       </nav>
     </div>
   );
@@ -180,7 +206,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="light" switchable>
         <TooltipProvider>
           <Toaster />
           <Router />

@@ -31,6 +31,42 @@ interface ChangelogItem {
 
 const DAYS: ChangelogDay[] = [
   {
+    date: "March 22, 2026",
+    title: "Dark Mode",
+    groups: [
+      {
+        category: "Theming",
+        color: "oklch(0.52 0.18 264)",
+        items: [
+          {
+            title: "Dark mode with Manus-matching palette",
+            description:
+              "A full dark mode has been added to the app. The .dark CSS variables use a warm near-black background (oklch(0.13 0.01 264)) with elevated card surfaces (oklch(0.17 0.01 264)), matching the Manus dark mode aesthetic. Pure black is avoided throughout — all surfaces use warm-tinted dark values.",
+            tag: "Feature",
+          },
+          {
+            title: "Sun / moon theme toggle in the bottom nav",
+            description:
+              "A Sun / Moon icon button has been added to the right side of the bottom navigation bar. Clicking it switches between light and dark mode. The preference is persisted in localStorage and restored on next visit.",
+            tag: "Feature",
+          },
+          {
+            title: "Hardcoded colors replaced with CSS variables across all pages",
+            description:
+              "All major pages (session builder, sessions dashboard, settings, join, live session, student session, results, changelog) have had their hardcoded oklch and hex color values replaced with semantic CSS variables (--background, --card, --border, --foreground, --muted-foreground). Accent colors on buttons and interactive elements remain as-is since they are intentional brand colors.",
+            tag: "Polish",
+          },
+          {
+            title: "Row wrapper gradient updated for dark mode",
+            description:
+              "The three-column background gradient in the session builder (which paints the left sidebar, canvas, and right AI panel backgrounds all the way to the page bottom) now uses var(--card) and var(--background) instead of hardcoded white and light-gray values, so it renders correctly in both light and dark mode.",
+            tag: "Polish",
+          },
+        ],
+      },
+    ],
+  },
+  {
     date: "March 21, 2026",
     title: "Settings, Layout Fixes & Question Card Polish",
     groups: [
@@ -524,14 +560,14 @@ export default function Changelog() {
     <div
       style={{
         minHeight: "100vh",
-        background: "oklch(0.9849 0.0029 264.5)",
+        background: "var(--background)",
         fontFamily: "'Geist', system-ui, sans-serif",
       }}
     >
       {/* Page header */}
       <div
         style={{
-          background: "#fff",
+          background: "var(--card)",
           borderBottom: "1px solid oklch(0.93 0.01 264)",
           padding: "48px 0 40px",
         }}
@@ -559,7 +595,7 @@ export default function Changelog() {
               fontFamily: "'Geist', system-ui, sans-serif",
               fontSize: "clamp(28px, 4vw, 42px)",
               fontWeight: 800,
-              color: "oklch(0.145 0 0)",
+              color: "var(--foreground)",
               margin: "0 0 12px",
               lineHeight: 1.1,
               letterSpacing: "-0.03em",
@@ -615,7 +651,7 @@ export default function Changelog() {
                     fontFamily: "'Geist', system-ui, sans-serif",
                     fontSize: 22,
                     fontWeight: 700,
-                    color: "oklch(0.145 0 0)",
+                    color: "var(--foreground)",
                     margin: 0,
                     letterSpacing: "-0.02em",
                   }}
@@ -685,7 +721,7 @@ export default function Changelog() {
                       <div
                         key={item.title}
                         style={{
-                          background: "#fff",
+                          background: "var(--card)",
                           border: "1px solid oklch(0.93 0.01 264)",
                           borderRadius: 12,
                           padding: "16px 20px",
@@ -706,7 +742,7 @@ export default function Changelog() {
                               fontFamily: "'Geist', system-ui, sans-serif",
                               fontSize: 14,
                               fontWeight: 650,
-                              color: "oklch(0.145 0 0)",
+                              color: "var(--foreground)",
                               margin: 0,
                               lineHeight: 1.4,
                             }}

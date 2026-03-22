@@ -136,7 +136,7 @@ function FieldRow({
             fontFamily: "'Geist', system-ui, sans-serif",
             fontWeight: 500,
             fontSize: 14,
-            color: "oklch(0.205 0 0)",
+            color: "var(--foreground)",
             marginBottom: description ? 3 : 0,
           }}
         >
@@ -146,7 +146,7 @@ function FieldRow({
           <div
             style={{
               fontSize: 12,
-              color: "oklch(0.556 0 0)",
+              color: "var(--muted-foreground)",
               lineHeight: 1.5,
             }}
           >
@@ -191,7 +191,7 @@ function Toggle({
           width: 18,
           height: 18,
           borderRadius: "50%",
-          background: "#fff",
+          background: "var(--card)",
           boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
           transition: "left 0.2s",
         }}
@@ -224,8 +224,8 @@ function TextInput({
         border: "1.5px solid oklch(0.88 0 0)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
-        color: "oklch(0.205 0 0)",
-        background: "#fff",
+        color: "var(--foreground)",
+        background: "var(--card)",
         outline: "none",
         transition: "border-color 0.15s",
       }}
@@ -254,8 +254,8 @@ function SelectInput({
         border: "1.5px solid oklch(0.88 0 0)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
-        color: "oklch(0.205 0 0)",
-        background: "#fff",
+        color: "var(--foreground)",
+        background: "var(--card)",
         cursor: "pointer",
         outline: "none",
         minWidth: 140,
@@ -298,8 +298,8 @@ function NumberInput({
         border: "1.5px solid oklch(0.88 0 0)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
-        color: "oklch(0.205 0 0)",
-        background: "#fff",
+        color: "var(--foreground)",
+        background: "var(--card)",
         outline: "none",
         textAlign: "center",
       }}
@@ -333,8 +333,8 @@ function TextareaInput({
         border: "1.5px solid oklch(0.88 0 0)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
-        color: "oklch(0.205 0 0)",
-        background: "#fff",
+        color: "var(--foreground)",
+        background: "var(--card)",
         outline: "none",
         resize: "vertical",
         lineHeight: 1.5,
@@ -353,7 +353,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         fontFamily: "'Geist', system-ui, sans-serif",
         fontWeight: 700,
         fontSize: 18,
-        color: "oklch(0.145 0 0)",
+        color: "var(--foreground)",
         margin: "0 0 4px",
       }}
     >
@@ -368,7 +368,7 @@ function SectionDesc({ children }: { children: React.ReactNode }) {
       style={{
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
-        color: "oklch(0.556 0 0)",
+        color: "var(--muted-foreground)",
         margin: "0 0 20px",
         lineHeight: 1.5,
       }}
@@ -820,7 +820,7 @@ function SystemSection({
         style={{
           marginTop: 24,
           padding: "16px",
-          background: "oklch(0.97 0 0)",
+          background: "var(--secondary)",
           borderRadius: 10,
           border: "1.5px solid oklch(0.91 0 0)",
         }}
@@ -845,7 +845,7 @@ function SystemSection({
             ].map(([label, value]) => (
               <tr key={label}>
                 <td style={{ padding: "6px 0", color: "oklch(0.45 0 0)", borderBottom: "1px solid oklch(0.93 0 0)" }}>{label}</td>
-                <td style={{ padding: "6px 0", color: "oklch(0.205 0 0)", fontWeight: 600, textAlign: "right", borderBottom: "1px solid oklch(0.93 0 0)" }}>{value}</td>
+                <td style={{ padding: "6px 0", color: "var(--foreground)", fontWeight: 600, textAlign: "right", borderBottom: "1px solid oklch(0.93 0 0)" }}>{value}</td>
               </tr>
             ))}
           </tbody>
@@ -956,15 +956,15 @@ export default function Settings() {
     <div
       style={{
         minHeight: "100vh",
-        background: "oklch(0.985 0 0)",
+        background: "var(--card)",
         fontFamily: "'Geist', system-ui, sans-serif",
       }}
     >
       {/* Header */}
       <header
         style={{
-          background: "#fff",
-          borderBottom: "1px solid oklch(0.922 0 0)",
+          background: "var(--card)",
+          borderBottom: "1px solid var(--border)",
           height: 64,
           display: "flex",
           alignItems: "center",
@@ -987,7 +987,7 @@ export default function Settings() {
             height: 34,
             borderRadius: 9,
             background: "none",
-            border: "1.5px solid oklch(0.922 0 0)",
+            border: "1.5px solid var(--border)",
             color: "oklch(0.45 0 0)",
             cursor: "pointer",
             flexShrink: 0,
@@ -1000,12 +1000,12 @@ export default function Settings() {
             style={{
               fontWeight: 700,
               fontSize: 17,
-              color: "oklch(0.145 0 0)",
+              color: "var(--foreground)",
             }}
           >
             Settings
           </div>
-          <div style={{ fontSize: 12, color: "oklch(0.556 0 0)" }}>
+          <div style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
             Configure your professor experience
           </div>
         </div>
@@ -1022,7 +1022,7 @@ export default function Settings() {
                 padding: "8px 16px",
                 borderRadius: 10,
                 border: "1.5px solid oklch(0.88 0 0)",
-                background: "#fff",
+                background: "var(--card)",
                 color: "oklch(0.45 0 0)",
                 fontSize: 13,
                 fontWeight: 500,
@@ -1144,9 +1144,9 @@ export default function Settings() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "var(--card)",
               borderRadius: 14,
-              border: "1px solid oklch(0.922 0 0)",
+              border: "1px solid var(--border)",
               overflow: "hidden",
               boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
             }}
@@ -1165,7 +1165,7 @@ export default function Settings() {
                     padding: "11px 16px",
                     border: "none",
                     borderBottom: "1px solid oklch(0.94 0 0)",
-                    background: active ? "oklch(0.982 0.0107 271.3)" : "#fff",
+                    background: active ? "var(--background)" : "#fff",
                     color: active ? "oklch(0.45 0.22 264)" : "oklch(0.45 0 0)",
                     fontSize: 13,
                     fontWeight: active ? 600 : 400,
@@ -1211,7 +1211,7 @@ export default function Settings() {
                     border: active
                       ? "1.5px solid oklch(0.88 0.04 264)"
                       : "1.5px solid oklch(0.88 0 0)",
-                    background: active ? "oklch(0.982 0.0107 271.3)" : "#fff",
+                    background: active ? "var(--background)" : "#fff",
                     color: active ? "oklch(0.45 0.22 264)" : "oklch(0.45 0 0)",
                     fontSize: 12,
                     fontWeight: active ? 600 : 400,
@@ -1233,9 +1233,9 @@ export default function Settings() {
           style={{
             flex: 1,
             minWidth: 0,
-            background: "#fff",
+            background: "var(--card)",
             borderRadius: 14,
-            border: "1px solid oklch(0.922 0 0)",
+            border: "1px solid var(--border)",
             padding: "28px 32px",
             boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
           }}

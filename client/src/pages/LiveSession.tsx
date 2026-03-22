@@ -48,11 +48,11 @@ import WordCloud from "@/components/WordCloud";
 // ── Colour tokens ─────────────────────────────────────────────────────────────
 const INDIGO = "oklch(0.55 0.2 250)";
 const INDIGO_LIGHT = "oklch(0.96 0.04 250)";
-const BORDER = "oklch(0.922 0 0)";
+const BORDER = "var(--border)";
 const TEXT_DARK = "oklch(0.145 0 0)";
 const TEXT_MID = "oklch(0.4 0 0)";
 const TEXT_MUTED = "oklch(0.556 0 0)";
-const BG = "oklch(0.982 0.0107 271.3)";
+const BG = "var(--background)";
 const GREEN = "oklch(0.52 0.18 160)";
 const GREEN_LIGHT = "oklch(0.92 0.08 160)";
 const CRIMSON = "oklch(0.514 0.2 13.9)";
@@ -86,7 +86,7 @@ function QRModal({ code, onClose }: { code: string; onClose: () => void }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "#fff", borderRadius: 20, padding: "32px 36px",
+          background: "var(--card)", borderRadius: 20, padding: "32px 36px",
           display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
           boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 340, width: "100%",
         }}
@@ -495,7 +495,7 @@ export default function LiveSession() {
         {/* Draft state */}
         {isDraft && (
           <div style={{
-            background: "#fff", borderRadius: 16, border: `1px solid ${BORDER}`,
+            background: "var(--card)", borderRadius: 16, border: `1px solid ${BORDER}`,
             padding: "32px", textAlign: "center",
             boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
           }}>
@@ -544,7 +544,7 @@ export default function LiveSession() {
 
             {/* Current question card */}
             <div style={{
-              background: "#fff", borderRadius: 16, border: `1px solid ${BORDER}`,
+              background: "var(--card)", borderRadius: 16, border: `1px solid ${BORDER}`,
               padding: "28px 32px", boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
@@ -653,7 +653,7 @@ export default function LiveSession() {
             </div>
 
             {/* All questions overview */}
-            <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${BORDER}`, padding: "20px 24px" }}>
+            <div style={{ background: "var(--card)", borderRadius: 16, border: `1px solid ${BORDER}`, padding: "20px 24px" }}>
               <p style={{ margin: "0 0 14px", fontWeight: 700, fontSize: 13, color: TEXT_DARK, display: "flex", alignItems: "center", gap: 6 }}>
                 <BarChart2 size={15} /> All Questions
               </p>
@@ -687,7 +687,7 @@ export default function LiveSession() {
         {/* Closed state */}
         {session.status === "closed" && (
           <div style={{
-            background: "#fff", borderRadius: 16, border: `1px solid ${BORDER}`,
+            background: "var(--card)", borderRadius: 16, border: `1px solid ${BORDER}`,
             padding: "32px", textAlign: "center",
           }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
