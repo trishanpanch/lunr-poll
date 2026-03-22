@@ -175,3 +175,6 @@
 ## Polish — Question Card Header
 - [x] Remove standalone question type icon (keep only the dropdown with icon+label)
 - [x] Shift the type dropdown 4px to the left
+
+## Polish — Question Type Dropdown
+- [x] Remove Star Rating and File Upload from the interchangeable type-switch dropdown

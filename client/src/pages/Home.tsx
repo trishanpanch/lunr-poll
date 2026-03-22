@@ -1195,7 +1195,7 @@ function QuestionCard({
                     overflow: "hidden",
                   }}
                 >
-                  {(["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((t, i, arr) => {
+                  {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t, i, arr) => {
                     const tm = TYPE_META[t];
                     const isCurrent = t === question.type;
                     return (
