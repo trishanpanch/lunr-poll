@@ -336,7 +336,7 @@ function Sidebar({
       style={{
         width: 280,
         minWidth: 280,
-        background: "#fff",
+        background: "transparent",
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
@@ -2274,7 +2274,7 @@ function AiPanel({
           minWidth: open ? 320 : 0,
           overflow: "hidden",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)",
-          background: "#fff",
+          background: "transparent",
           display: "flex",
           flexDirection: "column",
           position: "sticky",
@@ -2284,7 +2284,7 @@ function AiPanel({
           flexShrink: 0,
         }}
       >
-        <div style={{ width: 320, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
+        <div style={{ width: 320, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "transparent" }}>
           {/* Header */}
           <div style={{
             padding: "16px 18px 14px",
@@ -3371,7 +3371,24 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         hasEverSaved={hasEverSaved}
       />
 
-      <div style={{ display: "flex", flex: 1, alignItems: "stretch" }}>
+      <div style={{
+        display: "flex",
+        flex: 1,
+        minHeight: "calc(100vh - 64px)",
+        alignItems: "stretch",
+        /* Paint the sidebar backgrounds all the way to the page bottom.
+           Left sidebar = 280px white, canvas = gray, right AI panel = white when open.
+           The canvas border lines are on the <main> element itself. */
+        background: `linear-gradient(
+          to right,
+          #fff 0px,
+          #fff 280px,
+          oklch(0.9849 0.0029 264.5) 280px,
+          oklch(0.9849 0.0029 264.5) calc(100% - ${aiPanelOpen ? 320 : 0}px),
+          #fff calc(100% - ${aiPanelOpen ? 320 : 0}px),
+          #fff 100%
+        )`,
+      }}>
         <Sidebar
           onAddType={openAddType}
           onAddPreset={addPreset}
@@ -3388,6 +3405,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             gap: 16,
             minWidth: 0,
             minHeight: "calc(100vh - 64px)",
+            background: "transparent",
             borderLeft: "1px solid oklch(0.922 0 0)",
             borderRight: aiPanelOpen ? "none" : "1px solid oklch(0.922 0 0)",
           }}
