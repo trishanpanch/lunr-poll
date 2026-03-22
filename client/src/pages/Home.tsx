@@ -1147,18 +1147,18 @@ function QuestionCard({
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, minWidth: 0, marginLeft: iconNudge }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         {/* Type label — dropdown to switch type */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
           {onUpdateType ? (
-            <div ref={typeDropdownRef} style={{ position: "relative" }}>
+            <div ref={typeDropdownRef} style={{ position: "relative", marginLeft: iconNudge }}>
               <button
                 onClick={() => !transforming && setTypeDropdownOpen((v) => !v)}
                 disabled={transforming}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 4,
+                  gap: 8,
                   padding: "2px 7px 2px 5px",
                   borderRadius: 6,
                   border: `1px solid ${meta.color}40`,

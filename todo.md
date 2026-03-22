@@ -181,3 +181,8 @@
 
 ## Dev Tool — Type Dropdown X-Offset Slider
 - [x] Add a small slider in the session builder canvas to control the type dropdown X offset interactively
+
+## Polish — Type Dropdown Fine-tuning
+- [x] Slider should only shift the dropdown button X position, not the whole content area
+- [x] Revert content area marginLeft to 0 (remove the -4 nudge from the whole block)
+- [x] Increase gap between icon and label text inside the dropdown by 4px
