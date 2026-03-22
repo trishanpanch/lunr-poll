@@ -31,6 +31,84 @@ interface ChangelogItem {
 
 const DAYS: ChangelogDay[] = [
   {
+    date: "March 21, 2026",
+    title: "Settings, Layout Fixes & Question Card Polish",
+    groups: [
+      {
+        category: "Settings",
+        color: "oklch(0.52 0.18 200)",
+        items: [
+          {
+            title: "Professor Settings page",
+            description:
+              "A full /settings route has been added with six sections: Session Defaults, Student Experience, Live Mode, Export & Data, Account, and System/Admin. Settings are persisted per-user in a new professorSettings database table (32 columns). A sticky Save / Discard banner appears whenever there are unsaved changes, matching the unsaved-changes pattern in the session builder.",
+            tag: "Feature",
+          },
+          {
+            title: "Two-column desktop layout with tab bar on mobile",
+            description:
+              "The Settings page uses a fixed left navigation column (section links with icons) and a right content panel on desktop. On mobile the layout collapses to a horizontal scrollable tab bar at the top, keeping all six sections reachable without a sidebar.",
+            tag: "Polish",
+          },
+          {
+            title: "Settings accessible from Sessions dashboard",
+            description:
+              "A gear icon button has been added to the Sessions dashboard header, linking directly to /settings. Settings also appears in the bottom navigation bar.",
+            tag: "Navigation",
+          },
+          {
+            title: "tRPC settings router with get and save procedures",
+            description:
+              "A dedicated settings tRPC router exposes settings.get (returns saved settings or defaults) and settings.save (upserts the full settings object). Both procedures use a demo key in unauthenticated mode and the user's ID when logged in, so settings persist correctly in both contexts.",
+            tag: "Feature",
+          },
+        ],
+      },
+      {
+        category: "Session Builder Layout",
+        color: "oklch(0.48 0.18 264)",
+        items: [
+          {
+            title: "Sidebar column backgrounds extend to page bottom",
+            description:
+              "The left sidebar and right AI panel previously showed a gap at the bottom of the page when the canvas grew taller than the viewport. The row wrapper now carries a linear-gradient background that paints white for both sidebar columns and the page background color for the canvas area, extending all the way to the page bottom regardless of content height.",
+            tag: "Polish",
+          },
+          {
+            title: "Divider line added to the left of the AI panel",
+            description:
+              "The canvas <main> element now has a permanent borderRight so a divider line always appears on the left edge of the AI panel when it opens, matching the style of the divider on the right edge of the left sidebar.",
+            tag: "Polish",
+          },
+        ],
+      },
+      {
+        category: "Question Cards",
+        color: "oklch(0.55 0.2 250)",
+        items: [
+          {
+            title: "Standalone type icon removed from question cards",
+            description:
+              "Each question card previously showed a standalone icon bubble alongside the type-switch dropdown, resulting in the icon appearing twice. The standalone bubble has been removed; the dropdown button (which already shows the icon and label together) is now the only type indicator on the card.",
+            tag: "Clarity",
+          },
+          {
+            title: "Type dropdown shifted 4px left",
+            description:
+              "After removing the standalone icon, the content area was shifted 4px to the left so the type dropdown aligns more naturally with the drag handle and question text.",
+            tag: "Polish",
+          },
+          {
+            title: "Star Rating and File Upload removed from type-switch dropdown",
+            description:
+              "The type-switch dropdown on each question card now only lists Short Text, Multiple Choice, and True / False — the three types with compatible response structures. Star Rating and File Upload can still be added from the sidebar but are no longer offered as switch targets, preventing data-loss confusion when changing types.",
+            tag: "Clarity",
+          },
+        ],
+      },
+    ],
+  },
+  {
     date: "March 20, 2026",
     title: "Product & Design Improvements",
     groups: [
