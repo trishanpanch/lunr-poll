@@ -77,6 +77,63 @@ export const responses = mysqlTable("responses", {
 export type Response = typeof responses.$inferSelect;
 export type InsertResponse = typeof responses.$inferInsert;
 
+// ── Professor Settings ───────────────────────────────────────────────────────
+
+/**
+ * Per-professor (or global demo) settings.
+ * `settingsKey` is the owner identifier — userId as string when auth is on,
+ * or the constant 'demo' when running without auth.
+ */
+export const professorSettings = mysqlTable("professorSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  /** 'demo' in no-auth mode, or the user's numeric id as a string */
+  settingsKey: varchar("settingsKey", { length: 64 }).notNull().unique(),
+
+  // ── Professor / Account ────────────────────────────────────────────────────
+  displayName: varchar("displayName", { length: 128 }),
+  institutionName: varchar("institutionName", { length: 255 }),
+  sessionNameTemplate: varchar("sessionNameTemplate", { length: 255 }),
+  emailNotifications: boolean("emailNotifications").default(false).notNull(),
+  themePref: mysqlEnum("themePref", ["light", "dark", "system"]).default("light").notNull(),
+
+  // ── Session Defaults ──────────────────────────────────────────────────────
+  allowLateJoins: boolean("allowLateJoins").default(true).notNull(),
+  showResponseCountToStudents: boolean("showResponseCountToStudents").default(false).notNull(),
+  autoAdvance: boolean("autoAdvance").default(false).notNull(),
+  autoAdvanceTimer: int("autoAdvanceTimer").default(30).notNull(),
+  anonymousResponses: boolean("anonymousResponses").default(true).notNull(),
+  maxResponsesPerStudent: int("maxResponsesPerStudent").default(1).notNull(),
+  defaultQuestionType: varchar("defaultQuestionType", { length: 64 }).default("Short Text").notNull(),
+
+  // ── Student Experience ────────────────────────────────────────────────────
+  waitingRoomMessage: text("waitingRoomMessage"),
+  sessionEndedMessage: text("sessionEndedMessage"),
+  requireStudentName: boolean("requireStudentName").default(false).notNull(),
+  showQuestionNumber: boolean("showQuestionNumber").default(true).notNull(),
+  revealTotalQuestionCount: boolean("revealTotalQuestionCount").default(true).notNull(),
+  allowResponseEditing: boolean("allowResponseEditing").default(false).notNull(),
+  brandingLogoUrl: text("brandingLogoUrl"),
+  primaryAccentColor: varchar("primaryAccentColor", { length: 64 }),
+
+  // ── Live Mode ─────────────────────────────────────────────────────────────
+  pollingInterval: int("pollingInterval").default(2).notNull(),
+  showWordCloudByDefault: boolean("showWordCloudByDefault").default(false).notNull(),
+  showCorrectAnswerOverlay: boolean("showCorrectAnswerOverlay").default(false).notNull(),
+  confettiOnLaunch: boolean("confettiOnLaunch").default(true).notNull(),
+
+  // ── Export & Data ─────────────────────────────────────────────────────────
+  csvDateFormat: mysqlEnum("csvDateFormat", ["iso", "us", "eu"]).default("iso").notNull(),
+  csvIncludeStudentId: boolean("csvIncludeStudentId").default(true).notNull(),
+  autoDeleteAfterDays: int("autoDeleteAfterDays"),
+  exportFormat: mysqlEnum("exportFormat", ["csv", "excel"]).default("csv").notNull(),
+
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProfessorSettings = typeof professorSettings.$inferSelect;
+export type InsertProfessorSettings = typeof professorSettings.$inferInsert;
+
 // ── Shared Question type (mirrors client-side type) ───────────────────────────
 
 export type QuestionType =

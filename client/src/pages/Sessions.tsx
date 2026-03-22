@@ -9,7 +9,7 @@ import {
   Plus, Rocket, ListChecks, Type, Paperclip, Star,
   Clock, CheckCircle2, XCircle, ChevronRight, Search,
   BarChart2, BookOpen, Trash2, MoreHorizontal, Loader2,
-  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid,
+  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid, Settings,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -657,6 +657,19 @@ export default function Sessions() {
               onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.922 0 0)"; }}
             />
           </div>
+          <button
+            onClick={() => navigate("/settings")}
+            title="Settings"
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 36, height: 36, borderRadius: 9,
+              background: "none", border: "1.5px solid oklch(0.922 0 0)",
+              color: "oklch(0.45 0 0)", cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+          >
+            <Settings size={16} />
+          </button>
           <button
             onClick={() => navigate("/session")}
             style={{

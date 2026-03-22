@@ -4,9 +4,11 @@ import {
   users,
   sessions,
   responses,
+  professorSettings,
   type InsertUser,
   type InsertSession,
   type InsertResponse,
+  type InsertProfessorSettings,
   type Question,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -213,6 +215,39 @@ export async function getParticipantCount(sessionId: number): Promise<number> {
     .where(eq(responses.sessionId, sessionId));
   const unique = new Set(rows.map((r) => r.studentId));
   return unique.size;
+}
+
+// ── Professor Settings ─────────────────────────────────────────────────────────────────
+
+export async function getSettings(settingsKey: string) {
+  const db = getDb();
+  if (!db) return null;
+  const rows = await db
+    .select()
+    .from(professorSettings)
+    .where(eq(professorSettings.settingsKey, settingsKey))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
+export async function upsertSettings(
+  settingsKey: string,
+  data: Partial<Omit<InsertProfessorSettings, "id" | "settingsKey" | "createdAt" | "updatedAt">>
+) {
+  const db = getDb();
+  if (!db) return null;
+
+  const existing = await getSettings(settingsKey);
+  if (existing) {
+    await db
+      .update(professorSettings)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .set(data as any)
+      .where(eq(professorSettings.settingsKey, settingsKey));
+  } else {
+    await db.insert(professorSettings).values({ settingsKey, ...data });
+  }
+  return getSettings(settingsKey);
 }
 
 export async function hasStudentResponded(

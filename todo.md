@@ -150,3 +150,18 @@
 ## Sprint — Q-Number Reorder
 - [x] Q-number badge: clicking it opens a dropdown showing all positions to select from
 - [x] Selecting a position moves the question to that slot, shifting others
+
+## Sprint — Settings Feature
+- [x] DB schema: add `professorSettings` table with all settings columns
+- [x] DB migration: run pnpm db:push
+- [x] DB helpers: getSettings / upsertSettings in db.ts
+- [x] tRPC router: settings.get and settings.save procedures
+- [x] Wire settings router into appRouter
+- [x] Settings page: /settings route with 6 sections (Session Defaults, Student Experience, Live Mode, Export & Data, Professor/Account, System)
+- [x] Settings page: two-column layout (left nav + right panel) on desktop, tab bar on mobile
+- [x] Settings page: unsaved-changes guard with Save / Discard banner
+- [x] Settings page: wire all form controls to tRPC get/save
+- [x] App.tsx: register /settings route
+- [x] Navigation: add Settings link to bottom nav and Sessions dashboard sidebar
+- [x] Session builder: apply session default settings when creating a new session
+- [x] Vitest: add tests for settings.get and settings.save procedures

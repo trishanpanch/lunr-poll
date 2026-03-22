@@ -13,7 +13,8 @@ import StudentSession from "./pages/StudentSession";
 import SessionResults from "./pages/SessionResults";
 import DesignSystemPage from "./pages/DesignSystem";
 import Changelog from "./pages/Changelog";
-import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, ChevronDown, ChevronUp } from "lucide-react";
+import Settings from "./pages/Settings";
+import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, Settings as SettingsIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
 // ── Bottom Tab Nav ────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ function BottomNav() {
     { href: "/join", label: "Join Session", icon: <GraduationCap size={16} /> },
     { href: "/design-system", label: "Design System", icon: <Layers size={16} /> },
     { href: "/changelog", label: "Changelog", icon: <ScrollText size={16} /> },
+    { href: "/settings", label: "Settings", icon: <SettingsIcon size={16} /> },
   ];
 
   return (
@@ -165,6 +167,7 @@ function Router() {
           {/* Utility */}
           <Route path="/design-system" component={DesignSystemPage} />
           <Route path="/changelog" component={Changelog} />
+          <Route path="/settings" component={Settings} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>

@@ -15,6 +15,13 @@
       "when": 1774111682566,
       "tag": "0001_violet_magneto",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1774144994030,
+      "tag": "0002_nosy_iron_patriot",
+      "breakpoints": true
     }
   ]
 }
