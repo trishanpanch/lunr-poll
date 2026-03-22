@@ -204,3 +204,7 @@
 - [x] Fix Landing.tsx, Join.tsx, LiveSession.tsx, StudentSession.tsx, SessionResults.tsx
 - [x] Remove ThemeContext debug console.log statements
 - [x] Update changelog with dark mode fix entry
+
+## Design System — Saved State Button
+- [x] Find all "Saved" state button instances across the codebase
+- [x] Normalize all instances to: outlined border, green CheckCircle2 icon, "Saved" label, no fill

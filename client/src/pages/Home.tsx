@@ -268,11 +268,11 @@ function Topbar({
         <Button
           variant="outline"
           onClick={onSaveDraft}
-          className="gap-1.5 bg-white"
+          className={`gap-1.5 ${!isDirty && hasEverSaved ? "text-green-600 border-border" : ""}`}
           style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 13 }}
         >
           {!isDirty && hasEverSaved ? (
-            <><CheckCircle2 size={14} className="text-green-600" /> Saved</>
+            <><CheckCircle2 size={14} /> Saved</>
           ) : (
             "Save Draft"
           )}
@@ -283,7 +283,7 @@ function Topbar({
           onClick={onPreview}
           disabled={!hasQuestions}
           title={!hasQuestions ? "Add at least one question to preview" : "Preview student experience"}
-          className="gap-1.5 bg-white"
+          className="gap-1.5"
           style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 13 }}
         >
           <Eye size={14} />

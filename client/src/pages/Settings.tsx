@@ -1035,27 +1035,25 @@ export default function Settings() {
           )}
           <button
             onClick={handleSave}
-            disabled={!isDirty && !justSaved}
+            disabled={!isDirty}
             style={{
               display: "flex",
               alignItems: "center",
               gap: 6,
               padding: "8px 18px",
               borderRadius: 10,
-              border: "none",
-              background: isDirty
-                ? "oklch(0.45 0.22 264)"
-                : justSaved
-                ? "oklch(0.45 0.18 160)"
-                : "oklch(0.88 0 0)",
-              color: isDirty || justSaved ? "#fff" : "oklch(0.6 0 0)",
+              border: isDirty
+                ? "1.5px solid oklch(0.45 0.22 264)"
+                : "1.5px solid var(--border)",
+              background: isDirty ? "oklch(0.45 0.22 264)" : "transparent",
+              color: isDirty ? "#fff" : "oklch(0.45 0.18 160)",
               fontSize: 13,
               fontWeight: 600,
               cursor: isDirty ? "pointer" : "default",
               transition: "all 0.2s",
             }}
           >
-            {justSaved ? (
+            {!isDirty ? (
               <>
                 <CheckCircle2 size={13} />
                 Saved
@@ -1063,7 +1061,7 @@ export default function Settings() {
             ) : (
               <>
                 <Save size={13} />
-                {isDirty ? "Save Changes" : "Saved"}
+                Save Changes
               </>
             )}
           </button>
