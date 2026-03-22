@@ -171,3 +171,7 @@
 
 ## Bug — Session Builder AI Panel Divider
 - [x] Add divider line to the left of the AI panel (matching the right border of the left sidebar)
+
+## Polish — Question Card Header
+- [x] Remove standalone question type icon (keep only the dropdown with icon+label)
+- [x] Shift the type dropdown 4px to the left

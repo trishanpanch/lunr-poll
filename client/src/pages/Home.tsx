@@ -1146,27 +1146,8 @@ function QuestionCard({
         <GripVertical size={16} />
       </div>
 
-      {/* Type icon */}
-      <div
-        style={{
-          width: 28,
-          height: 28,
-          borderRadius: 7,
-          background: `${meta.color}18`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          color: meta.color,
-          marginTop: iconNudge,
-          alignSelf: "flex-start",
-        }}
-      >
-        {meta.icon}
-      </div>
-
       {/* Content */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ flex: 1, minWidth: 0, marginLeft: -4 }}>
         {/* Type label — dropdown to switch type */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
           {onUpdateType ? (
