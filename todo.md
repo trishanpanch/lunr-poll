@@ -178,3 +178,6 @@
 
 ## Polish — Question Type Dropdown
 - [x] Remove Star Rating and File Upload from the interchangeable type-switch dropdown
+
+## Dev Tool — Type Dropdown X-Offset Slider
+- [x] Add a small slider in the session builder canvas to control the type dropdown X offset interactively
