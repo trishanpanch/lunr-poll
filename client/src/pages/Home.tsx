@@ -337,13 +337,13 @@ function Sidebar({
         width: 280,
         minWidth: 280,
         background: "#fff",
-        borderRight: "1px solid oklch(0.922 0 0)",
         display: "flex",
         flexDirection: "column",
         overflowY: "auto",
         position: "sticky",
         top: 64,
         height: "calc(100vh - 64px)",
+        alignSelf: "flex-start",
         flexShrink: 0,
       }}
     >
@@ -2274,13 +2274,13 @@ function AiPanel({
           minWidth: open ? 320 : 0,
           overflow: "hidden",
           transition: "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)",
-          borderLeft: open ? "1px solid oklch(0.922 0 0)" : "none",
           background: "#fff",
           display: "flex",
           flexDirection: "column",
           position: "sticky",
           top: 64,
           height: "calc(100vh - 64px)",
+          alignSelf: "flex-start",
           flexShrink: 0,
         }}
       >
@@ -3371,7 +3371,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         hasEverSaved={hasEverSaved}
       />
 
-      <div style={{ display: "flex", flex: 1, alignItems: "flex-start" }}>
+      <div style={{ display: "flex", flex: 1, alignItems: "stretch" }}>
         <Sidebar
           onAddType={openAddType}
           onAddPreset={addPreset}
@@ -3388,6 +3388,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             gap: 16,
             minWidth: 0,
             minHeight: "calc(100vh - 64px)",
+            borderLeft: "1px solid oklch(0.922 0 0)",
+            borderRight: aiPanelOpen ? "none" : "1px solid oklch(0.922 0 0)",
           }}
         >
           {/* Onboarding */}

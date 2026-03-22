@@ -165,3 +165,6 @@
 - [x] Navigation: add Settings link to bottom nav and Sessions dashboard sidebar
 - [x] Session builder: apply session default settings when creating a new session
 - [x] Vitest: add tests for settings.get and settings.save procedures
+
+## Bug — Session Builder Sidebar Height
+- [x] Fix left sidebar and right panel not extending to bottom of page when scrolling
