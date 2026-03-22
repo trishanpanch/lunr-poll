@@ -146,3 +146,7 @@
 - [x] Remove pencil icon from session name input hover state
 - [x] Lighten placeholder text color in session name input
 - [x] Fix "Saved" button state — should not show "Saved" on a brand-new unsaved session
+
+## Sprint — Q-Number Reorder
+- [x] Q-number badge: clicking it opens a dropdown showing all positions to select from
+- [x] Selecting a position moves the question to that slot, shifting others

@@ -867,6 +867,108 @@ function MCOptionRow({
   );
 }
 
+// ── QBadge — clickable Q-number that opens a position-picker dropdown ────────
+function QBadge({
+  index,
+  totalCount,
+  onReorder,
+}: {
+  index: number;
+  totalCount: number;
+  onReorder?: (toIndex: number) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  React.useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const handleSelect = (toIndex: number) => {
+    setOpen(false);
+    if (toIndex !== index) onReorder?.(toIndex);
+  };
+
+  return (
+    <div ref={containerRef} style={{ position: "relative", display: "inline-block" }}>
+      <span
+        onClick={() => onReorder && setOpen((v) => !v)}
+        title={onReorder ? "Click to move to a different position" : undefined}
+        style={{
+          fontSize: 11,
+          padding: "3px 9px",
+          borderRadius: 20,
+          background: open ? "oklch(0.96 0.04 264)" : "oklch(0.97 0 0)",
+          color: open ? "oklch(0.45 0.22 264)" : "oklch(0.556 0 0)",
+          fontWeight: 500,
+          fontFamily: "'Geist', system-ui, sans-serif",
+          border: open ? "1.5px solid oklch(0.78 0.1 264)" : "1.5px solid transparent",
+          cursor: onReorder ? "pointer" : "default",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 2,
+          transition: "all 0.12s",
+          userSelect: "none" as const,
+        }}
+        className={onReorder ? "hover:bg-[oklch(0.94_0.04_264)] hover:text-[oklch(0.45_0.22_264)] hover:border-[oklch(0.78_0.1_264)] transition-all" : ""}
+      >
+        Q{index + 1}
+      </span>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "calc(100% + 6px)",
+            left: 0,
+            zIndex: 200,
+            background: "#fff",
+            border: "1.5px solid oklch(0.91 0.005 264)",
+            borderRadius: 10,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+            padding: "4px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+            minWidth: 56,
+          }}
+        >
+          {Array.from({ length: totalCount }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => handleSelect(i)}
+              style={{
+                padding: "5px 10px",
+                borderRadius: 7,
+                border: "none",
+                background: i === index ? "oklch(0.94 0.04 264)" : "transparent",
+                color: i === index ? "oklch(0.45 0.22 264)" : "oklch(0.25 0 0)",
+                fontWeight: i === index ? 700 : 500,
+                fontSize: 12,
+                fontFamily: "'Geist', system-ui, sans-serif",
+                cursor: i === index ? "default" : "pointer",
+                textAlign: "left" as const,
+                whiteSpace: "nowrap" as const,
+              }}
+              className={i !== index ? "hover:bg-[oklch(0.97_0.02_264)] transition-colors" : ""}
+            >
+              Q{i + 1}{i === index ? " ✓" : ""}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Question Card ───────────────────────────────────────────────────────────
 function QuestionCard({
   question,
@@ -877,6 +979,8 @@ function QuestionCard({
   onUpdateOptions,
   onUpdateType,
   iconNudge = 1,
+  onReorder,
+  totalCount = 1,
 }: {
   question: Question;
   index: number;
@@ -886,6 +990,8 @@ function QuestionCard({
   onUpdateOptions?: (options: string[], correctIndex: number | undefined) => void;
   onUpdateType?: (newType: QuestionType, newQuestion: Partial<Question>) => void;
   iconNudge?: number;
+  onReorder?: (toIndex: number) => void;
+  totalCount?: number;
 }) {
   const meta = TYPE_META[question.type];
   const {
@@ -1374,19 +1480,7 @@ function QuestionCard({
           </div>
         )}
         <div style={{ marginTop: 8 }}>
-          <span
-            style={{
-              fontSize: 11,
-              padding: "3px 9px",
-              borderRadius: 20,
-              background: "oklch(0.97 0 0)",
-              color: "oklch(0.556 0 0)",
-              fontWeight: 500,
-              fontFamily: "'Geist', system-ui, sans-serif",
-            }}
-          >
-            Q{index + 1}
-          </span>
+          <QBadge index={index} totalCount={totalCount ?? 1} onReorder={onReorder} />
         </div>
       </div>
 
@@ -3331,6 +3425,16 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       onUpdateOptions={(options, correctIndex) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, options, correctIndex } : item))}
                       onUpdateType={(_newType, update) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, ...update } : item))}
                       iconNudge={iconNudge}
+                      totalCount={questions.length}
+                      onReorder={(toIndex) => {
+                        setQuestions((prev) => {
+                          const arr = [...prev];
+                          const [moved] = arr.splice(i, 1);
+                          arr.splice(toIndex, 0, moved);
+                          return arr;
+                        });
+                        setSavedDraft(false);
+                      }}
                     />
                   ))}
                   {/* Add more row */}
