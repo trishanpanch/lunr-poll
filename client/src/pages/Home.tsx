@@ -32,6 +32,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { SavedButton } from "@/components/SavedButton";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -265,18 +266,12 @@ function Topbar({
 
       {/* Right: actions */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <Button
-          variant="outline"
-          onClick={onSaveDraft}
-          className={`gap-1.5 ${!isDirty && hasEverSaved ? "text-green-600 border-border" : ""}`}
-          style={{ fontFamily: "'Geist', system-ui, sans-serif", fontSize: 13 }}
-        >
-          {!isDirty && hasEverSaved ? (
-            <><CheckCircle2 size={14} /> Saved</>
-          ) : (
-            "Save Draft"
-          )}
-        </Button>
+        <SavedButton
+          isDirty={isDirty}
+          hasEverSaved={hasEverSaved}
+          onSave={onSaveDraft}
+          saveLabel="Save Draft"
+        />
         {/* Preview button */}
         <Button
           variant="outline"

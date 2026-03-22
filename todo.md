@@ -208,3 +208,11 @@
 ## Design System — Saved State Button
 - [x] Find all "Saved" state button instances across the codebase
 - [x] Normalize all instances to: outlined border, green CheckCircle2 icon, "Saved" label, no fill
+
+## Design System — Shared SavedButton & DiscardButton Components
+- [x] Create shared SavedButton component (outlined, green CheckCircle2 icon, green text, no fill)
+- [x] Create shared DiscardButton component (outlined, muted text, RotateCcw icon)
+- [x] Replace inline Save Draft / Saved button in Home.tsx with SavedButton
+- [x] Replace inline Save / Saved button in Settings.tsx with SavedButton
+- [x] Replace inline Discard button in Settings.tsx with DiscardButton
+- [x] Update changelog with design system component extraction entry

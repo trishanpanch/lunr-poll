@@ -15,10 +15,9 @@ import {
   Radio,
   Download,
   Shield,
-  Save,
-  RotateCcw,
-  CheckCircle2,
 } from "lucide-react";
+import { SavedButton } from "@/components/SavedButton";
+import { DiscardButton } from "@/components/DiscardButton";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -1013,58 +1012,15 @@ export default function Settings() {
         {/* Save / Discard actions */}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
           {isDirty && (
-            <button
-              onClick={handleDiscard}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "8px 16px",
-                borderRadius: 10,
-                border: "1.5px solid oklch(0.88 0 0)",
-                background: "var(--card)",
-                color: "oklch(0.45 0 0)",
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-            >
-              <RotateCcw size={13} />
-              Discard
-            </button>
+            <DiscardButton onDiscard={handleDiscard} />
           )}
-          <button
-            onClick={handleSave}
-            disabled={!isDirty}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "8px 18px",
-              borderRadius: 10,
-              border: isDirty
-                ? "1.5px solid oklch(0.45 0.22 264)"
-                : "1.5px solid var(--border)",
-              background: isDirty ? "oklch(0.45 0.22 264)" : "transparent",
-              color: isDirty ? "#fff" : "oklch(0.45 0.18 160)",
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: isDirty ? "pointer" : "default",
-              transition: "all 0.2s",
-            }}
-          >
-            {!isDirty ? (
-              <>
-                <CheckCircle2 size={13} />
-                Saved
-              </>
-            ) : (
-              <>
-                <Save size={13} />
-                Save Changes
-              </>
-            )}
-          </button>
+          <SavedButton
+            isDirty={isDirty}
+            hasEverSaved={true}
+            onSave={handleSave}
+            saveLabel="Save Changes"
+            isSaving={saveMutation.isPending}
+          />
         </div>
       </header>
 
@@ -1085,36 +1041,14 @@ export default function Settings() {
         >
           <span>You have unsaved changes.</span>
           <div style={{ display: "flex", gap: 8 }}>
-            <button
-              onClick={handleDiscard}
-              style={{
-                padding: "5px 12px",
-                borderRadius: 7,
-                border: "1.5px solid oklch(0.82 0.08 80)",
-                background: "transparent",
-                color: "oklch(0.45 0.14 70)",
-                fontSize: 12,
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-            >
-              Discard
-            </button>
-            <button
-              onClick={handleSave}
-              style={{
-                padding: "5px 12px",
-                borderRadius: 7,
-                border: "none",
-                background: "oklch(0.52 0.18 70)",
-                color: "#fff",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Save Changes
-            </button>
+            <DiscardButton onDiscard={handleDiscard} />
+            <SavedButton
+              isDirty={isDirty}
+              hasEverSaved={true}
+              onSave={handleSave}
+              saveLabel="Save Changes"
+              isSaving={saveMutation.isPending}
+            />
           </div>
         </div>
       )}

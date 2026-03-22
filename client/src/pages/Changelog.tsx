@@ -32,8 +32,32 @@ interface ChangelogItem {
 const DAYS: ChangelogDay[] = [
   {
     date: "March 22, 2026",
-    title: "Dark Mode",
+    title: "Dark Mode & Design System",
     groups: [
+      {
+        category: "Design System",
+        color: "oklch(0.52 0.18 160)",
+        items: [
+          {
+            title: "SavedButton extracted as a shared component",
+            description:
+              "The Save Draft / Saved toggle is now a reusable <SavedButton> component in client/src/components/SavedButton.tsx. It encapsulates the canonical design: outlined border, green CheckCircle2 icon, green text in the saved state, and a standard Save icon with neutral styling in the dirty state. Both Home.tsx (session builder) and Settings.tsx now import and use this component instead of maintaining separate inline implementations.",
+            tag: "Design System",
+          },
+          {
+            title: "DiscardButton extracted as a shared component",
+            description:
+              "A companion <DiscardButton> component has been added in client/src/components/DiscardButton.tsx. Canonical design: outlined border, muted foreground text, RotateCcw icon. Settings.tsx uses it in both the sticky header and the unsaved-changes banner, replacing two separate inline <button> elements.",
+            tag: "Design System",
+          },
+          {
+            title: "Saved state button design standardized across the app",
+            description:
+              "Prior to this change, the Saved button had two divergent designs: Settings.tsx used a filled green background with white text, while Home.tsx used a hardcoded bg-white that broke in dark mode. Both have been normalized to the canonical outlined design and now delegate to the shared SavedButton component.",
+            tag: "Polish",
+          },
+        ],
+      },
       {
         category: "Theming",
         color: "oklch(0.52 0.18 264)",
