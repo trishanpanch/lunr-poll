@@ -822,7 +822,7 @@ function SystemSection({
           padding: "16px",
           background: "var(--secondary)",
           borderRadius: 10,
-          border: "1.5px solid oklch(0.91 0 0)",
+          border: "1.5px solid var(--border)",
         }}
       >
         <div
@@ -1247,7 +1247,7 @@ export default function Settings() {
                 alignItems: "center",
                 justifyContent: "center",
                 height: 200,
-                color: "oklch(0.65 0 0)",
+                color: "var(--muted-foreground)",
                 fontSize: 14,
               }}
             >

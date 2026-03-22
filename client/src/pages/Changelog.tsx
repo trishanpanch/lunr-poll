@@ -53,7 +53,7 @@ const DAYS: ChangelogDay[] = [
           {
             title: "Hardcoded colors replaced with CSS variables across all pages",
             description:
-              "All major pages (session builder, sessions dashboard, settings, join, live session, student session, results, changelog) have had their hardcoded oklch and hex color values replaced with semantic CSS variables (--background, --card, --border, --foreground, --muted-foreground). Accent colors on buttons and interactive elements remain as-is since they are intentional brand colors.",
+              "All major pages (session builder, sessions dashboard, settings, join, live session, student session, results, changelog) have had their hardcoded oklch and hex color values replaced with semantic CSS variables (--background, --card, --border, --foreground, --muted-foreground, --indigo-light, --violet-light, --green-light, --blue-light). Accent colors on buttons and interactive elements remain as-is since they are intentional brand colors. Dark-mode overrides for all tinted surface tokens are defined in index.css.",
             tag: "Polish",
           },
           {
@@ -640,7 +640,7 @@ export default function Changelog() {
                     fontWeight: 700,
                     letterSpacing: "0.08em",
                     textTransform: "uppercase",
-                    color: "oklch(0.65 0 0)",
+                    color: "var(--muted-foreground)",
                     marginBottom: 4,
                   }}
                 >
@@ -702,8 +702,8 @@ export default function Changelog() {
                       marginLeft: "auto",
                       fontSize: 11,
                       fontWeight: 600,
-                      color: "oklch(0.65 0 0)",
-                      background: "oklch(0.94 0 0)",
+                      color: "var(--muted-foreground)",
+                      background: "var(--muted)",
                       padding: "2px 8px",
                       borderRadius: 20,
                       fontFamily: "'Geist Mono', monospace",
@@ -793,7 +793,7 @@ export default function Changelog() {
             borderTop: "1px solid oklch(0.93 0.01 264)",
           }}
         >
-          <p style={{ fontSize: 12, color: "oklch(0.65 0 0)", margin: 0 }}>
+          <p style={{ fontSize: 12, color: "var(--muted-foreground)", margin: 0 }}>
             Session Builder · Changelog
           </p>
         </div>

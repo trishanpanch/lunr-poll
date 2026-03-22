@@ -180,7 +180,7 @@ function SessionCard({
             <button
               onClick={() => setShowQR(true)}
               title="Show QR code"
-              style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
               className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
             >
               <QrCode size={15} />
@@ -188,7 +188,7 @@ function SessionCard({
             <button
               onClick={handleCopyLink}
               title="Copy join link"
-              style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
               className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
             >
               <Link2 size={15} />
@@ -196,7 +196,7 @@ function SessionCard({
             <div style={{ position: "relative" }}>
               <button
                 onClick={() => setMenuOpen((v) => !v)}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
                 className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.4_0_0)] transition-colors"
               >
                 <MoreHorizontal size={16} />
@@ -213,7 +213,7 @@ function SessionCard({
                     <button onClick={() => { onEdit(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--foreground)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors">
                       <BookOpen size={13} /> Edit Session
                     </button>
-                    <div style={{ height: 1, background: "oklch(0.94 0 0)", margin: "2px 0" }} />
+                    <div style={{ height: 1, background: "var(--muted)", margin: "2px 0" }} />
                     <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "oklch(0.577 0.245 27.325)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.97_0.02_27)] transition-colors">
                       <Trash2 size={13} /> Delete
                     </button>
@@ -307,7 +307,7 @@ function SessionCard({
               onClick={onViewLive}
               style={{
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                padding: "9px 14px", borderRadius: 10, background: "oklch(0.96 0 0)",
+                padding: "9px 14px", borderRadius: 10, background: "var(--muted)",
                 border: "1.5px solid oklch(0.88 0 0)", color: "oklch(0.45 0 0)",
                 fontSize: 13, fontWeight: 600, fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                 transition: "all 0.15s",
@@ -395,7 +395,7 @@ function PastSessionRow({
           Closed {formatDate(session.closedAt ?? session.updatedAt)}
         </p>
         {session.launchedAt && (
-          <p style={{ margin: "2px 0 0", fontSize: 11, color: "oklch(0.65 0 0)" }}>
+          <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--muted-foreground)" }}>
             Launched {formatDate(session.launchedAt)}
           </p>
         )}
@@ -406,7 +406,7 @@ function PastSessionRow({
         <button
           onClick={handleCopyLink}
           title="Copy join link"
-          style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
+          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
           className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
         >
           <Copy size={14} />
@@ -416,7 +416,7 @@ function PastSessionRow({
           style={{
             display: "flex", alignItems: "center", gap: 6,
             padding: "7px 14px", borderRadius: 9,
-            background: "oklch(0.96 0.04 264)", border: "1.5px solid oklch(0.88 0.04 264)",
+            background: "var(--indigo-light)", border: "1.5px solid oklch(0.88 0.04 264)",
             color: "oklch(0.45 0.22 264)", fontSize: 13, fontWeight: 600,
             fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
             transition: "all 0.15s",
@@ -428,7 +428,7 @@ function PastSessionRow({
         <div style={{ position: "relative" }}>
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.75 0 0)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
             className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.4_0_0)] transition-colors"
           >
             <MoreHorizontal size={16} />
@@ -641,7 +641,7 @@ export default function Sessions() {
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ position: "relative" }}>
-            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "oklch(0.65 0 0)", pointerEvents: "none" }} />
+            <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)", pointerEvents: "none" }} />
             <input
               type="text"
               placeholder="Search sessions…"

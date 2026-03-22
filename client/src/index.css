@@ -140,7 +140,7 @@
   --shadow-modal: 0 16px 48px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08); /* dialogs, popovers, dropdowns */
 }
 
-.dark {
+:root.dark {
   /* ── Manus-matching dark palette ── */
   /* Base: warm near-black #1C1C1E (oklch ~0.155 0.004 285) — not pure black */
   --background: oklch(0.155 0.004 285);          /* warm near-black page bg */

@@ -99,7 +99,7 @@ function ResponseChart({
                   {count} <span style={{ fontWeight: 400, color: TEXT_MUTED, fontSize: 12 }}>({pct}%)</span>
                 </span>
               </div>
-              <div style={{ height: 10, borderRadius: 5, background: "oklch(0.93 0 0)", overflow: "hidden" }}>
+              <div style={{ height: 10, borderRadius: 5, background: "var(--muted)", overflow: "hidden" }}>
                 <div style={{
                   height: "100%", borderRadius: 5,
                   width: `${pct}%`,
@@ -153,7 +153,7 @@ function ResponseChart({
             return (
               <div key={star} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_MID, width: 24, textAlign: "right" }}>{star}★</span>
-                <div style={{ flex: 1, height: 10, borderRadius: 5, background: "oklch(0.93 0 0)", overflow: "hidden" }}>
+                <div style={{ flex: 1, height: 10, borderRadius: 5, background: "var(--muted)", overflow: "hidden" }}>
                   <div style={{
                     height: "100%", borderRadius: 5,
                     width: `${pct}%`,
@@ -321,7 +321,7 @@ export default function SessionResults() {
         {/* Status badge */}
         <div style={{
           padding: "4px 12px", borderRadius: 20,
-          background: "oklch(0.96 0 0)", border: `1px solid ${BORDER}`,
+          background: "var(--muted)", border: `1px solid ${BORDER}`,
           fontSize: 12, fontWeight: 700, color: TEXT_MUTED,
         }}>
           CLOSED

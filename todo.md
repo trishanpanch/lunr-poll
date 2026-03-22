@@ -195,3 +195,12 @@
 - [x] Fix hardcoded colors in Sessions.tsx, Settings.tsx, other pages
 - [x] Add theme toggle button to app header/nav
 - [x] Update changelog with dark mode entry
+
+## Bug — Dark Mode Remaining Issues
+- [x] Audit all pages in dark mode and identify hardcoded white/light colors
+- [x] Fix Home.tsx (session builder) remaining hardcoded colors
+- [x] Fix Sessions.tsx remaining hardcoded colors
+- [x] Fix Settings.tsx remaining hardcoded colors
+- [x] Fix Landing.tsx, Join.tsx, LiveSession.tsx, StudentSession.tsx, SessionResults.tsx
+- [x] Remove ThemeContext debug console.log statements
+- [x] Update changelog with dark mode fix entry

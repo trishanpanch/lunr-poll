@@ -608,7 +608,7 @@ function OnboardingSteps({
                       boxShadow: "0 0 0 3px oklch(0.55 0.2 250 / 0.22)",
                       animation: "step-ring-pulse 1.8s ease-in-out infinite",
                     }
-                  : { background: "oklch(0.96 0.01 250)", color: "oklch(0.56 0.08 250)" }),
+                  : { background: "var(--blue-light)", color: "oklch(0.56 0.08 250)" }),
               }}
             >
               {step.done ? (
@@ -800,7 +800,7 @@ function MCOptionRow({
         style={{
           width: 22, height: 22, borderRadius: "50%",
           border: isCorrect ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid var(--border)",
-          background: isCorrect ? "oklch(0.92 0.08 160)" : "oklch(0.97 0 0)",
+          background: isCorrect ? "oklch(0.92 0.08 160)" : "var(--muted)",
           color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
           display: "flex", alignItems: "center", justifyContent: "center",
           flexShrink: 0, fontSize: 10, fontWeight: 700,
@@ -906,7 +906,7 @@ function QBadge({
           fontSize: 11,
           padding: "3px 9px",
           borderRadius: 20,
-          background: open ? "oklch(0.96 0.04 264)" : "oklch(0.97 0 0)",
+          background: open ? "oklch(0.96 0.04 264)" : "var(--muted)",
           color: open ? "oklch(0.45 0.22 264)" : "oklch(0.556 0 0)",
           fontWeight: 500,
           fontFamily: "'Geist', system-ui, sans-serif",
@@ -1269,7 +1269,7 @@ function QuestionCard({
               padding: "6px 8px",
               resize: "none",
               outline: "none",
-              background: "oklch(0.97 0.02 264 / 0.4)",
+              background: "var(--indigo-light)",
               boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
               overflow: "hidden",
               minHeight: "2.5em",
@@ -1373,7 +1373,7 @@ function QuestionCard({
                   fontSize: 11,
                   fontWeight: 600,
                   color: "oklch(0.52 0.22 290)",
-                  background: "oklch(0.96 0.04 290)",
+                  background: "var(--violet-light)",
                   border: "1px solid var(--border)",
                   borderRadius: 7,
                   padding: "4px 9px",
@@ -1426,7 +1426,7 @@ function QuestionCard({
                   resize: "none",
                   outline: "none",
                   overflow: "hidden",
-                  background: "oklch(0.97 0.02 264 / 0.4)",
+                  background: "var(--indigo-light)",
                   boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
                   minHeight: 60,
                   boxSizing: "border-box",
@@ -1442,7 +1442,7 @@ function QuestionCard({
                   lineHeight: 1.55,
                   margin: 0,
                   padding: "7px 10px",
-                  background: "oklch(0.97 0.02 264 / 0.35)",
+                  background: "var(--indigo-light)",
                   borderRadius: 8,
                   border: "1px solid var(--border)",
                   fontFamily: "'Geist', system-ui, sans-serif",
@@ -1633,7 +1633,7 @@ function AddQuestionModal({
               fontSize: 12,
               fontWeight: 600,
               color: "oklch(0.55 0.2 250)",
-              background: "oklch(0.96 0.04 250)",
+              background: "var(--blue-light)",
               border: "1px solid var(--border)",
               borderRadius: 7,
               padding: "5px 10px",
@@ -1667,7 +1667,7 @@ function AddQuestionModal({
                     padding: "9px 12px",
                     fontSize: 13,
                     fontFamily: "'Geist', system-ui, sans-serif",
-                    color: "oklch(0.25 0 0)",
+                    color: "var(--foreground)",
                     background: "transparent",
                     border: "none",
                     borderBottom: i < suggestions.length - 1 ? "1px solid var(--border)" : "none",
@@ -1706,7 +1706,7 @@ function AddQuestionModal({
                         : "1.5px solid var(--border)",
                       background: tfAnswer === label
                         ? "oklch(0.92 0.08 160)"
-                        : "oklch(0.985 0 0)",
+                        : "var(--card)",
                       color: tfAnswer === label
                         ? "oklch(0.38 0.14 160)"
                         : "oklch(0.45 0 0)",
@@ -1865,7 +1865,7 @@ function AddQuestionModal({
                   fontSize: 12,
                   fontWeight: 600,
                   color: "oklch(0.52 0.22 290)",
-                  background: "oklch(0.96 0.04 290)",
+                  background: "var(--violet-light)",
                   border: "1px solid var(--border)",
                   borderRadius: 7,
                   padding: "5px 10px",
@@ -2316,7 +2316,7 @@ function AiPanel({
                     alignItems: "center",
                     gap: 6,
                     cursor: fileUploading ? "not-allowed" : "pointer",
-                    background: isDragging ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
+                    background: isDragging ? "oklch(0.96 0.04 290)" : "var(--card)",
                     opacity: fileUploading ? 0.6 : 1,
                     transition: "all 0.15s",
                     marginBottom: fileChips.length > 0 ? 8 : 10,
@@ -2346,7 +2346,7 @@ function AiPanel({
                           gap: 5,
                           padding: "4px 10px",
                           borderRadius: 20,
-                          background: "oklch(0.96 0.04 290)",
+                          background: "var(--violet-light)",
                           border: "1px solid var(--border)",
                           fontSize: 12,
                           fontWeight: 500,
@@ -2445,7 +2445,7 @@ function AiPanel({
                             gap: 5,
                             padding: "3px 8px 3px 7px",
                             borderRadius: 20,
-                            background: "oklch(0.96 0.04 290)",
+                            background: "var(--violet-light)",
                             border: "1px solid var(--border)",
                             fontSize: 11,
                             fontFamily: "'Geist', system-ui, sans-serif",
@@ -2541,7 +2541,7 @@ function AiPanel({
                               gap: 6,
                               padding: "7px 10px",
                               borderRadius: 8,
-                              background: "oklch(0.97 0.03 290)",
+                              background: "var(--violet-light)",
                               border: "1px solid var(--border)",
                             }}
                           >
@@ -2594,7 +2594,7 @@ function AiPanel({
                             gap: 6,
                             padding: "7px 10px",
                             borderRadius: 8,
-                            background: "oklch(0.96 0.04 160)",
+                            background: "var(--green-light)",
                             border: "1px solid oklch(0.88 0.08 160)",
                           }}
                         >
@@ -2681,7 +2681,7 @@ function AiPanel({
                           padding: "5px 10px",
                           borderRadius: 20,
                           border: `1.5px solid ${active ? "oklch(0.52 0.22 290)" : "var(--border)"}`,
-                          background: active ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
+                          background: active ? "oklch(0.96 0.04 290)" : "var(--card)",
                           color: active ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
                           fontSize: 12,
                           fontWeight: 600,
@@ -2710,7 +2710,7 @@ function AiPanel({
                         width: 40, height: 36,
                         borderRadius: 8,
                         border: `1.5px solid ${count === n ? "oklch(0.52 0.22 290)" : "var(--border)"}`,
-                        background: count === n ? "oklch(0.96 0.04 290)" : "oklch(0.985 0 0)",
+                        background: count === n ? "oklch(0.96 0.04 290)" : "var(--card)",
                         color: count === n ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
                         fontSize: 13,
                         fontWeight: 700,
@@ -2922,7 +2922,7 @@ function AiPanel({
                                     fontSize: 11, fontFamily: "'Geist Mono', monospace",
                                     width: 22, height: 22, borderRadius: "50%",
                                     display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                                    background: isCorrect ? "oklch(0.52 0.18 160)" : "oklch(0.93 0 0)",
+                                    background: isCorrect ? "oklch(0.52 0.18 160)" : "var(--muted)",
                                     color: isCorrect ? "#fff" : "oklch(0.45 0 0)",
                                     fontWeight: 700,
                                   }}>
@@ -3022,7 +3022,7 @@ function AiPanel({
                                 color: "oklch(0.38 0.18 264)",
                                 lineHeight: 1.5,
                                 fontFamily: "'Geist', system-ui, sans-serif",
-                                background: "oklch(0.96 0.03 264 / 0.4)",
+                                background: "var(--indigo-light)",
                                 border: "1px solid var(--border)",
                                 borderRadius: 8,
                                 padding: "6px 8px",
@@ -3660,7 +3660,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             </div>
 
             {/* Progress bar */}
-            <div style={{ height: 3, background: "oklch(0.94 0 0)", flexShrink: 0 }}>
+            <div style={{ height: 3, background: "var(--muted)", flexShrink: 0 }}>
               <div style={{
                 height: "100%",
                 width: `${((previewIndex + 1) / questions.length) * 100}%`,
@@ -3719,7 +3719,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                           }}>
                             <span style={{
                               width: 26, height: 26, borderRadius: "50%",
-                              border: "1.5px solid oklch(0.82 0 0)",
+                              border: "1.5px solid var(--border)",
                               display: "flex", alignItems: "center", justifyContent: "center",
                               fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)",
                               fontFamily: "'Geist Mono', monospace", flexShrink: 0,
@@ -3739,7 +3739,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                             border: "1.5px solid var(--border)",
                             background: "var(--card)",
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: 15, fontWeight: 600, color: "oklch(0.35 0 0)",
+                            fontSize: 15, fontWeight: 600, color: "var(--foreground)",
                             cursor: "default",
                           }}>
                             {label}

@@ -195,7 +195,7 @@ function ResponseChart({
                 </span>
                 <span style={{ fontWeight: 600, color: isCorrect ? GREEN : TEXT_MID }}>{count}</span>
               </div>
-              <div style={{ height: 8, borderRadius: 4, background: "oklch(0.93 0 0)", overflow: "hidden" }}>
+              <div style={{ height: 8, borderRadius: 4, background: "var(--muted)", overflow: "hidden" }}>
                 <div style={{
                   height: "100%", borderRadius: 4,
                   width: `${pct}%`,
@@ -242,7 +242,7 @@ function ResponseChart({
           return (
             <div key={star} style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: TEXT_MID, width: 20 }}>{star}★</span>
-              <div style={{ flex: 1, height: 8, borderRadius: 4, background: "oklch(0.93 0 0)", overflow: "hidden" }}>
+              <div style={{ flex: 1, height: 8, borderRadius: 4, background: "var(--muted)", overflow: "hidden" }}>
                 <div style={{
                   height: "100%", borderRadius: 4,
                   width: `${pct}%`,
@@ -523,7 +523,7 @@ export default function LiveSession() {
               <span style={{ fontSize: 13, color: TEXT_MUTED }}>
                 Question {currentIdx + 1} of {questions.length}
               </span>
-              <div style={{ flex: 1, height: 6, borderRadius: 3, background: "oklch(0.93 0 0)", overflow: "hidden" }}>
+              <div style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--muted)", overflow: "hidden" }}>
                 <div style={{
                   height: "100%", borderRadius: 3,
                   width: `${((currentIdx + 1) / questions.length) * 100}%`,
