@@ -13,6 +13,7 @@ import {
   Circle, Pencil, ArrowLeft, ToggleLeft, Upload, FileText,
   Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
   ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
+  PanelLeftClose, PanelLeftOpen,
 } from "lucide-react";
 import {
   Dialog,
@@ -326,179 +327,264 @@ function Sidebar({
   onAddPreset: (p: typeof PRESETS[0]) => void;
   onOpenMagic: () => void;
 }) {
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem("lunr_sidebar_collapsed") === "true"; }
+    catch { return false; }
+  });
+
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); }
+    catch { /* ignore */ }
+  };
+
+  const W = collapsed ? 56 : 280;
+
   return (
     <aside
       style={{
-        width: 280,
-        minWidth: 280,
+        width: W,
+        minWidth: W,
         background: "transparent",
         display: "flex",
         flexDirection: "column",
-        overflowY: "auto",
+        overflowY: collapsed ? "visible" : "auto",
+        overflowX: "hidden",
         position: "sticky",
         top: 64,
         height: "calc(100vh - 64px)",
         alignSelf: "flex-start",
         flexShrink: 0,
+        transition: "width 0.2s ease",
       }}
     >
-      {/* AI Banner */}
-      <div
-        style={{
-          margin: "16px 14px 0",
-          background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
-          border: "1.5px solid var(--border)",
-          borderRadius: 14,
-          padding: "16px 16px 14px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Sparkles size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
-          <span
-            style={{
-              fontFamily: "'Geist', system-ui, sans-serif",
-              fontWeight: 700,
-              fontSize: 14,
-              color: "oklch(0.38 0.18 290)",
-            }}
-          >
-            Generate with AI
-          </span>
-        </div>
-        <p
-          style={{
-            fontSize: 12,
-            color: "oklch(0.48 0.14 290)",
-            lineHeight: 1.55,
-            margin: 0,
-          }}
-        >
-          Paste your lecture notes or topic — AI will draft questions instantly.
-        </p>
+      {/* Toggle button — always visible at top */}
+      <div style={{
+        display: "flex",
+        justifyContent: collapsed ? "center" : "flex-end",
+        padding: collapsed ? "12px 0" : "10px 10px 0",
+        flexShrink: 0,
+      }}>
         <button
-          onClick={onOpenMagic}
+          onClick={toggleCollapsed}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           style={{
-            marginTop: 4,
-            padding: "9px 14px",
-            borderRadius: 9,
+            background: "none",
             border: "none",
-            background: "linear-gradient(135deg, var(--violet) 0%, var(--violet-hover) 100%)",
-            color: "#fff",
-            fontSize: 13,
-            fontWeight: 700,
-            fontFamily: "'Geist', system-ui, sans-serif",
+            cursor: "pointer",
+            color: "var(--muted-foreground)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            boxShadow: "0 2px 8px oklch(0.52 0.22 290 / 0.28)",
-            transition: "opacity 0.15s",
+            padding: 6,
+            borderRadius: 8,
           }}
-          className="hover:opacity-88 transition-opacity"
+          className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
         >
-          <Sparkles size={14} />
-          Generate Questions
+          {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
         </button>
       </div>
 
-      {/* Question Types */}
-      <div style={{ padding: "20px 14px 0" }}>
-        <p
-          style={{
-            fontSize: 10.5,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.09em",
-            color: "var(--muted-foreground)",
-            marginBottom: 10,
-          }}
-        >
-          Add a Question
-        </p>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 8,
-          }}
-        >
+      {collapsed ? (
+        /* ── Icon-only strip ── */
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "4px 0 16px" }}>
+          {/* AI generate icon */}
+          <button
+            onClick={onOpenMagic}
+            title="Generate with AI"
+            style={{
+              width: 40, height: 40,
+              borderRadius: 10,
+              border: "none",
+              background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
+              color: "var(--ai-tab-icon)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer",
+              transition: "opacity 0.15s",
+              marginBottom: 4,
+            }}
+            className="hover:opacity-80 transition-opacity"
+          >
+            <Sparkles size={18} />
+          </button>
+
+          {/* Divider */}
+          <div style={{ width: 28, height: 1, background: "var(--border)", margin: "4px 0" }} />
+
+          {/* Question type icons */}
           {(["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
             const meta = TYPE_META[type];
             return (
               <button
                 key={type}
                 onClick={() => onAddType(type)}
-                title={meta.desc}
+                title={type}
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 7,
-                  padding: "14px 8px",
-                  borderRadius: 12,
+                  width: 40, height: 40,
+                  borderRadius: 10,
                   border: "1.5px solid var(--border)",
                   background: "var(--card)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  fontFamily: "'Geist', system-ui, sans-serif",
-                  color: "var(--foreground)",
+                  color: meta.color,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer",
                   transition: "all 0.15s",
                 }}
-                className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
+                className="hover:border-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
               >
-                <span style={{ color: meta.color }}>{meta.icon}</span>
-                {type}
+                {meta.icon}
               </button>
             );
           })}
-        </div>
-      </div>
 
-      {/* Presets */}
-      <div style={{ padding: "20px 14px 20px" }}>
-        <p
-          style={{
-            fontSize: 10.5,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.09em",
-            color: "var(--muted-foreground)",
-            marginBottom: 10,
-          }}
-        >
-          Quick Presets
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {/* Divider */}
+          <div style={{ width: 28, height: 1, background: "var(--border)", margin: "4px 0" }} />
+
+          {/* Preset icons */}
           {PRESETS.map((preset) => (
             <button
               key={preset.name}
               onClick={() => onAddPreset(preset)}
+              title={preset.name}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "10px 12px",
+                width: 40, height: 40,
                 borderRadius: 10,
                 border: "1.5px solid var(--border)",
                 background: "var(--card)",
-                fontSize: 13,
-                fontWeight: 500,
-                fontFamily: "'Geist', system-ui, sans-serif",
-                color: "var(--foreground)",
+                color: "oklch(0.55 0.2 250)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer",
                 transition: "all 0.15s",
-                textAlign: "left",
               }}
-              className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all"
+              className="hover:border-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
             >
-              <span style={{ color: "oklch(0.55 0.2 250)", opacity: 0.8 }}>{preset.icon}</span>
-              <span style={{ flex: 1 }}>{preset.name}</span>
+              {preset.icon}
             </button>
           ))}
         </div>
-      </div>
+      ) : (
+        /* ── Expanded full sidebar ── */
+        <>
+          {/* AI Banner */}
+          <div
+            style={{
+              margin: "8px 14px 0",
+              background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
+              border: "1.5px solid var(--border)",
+              borderRadius: 14,
+              padding: "16px 16px 14px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Sparkles size={18} style={{ color: "var(--ai-tab-icon)" }} />
+              <span style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>
+                Generate with AI
+              </span>
+            </div>
+            <p style={{ fontSize: 12, color: "var(--muted-foreground)", lineHeight: 1.55, margin: 0 }}>
+              Paste your lecture notes or topic — AI will draft questions instantly.
+            </p>
+            <button
+              onClick={onOpenMagic}
+              style={{
+                marginTop: 4,
+                padding: "9px 14px",
+                borderRadius: 9,
+                border: "none",
+                background: "linear-gradient(135deg, var(--violet) 0%, var(--violet-hover) 100%)",
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 700,
+                fontFamily: "'Geist', system-ui, sans-serif",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                boxShadow: "0 2px 8px oklch(0.52 0.22 290 / 0.28)",
+                transition: "opacity 0.15s",
+              }}
+              className="hover:opacity-88 transition-opacity"
+            >
+              <Sparkles size={14} />
+              Generate Questions
+            </button>
+          </div>
+
+          {/* Question Types */}
+          <div style={{ padding: "20px 14px 0" }}>
+            <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em", color: "var(--muted-foreground)", marginBottom: 10 }}>
+              Add a Question
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {(["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
+                const meta = TYPE_META[type];
+                return (
+                  <button
+                    key={type}
+                    onClick={() => onAddType(type)}
+                    title={meta.desc}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 7,
+                      padding: "14px 8px",
+                      borderRadius: 12,
+                      border: "1.5px solid var(--border)",
+                      background: "var(--card)",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      color: "var(--foreground)",
+                      transition: "all 0.15s",
+                    }}
+                    className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
+                  >
+                    <span style={{ color: meta.color }}>{meta.icon}</span>
+                    {type}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Presets */}
+          <div style={{ padding: "20px 14px 20px" }}>
+            <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em", color: "var(--muted-foreground)", marginBottom: 10 }}>
+              Quick Presets
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {PRESETS.map((preset) => (
+                <button
+                  key={preset.name}
+                  onClick={() => onAddPreset(preset)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "10px 12px",
+                    borderRadius: 10,
+                    border: "1.5px solid var(--border)",
+                    background: "var(--card)",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                    color: "var(--foreground)",
+                    transition: "all 0.15s",
+                    textAlign: "left",
+                  }}
+                  className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] transition-all"
+                >
+                  <span style={{ color: "oklch(0.55 0.2 250)", opacity: 0.8 }}>{preset.icon}</span>
+                  <span style={{ flex: 1 }}>{preset.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </aside>
   );
 }
@@ -3316,7 +3402,10 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   const [typePickerOpen, setTypePickerOpen] = useState(false);
 
   // AI panel
-  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiPanelOpen, setAiPanelOpen] = useState(() => {
+    try { return localStorage.getItem("lunr_ai_panel_open") === "true"; }
+    catch { return false; }
+  });
   const [aiPanelWidth, setAiPanelWidth] = useState(() => {
     try { return parseInt(localStorage.getItem("lunr_ai_panel_width") || "320", 10); }
     catch { return 320; }
@@ -3350,6 +3439,12 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isResizingPanel, aiPanelWidth]);
+
+  // Persist AI panel open/close state
+  useEffect(() => {
+    try { localStorage.setItem("lunr_ai_panel_open", aiPanelOpen.toString()); }
+    catch { /* ignore */ }
+  }, [aiPanelOpen]);
 
   const openAddType = (type: QuestionType) => {
     setAddModalType(type);

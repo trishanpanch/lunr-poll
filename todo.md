@@ -265,3 +265,16 @@
 
 ## Polish — AI Panel Collapse Button Alignment
 - [x] Align ChevronsRight button with AI panel content margins (removed right padding so icon sits flush at 18px edge)
+
+## Feature — Persist AI Panel Collapsed State
+- [x] Read AI panel open/close state in Home.tsx
+- [x] Initialize state from localStorage on mount (lazy useState initializer)
+- [x] Write to localStorage whenever state changes (useEffect on aiPanelOpen)
+
+## Feature — Collapsible Left Sidebar (Manus-style)
+- [x] Read current left sidebar structure in Home.tsx
+- [x] Add collapsed state with localStorage persistence
+- [x] Show icon-only strip when collapsed, full labels when expanded
+- [x] Add toggle button (PanelLeftClose / PanelLeftOpen icons)
+- [x] Smooth width transition between states
+- [x] Show tooltips on icons when collapsed (native title attribute)
