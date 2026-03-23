@@ -595,6 +595,58 @@ Harvard Poll — Design System
             </PatternCard>
 
             <PatternCard
+              title="Selection States"
+              description="Two contexts, two canonical patterns. General UI uses Indigo. AI panel uses Violet. Never mix — the color signals which context the user is in."
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                {/* General UI selection — Indigo */}
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--muted-foreground)", margin: "0 0 8px" }}>General UI — Indigo</p>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {["Option A", "Option B", "Option C"].map((label, i) => (
+                      <div key={label} style={{
+                        padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                        fontFamily: "'Geist', system-ui, sans-serif", cursor: "default",
+                        border: `1.5px solid ${i === 0 ? "oklch(0.45 0.22 264)" : "var(--border)"}`,
+                        background: i === 0 ? "oklch(0.94 0.04 264)" : "var(--card)",
+                        color: i === 0 ? "oklch(0.45 0.22 264)" : "var(--muted-foreground)",
+                      }}>{label}{i === 0 ? " ✓" : ""}</div>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11, color: "var(--muted-foreground)", margin: "6px 0 0", fontFamily: "'Geist Mono', monospace" }}>border: oklch(0.45 0.22 264) · bg: oklch(0.94 0.04 264) · text: oklch(0.45 0.22 264)</p>
+                </div>
+                {/* AI Panel selection — Violet */}
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--muted-foreground)", margin: "0 0 8px" }}>AI Panel — Violet</p>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}
+                  >
+                    {["Short Text", "Multiple Choice", "True / False"].map((label, i) => (
+                      <div key={label} style={{
+                        padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+                        fontFamily: "'Geist', system-ui, sans-serif", cursor: "default",
+                        border: `1.5px solid ${i !== 2 ? "var(--violet)" : "var(--border)"}`,
+                        background: i !== 2 ? "var(--violet-light)" : "var(--card)",
+                        color: i !== 2 ? "var(--violet)" : "var(--muted-foreground)",
+                      }}>{label}{i !== 2 ? " ✓" : ""}</div>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                    {[2, 3, 5, 8].map((n) => (
+                      <div key={n} style={{
+                        width: 40, height: 36, borderRadius: 8, fontSize: 13, fontWeight: 700,
+                        fontFamily: "'Geist', system-ui, sans-serif", cursor: "default",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: `1.5px solid ${n === 3 ? "var(--violet)" : "var(--border)"}`,
+                        background: n === 3 ? "var(--violet-light)" : "var(--card)",
+                        color: n === 3 ? "var(--violet)" : "var(--muted-foreground)",
+                      }}>{n}</div>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11, color: "var(--muted-foreground)", margin: "6px 0 0", fontFamily: "'Geist Mono', monospace" }}>border: var(--violet) · bg: var(--violet-light) · text: var(--violet)</p>
+                </div>
+              </div>
+            </PatternCard>
+            <PatternCard
               title="Toast Notifications"
               description="Use sonner for all feedback. Success for confirmations, info for neutral updates, error for failures. Keep messages under 8 words."
             >

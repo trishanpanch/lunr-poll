@@ -254,3 +254,8 @@
 ## Bug — AI Tab Handle Icon Not Visible
 - [x] Find AI tab handle icon in Home.tsx
 - [x] Fix icon color to #fff (always visible against violet/crimson gradient background)
+
+## Polish — AI Panel Selection State Visibility
+- [x] Add Selection States section to Design System page with live examples (Indigo for general UI, Violet for AI panel)
+- [x] Update question type filter buttons selection state in AI panel to match Design System (violet border + violet-light bg)
+- [x] Update question count selector selection state in AI panel to match Design System (violet border + violet-light bg)
