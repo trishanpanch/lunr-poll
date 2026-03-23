@@ -262,3 +262,6 @@
 
 ## Polish — AI Panel Collapse Button
 - [x] Replace X close button with ChevronsRight collapse button in AI panel header
+
+## Polish — AI Panel Collapse Button Alignment
+- [x] Align ChevronsRight button with AI panel content margins (removed right padding so icon sits flush at 18px edge)

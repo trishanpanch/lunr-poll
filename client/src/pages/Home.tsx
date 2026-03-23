@@ -2305,7 +2305,7 @@ function AiPanel({
             <button
               onClick={onClose}
               title="Collapse AI panel"
-              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
+              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: "4px 0 4px 4px", borderRadius: 6 }}
               className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
             >
               <ChevronsRight size={16} />
