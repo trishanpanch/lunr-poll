@@ -1925,11 +1925,21 @@ function AiPanel({
   onClose,
   onOpen,
   onAddQuestions,
+  aiPanelWidth,
+  isResizingPanel,
+  setIsResizingPanel,
+  minPanelWidth,
+  maxPanelWidth,
 }: {
   open: boolean;
   onClose: () => void;
   onOpen: () => void;
   onAddQuestions: (qs: Question[]) => void;
+  aiPanelWidth: number;
+  isResizingPanel: boolean;
+  setIsResizingPanel: (v: boolean) => void;
+  minPanelWidth: number;
+  maxPanelWidth: number;
 }) {
   const [content, setContent] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<Set<QuestionType>>(new Set(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]));
@@ -2227,29 +2237,29 @@ function AiPanel({
             height: 44,
             borderRadius: "12px 0 0 12px",
             background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
-            border: "1.5px solid #d8b4fe",
+            border: "1.5px solid var(--border)",
             borderRight: "none",
             padding: 0,
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "-3px 2px 12px rgba(139,92,246,0.20)",
+            boxShadow: "0 2px 8px var(--border)",
             zIndex: 300,
           }}
-          className="hover:bg-[#e9d5ff] transition-colors"
+          className="hover:bg-[var(--muted)] transition-colors"
         >
-          <Sparkles size={16} style={{ color: "#7c3aed", flexShrink: 0 }} />
+          <Sparkles size={16} style={{ color: "var(--indigo-light)", flexShrink: 0 }} />
         </button>
       )}
 
       {/* Inline aside — width animates so the canvas resizes naturally */}
       <aside
         style={{
-          width: open ? 320 : 0,
-          minWidth: open ? 320 : 0,
+          width: open ? aiPanelWidth : 0,
+          minWidth: open ? aiPanelWidth : 0,
           overflow: "hidden",
-          transition: "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)",
+          transition: isResizingPanel ? "none" : "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)",
           background: "transparent",
           display: "flex",
           flexDirection: "column",
@@ -2260,7 +2270,22 @@ function AiPanel({
           flexShrink: 0,
         }}
       >
-        <div style={{ width: 320, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "transparent" }}>
+        {/* Resize zone — drag from left edge */}
+        {open && (
+          <div
+            onMouseDown={() => setIsResizingPanel(true)}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: 8,
+              height: "100%",
+              cursor: "col-resize",
+              zIndex: 1000,
+            }}
+          />
+        )}
+        <div style={{ width: aiPanelWidth, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "transparent" }}>
           {/* Header */}
           <div style={{
             padding: "16px 18px 14px",
@@ -2272,15 +2297,15 @@ function AiPanel({
             flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Sparkles size={16} style={{ color: "oklch(0.52 0.22 290)" }} />
-              <span style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: "oklch(0.38 0.18 290)" }}>
+              <Sparkles size={16} style={{ color: "var(--indigo-light)" }} />
+              <span style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>
                 Generate with AI
               </span>
             </div>
             <button
               onClick={onClose}
               style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
-              className="hover:bg-[oklch(0.93_0.03_290)] transition-colors"
+              className="hover:bg-[var(--muted)] transition-colors"
             >
               <X size={15} />
             </button>
@@ -2303,7 +2328,7 @@ function AiPanel({
                   onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (!fileUploading) { const f = e.dataTransfer.files[0]; if (f) handleFile(f); } }}
                   onClick={() => { if (!fileUploading) fileInputRef.current?.click(); }}
                   style={{
-                    border: `1.5px dashed ${isDragging ? "oklch(0.52 0.22 290)" : "oklch(0.82 0.01 264)"}`,
+                    border: `1.5px dashed ${isDragging ? "var(--indigo-light)" : "var(--border)"}`,
                     borderRadius: 10,
                     padding: "14px 12px",
                     display: "flex",
@@ -2311,16 +2336,16 @@ function AiPanel({
                     alignItems: "center",
                     gap: 6,
                     cursor: fileUploading ? "not-allowed" : "pointer",
-                    background: isDragging ? "oklch(0.96 0.04 290)" : "var(--card)",
+                    background: isDragging ? "var(--muted)" : "var(--card)",
                     opacity: fileUploading ? 0.6 : 1,
                     transition: "all 0.15s",
                     marginBottom: fileChips.length > 0 ? 8 : 10,
                   }}
-                  className={fileUploading ? "" : "hover:border-[oklch(0.52_0.22_290)] hover:bg-[oklch(0.97_0.03_290)] transition-all"}
+                  className={fileUploading ? "" : "hover:border-[var(--indigo-light)] hover:bg-[var(--muted)] transition-all"}
                 >
                   {fileUploading
-                    ? <Loader2 size={18} className="animate-spin" style={{ color: "oklch(0.52 0.22 290)" }} />
-                    : <Upload size={18} style={{ color: "oklch(0.52 0.22 290)" }} />
+                    ? <Loader2 size={18} className="animate-spin" style={{ color: "var(--indigo-light)" }} />
+                    : <Upload size={18} style={{ color: "var(--indigo-light)" }} />
                   }
                   <span style={{ fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center", lineHeight: 1.4 }}>
                     {fileUploading ? "Extracting text…" : <><strong>Drop a file</strong> or click to upload</>}<br />
@@ -2345,7 +2370,7 @@ function AiPanel({
                           border: "1px solid var(--border)",
                           fontSize: 12,
                           fontWeight: 500,
-                          color: "oklch(0.38 0.18 290)",
+                          color: "var(--foreground)",
                           fontFamily: "'Geist', system-ui, sans-serif",
                           maxWidth: 200,
                         }}
@@ -2354,7 +2379,7 @@ function AiPanel({
                         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fc.name}</span>
                         <button
                           onClick={() => setFileChips((prev) => prev.filter((_, idx) => idx !== i))}
-                          style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.52 0.22 290)", display: "flex", alignItems: "center", padding: 0, marginLeft: 2 }}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--indigo-light)", display: "flex", alignItems: "center", padding: 0, marginLeft: 2 }}
                         >
                           <X size={11} />
                         </button>
@@ -2412,8 +2437,8 @@ function AiPanel({
                         padding: "0 12px",
                         borderRadius: 8,
                         border: "none",
-                        background: !urlInput.trim() || loading ? "var(--border)" : "oklch(0.52 0.22 290)",
-                        color: !urlInput.trim() || loading ? "oklch(0.6 0 0)" : "#fff",
+                        background: !urlInput.trim() || loading ? "var(--border)" : "var(--indigo-light)",
+                        color: !urlInput.trim() || loading ? "var(--muted-foreground)" : "#fff",
                         fontSize: 12,
                         fontWeight: 700,
                         fontFamily: "'Geist', system-ui, sans-serif",
@@ -2444,7 +2469,7 @@ function AiPanel({
                             border: "1px solid var(--border)",
                             fontSize: 11,
                             fontFamily: "'Geist', system-ui, sans-serif",
-                            color: "oklch(0.38 0.18 290)",
+                            color: "var(--foreground)",
                             maxWidth: 220,
                           }}
                         >
@@ -2458,7 +2483,7 @@ function AiPanel({
                               background: "none",
                               border: "none",
                               cursor: "pointer",
-                              color: "oklch(0.52 0.18 290)",
+                              color: "var(--indigo-light)",
                               display: "flex",
                               alignItems: "center",
                               padding: 0,
@@ -2675,9 +2700,9 @@ function AiPanel({
                           gap: 5,
                           padding: "5px 10px",
                           borderRadius: 20,
-                          border: `1.5px solid ${active ? "oklch(0.52 0.22 290)" : "var(--border)"}`,
-                          background: active ? "oklch(0.96 0.04 290)" : "var(--card)",
-                          color: active ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
+                          border: `1.5px solid ${active ? "var(--indigo-light)" : "var(--border)"}`,
+                          background: active ? "var(--muted)" : "var(--card)",
+                          color: active ? "var(--foreground)" : "var(--muted-foreground)",
                           fontSize: 12,
                           fontWeight: 600,
                           fontFamily: "'Geist', system-ui, sans-serif",
@@ -2704,9 +2729,9 @@ function AiPanel({
                       style={{
                         width: 40, height: 36,
                         borderRadius: 8,
-                        border: `1.5px solid ${count === n ? "oklch(0.52 0.22 290)" : "var(--border)"}`,
-                        background: count === n ? "oklch(0.96 0.04 290)" : "var(--card)",
-                        color: count === n ? "oklch(0.38 0.18 290)" : "oklch(0.556 0 0)",
+                        border: `1.5px solid ${count === n ? "var(--indigo-light)" : "var(--border)"}`,
+                        background: count === n ? "var(--muted)" : "var(--card)",
+                        color: count === n ? "var(--foreground)" : "var(--muted-foreground)",
                         fontSize: 13,
                         fontWeight: 700,
                         fontFamily: "'Geist', system-ui, sans-serif",
@@ -3063,8 +3088,8 @@ function AiPanel({
                   border: "none",
                   background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading
                     ? "var(--border)"
-                    : "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
-                  color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "oklch(0.6 0 0)" : "#fff",
+                    : "linear-gradient(135deg, var(--indigo-light) 0%, var(--violet-light) 100%)",
+                  color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "var(--muted-foreground)" : "#fff",
                   fontSize: 13,
                   fontWeight: 700,
                   fontFamily: "'Geist', system-ui, sans-serif",
@@ -3282,10 +3307,39 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
 
   // AI panel
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [aiPanelWidth, setAiPanelWidth] = useState(() => {
+    try { return parseInt(localStorage.getItem("lunr_ai_panel_width") || "320", 10); }
+    catch { return 320; }
+  });
+  const minPanelWidth = 240;
+  const maxPanelWidth = 600;
+  const [isResizingPanel, setIsResizingPanel] = useState(false);
 
   // Preview modal
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
+
+  // ── AI Panel Resize ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!isResizingPanel) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      const viewport = document.documentElement.clientWidth;
+      const newWidth = viewport - e.clientX;
+      if (newWidth >= minPanelWidth && newWidth <= maxPanelWidth) {
+        setAiPanelWidth(newWidth);
+      }
+    };
+    const handleMouseUp = () => {
+      setIsResizingPanel(false);
+      localStorage.setItem("lunr_ai_panel_width", aiPanelWidth.toString());
+    };
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizingPanel, aiPanelWidth]);
 
   const openAddType = (type: QuestionType) => {
     setAddModalType(type);
@@ -3360,8 +3414,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           var(--card) 0px,
           var(--card) 280px,
           var(--background) 280px,
-          var(--background) calc(100% - ${aiPanelOpen ? 320 : 0}px),
-          var(--card) calc(100% - ${aiPanelOpen ? 320 : 0}px),
+          var(--background) calc(100% - ${aiPanelOpen ? aiPanelWidth : 0}px),
+          var(--card) calc(100% - ${aiPanelOpen ? aiPanelWidth : 0}px),
           var(--card) 100%
         )`,
         /* Ensure the AI panel always has a visible left border via the canvas right border */
@@ -3505,6 +3559,11 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           onClose={() => setAiPanelOpen(false)}
           onOpen={() => setAiPanelOpen(true)}
           onAddQuestions={handleAiAddQuestions}
+          aiPanelWidth={aiPanelWidth}
+          isResizingPanel={isResizingPanel}
+          setIsResizingPanel={setIsResizingPanel}
+          minPanelWidth={minPanelWidth}
+          maxPanelWidth={maxPanelWidth}
         />
 
       </div>

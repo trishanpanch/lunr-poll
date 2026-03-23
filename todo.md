@@ -218,3 +218,21 @@
 - [x] Update changelog with design system component extraction entry
 - [x] Add SavedButton and DiscardButton to Design System page with live examples
 - [x] Remove Save icon from SavedButton dirty state (text only)
+
+## Feature — Resizable AI Panel
+- [ ] Make AI panel (right sidebar) resizable by dragging its left edge
+- [ ] Persist panel width in localStorage
+- [ ] Show visual drag handle on the divider line
+- [ ] Test in both light and dark modes
+
+## Bug — Dark Mode AI Panel Contrast
+- [x] Fix AI panel header text color (too dark in dark mode)
+- [x] Fix AI panel description text color (too dark in dark mode)
+- [x] Fix AI panel background gradient (too dark in dark mode)
+- [x] Replace hardcoded oklch/hex colors with CSS variables in AiPanel
+
+## Feature — Resizable AI Panel
+- [x] Add AI panel width state with localStorage persistence
+- [x] Implement drag-from-edge resize (Manus-style, no visible handle)
+- [x] Update gradient background to use dynamic panel width
+- [x] Disable transition during active resize for smooth dragging
