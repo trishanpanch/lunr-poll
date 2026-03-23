@@ -250,3 +250,7 @@
 ## Bug — Session Not Found on /session/:id
 - [x] Diagnose "Session not found" error on /session/60004 (stale URL, session deleted/rolled back)
 - [x] Add graceful error handling: show toast and reset to new session when ID not found in DB
+
+## Bug — AI Tab Handle Icon Not Visible
+- [x] Find AI tab handle icon in Home.tsx
+- [x] Fix icon color to #fff (always visible against violet/crimson gradient background)
