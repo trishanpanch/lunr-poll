@@ -59,6 +59,48 @@ const DAYS: ChangelogDay[] = [
         ],
       },
       {
+        category: "Accessibility",
+        color: "oklch(0.52 0.18 160)",
+        items: [
+          {
+            title: "Full dark mode accessibility audit across all pages",
+            description:
+              "A systematic scan of every page (Home, Sessions, Settings, LiveSession, DesignSystem) identified all remaining hardcoded oklch and hex color values that did not adapt to dark mode. All instances were replaced with CSS variables. A new --destructive-border token was added to both light and dark themes. Key fixes include: status badges, tab underlines, progress dots, True/False and Multiple Choice answer badges, the Launch button gradient, the LiveSession header background, and toggle buttons.",
+            tag: "Accessibility",
+          },
+        ],
+      },
+      {
+        category: "Session Builder",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Resizable AI panel (Manus-style edge drag)",
+            description:
+              "The right-side AI panel is now resizable by dragging its left edge — no visible handle, just a 8px hover zone that changes the cursor to col-resize. Width is constrained between 240px and 600px and persisted in localStorage so it survives page reloads. CSS transitions are disabled during active drag for smooth interaction.",
+            tag: "Feature",
+          },
+          {
+            title: "SavedButton dirty state: icon removed",
+            description:
+              "The floppy disc Save icon was removed from the SavedButton dirty state. The button now shows text only (\"Save Draft\" or \"Save Changes\") with no icon, giving it a cleaner, more modern appearance. The saved state retains its green CheckCircle2 icon for confirmation feedback.",
+            tag: "Polish",
+          },
+        ],
+      },
+      {
+        category: "Bug Fixes",
+        color: "oklch(0.52 0.18 27)",
+        items: [
+          {
+            title: "Session not found — graceful fallback to new session",
+            description:
+              "Navigating to /session/:id with a stale or deleted session ID previously caused a silent crash with a console error. The session builder now catches the \"Session not found\" error from the tRPC query, shows a toast notification, clears the stale ID from state, and resets the URL to /session so the user lands on a clean blank builder.",
+            tag: "Bug Fix",
+          },
+        ],
+      },
+      {
         category: "Theming",
         color: "oklch(0.52 0.18 264)",
         items: [
