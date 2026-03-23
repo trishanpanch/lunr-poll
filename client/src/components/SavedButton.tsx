@@ -12,11 +12,11 @@
  *
  * Canonical design (from design review 2026-03-22):
  *   Saved state  → variant="outline", green CheckCircle2 icon, green text, no fill
- *   Dirty state  → variant="outline", default text/border, save icon, normal text
+ *   Dirty state  → variant="outline", default text/border, text only (no icon), normal text
  */
 
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Save } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 interface SavedButtonProps {
   /** Whether there are unsaved changes */
@@ -63,10 +63,7 @@ export function SavedButton({
           Saved
         </>
       ) : (
-        <>
-          <Save size={14} />
-          {isSaving ? "Saving…" : saveLabel}
-        </>
+        isSaving ? "Saving…" : saveLabel
       )}
     </Button>
   );

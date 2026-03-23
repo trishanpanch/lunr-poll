@@ -217,3 +217,4 @@
 - [x] Replace inline Discard button in Settings.tsx with DiscardButton
 - [x] Update changelog with design system component extraction entry
 - [x] Add SavedButton and DiscardButton to Design System page with live examples
+- [x] Remove Save icon from SavedButton dirty state (text only)
