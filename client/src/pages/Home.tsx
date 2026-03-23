@@ -395,15 +395,15 @@ function Sidebar({
             style={{
               width: 40, height: 40,
               borderRadius: 10,
-              border: "none",
-              background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
-              color: "var(--ai-tab-icon)",
+              border: "1.5px solid var(--border)",
+              background: "var(--card)",
+              color: "var(--violet)",
               display: "flex", alignItems: "center", justifyContent: "center",
               cursor: "pointer",
-              transition: "opacity 0.15s",
+              transition: "all 0.15s",
               marginBottom: 4,
             }}
-            className="hover:opacity-80 transition-opacity"
+            className="hover:border-[oklch(0.55_0.2_290)] hover:shadow-sm transition-all"
           >
             <Sparkles size={18} />
           </button>
