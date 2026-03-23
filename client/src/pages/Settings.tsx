@@ -126,7 +126,7 @@ function FieldRow({
         justifyContent: "space-between",
         gap: 24,
         padding: "16px 0",
-        borderBottom: "1px solid oklch(0.94 0 0)",
+        borderBottom: "1px solid var(--border)",
       }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -175,7 +175,7 @@ function Toggle({
         height: 24,
         borderRadius: 12,
         border: "none",
-        background: checked ? "oklch(0.45 0.22 264)" : "oklch(0.85 0 0)",
+        background: checked ? "var(--primary)" : "var(--muted)",
         position: "relative",
         cursor: "pointer",
         transition: "background 0.2s",
@@ -220,7 +220,7 @@ function TextInput({
         width: 240,
         padding: "7px 10px",
         borderRadius: 8,
-        border: "1.5px solid oklch(0.88 0 0)",
+        border: "1.5px solid var(--border)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
         color: "var(--foreground)",
@@ -228,8 +228,8 @@ function TextInput({
         outline: "none",
         transition: "border-color 0.15s",
       }}
-      onFocus={(e) => (e.target.style.borderColor = "oklch(0.45 0.22 264)")}
-      onBlur={(e) => (e.target.style.borderColor = "oklch(0.88 0 0)")}
+      onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
+      onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
     />
   );
 }
@@ -250,7 +250,7 @@ function SelectInput({
       style={{
         padding: "7px 10px",
         borderRadius: 8,
-        border: "1.5px solid oklch(0.88 0 0)",
+        border: "1.5px solid var(--border)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
         color: "var(--foreground)",
@@ -294,7 +294,7 @@ function NumberInput({
         width: 80,
         padding: "7px 10px",
         borderRadius: 8,
-        border: "1.5px solid oklch(0.88 0 0)",
+        border: "1.5px solid var(--border)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
         color: "var(--foreground)",
@@ -302,8 +302,8 @@ function NumberInput({
         outline: "none",
         textAlign: "center",
       }}
-      onFocus={(e) => (e.target.style.borderColor = "oklch(0.45 0.22 264)")}
-      onBlur={(e) => (e.target.style.borderColor = "oklch(0.88 0 0)")}
+      onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
+      onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
     />
   );
 }
@@ -329,7 +329,7 @@ function TextareaInput({
         width: 300,
         padding: "8px 10px",
         borderRadius: 8,
-        border: "1.5px solid oklch(0.88 0 0)",
+        border: "1.5px solid var(--border)",
         fontFamily: "'Geist', system-ui, sans-serif",
         fontSize: 13,
         color: "var(--foreground)",
@@ -339,8 +339,8 @@ function TextareaInput({
         lineHeight: 1.5,
         transition: "border-color 0.15s",
       }}
-      onFocus={(e) => (e.target.style.borderColor = "oklch(0.45 0.22 264)")}
-      onBlur={(e) => (e.target.style.borderColor = "oklch(0.88 0 0)")}
+      onFocus={(e) => (e.target.style.borderColor = "var(--primary)")}
+      onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
     />
   );
 }
@@ -626,7 +626,7 @@ function StudentExperienceSection({
               width: 36,
               height: 36,
               borderRadius: 8,
-              border: "1.5px solid oklch(0.88 0 0)",
+              border: "1.5px solid var(--border)",
               cursor: "pointer",
               padding: 2,
             }}
@@ -786,13 +786,13 @@ function SystemSection({
       {/* Info banner */}
       <div
         style={{
-          background: "oklch(0.97 0.06 80)",
-          border: "1.5px solid oklch(0.88 0.08 80)",
+          background: "var(--amber-light)",
+          border: "1.5px solid var(--amber-border)",
           borderRadius: 10,
           padding: "12px 16px",
           marginBottom: 20,
           fontSize: 13,
-          color: "oklch(0.45 0.14 70)",
+          color: "var(--amber)",
           fontFamily: "'Geist', system-ui, sans-serif",
           lineHeight: 1.5,
         }}
@@ -829,7 +829,7 @@ function SystemSection({
             fontFamily: "'Geist', system-ui, sans-serif",
             fontWeight: 600,
             fontSize: 13,
-            color: "oklch(0.4 0 0)",
+            color: "var(--foreground)",
             marginBottom: 8,
           }}
         >
@@ -843,8 +843,8 @@ function SystemSection({
               ["Max sessions per user", "Unlimited"],
             ].map(([label, value]) => (
               <tr key={label}>
-                <td style={{ padding: "6px 0", color: "oklch(0.45 0 0)", borderBottom: "1px solid oklch(0.93 0 0)" }}>{label}</td>
-                <td style={{ padding: "6px 0", color: "var(--foreground)", fontWeight: 600, textAlign: "right", borderBottom: "1px solid oklch(0.93 0 0)" }}>{value}</td>
+                <td style={{ padding: "6px 0", color: "var(--muted-foreground)", borderBottom: "1px solid var(--border)" }}>{label}</td>
+                <td style={{ padding: "6px 0", color: "var(--foreground)", fontWeight: 600, textAlign: "right", borderBottom: "1px solid var(--border)" }}>{value}</td>
               </tr>
             ))}
           </tbody>
@@ -987,7 +987,7 @@ export default function Settings() {
             borderRadius: 9,
             background: "none",
             border: "1.5px solid var(--border)",
-            color: "oklch(0.45 0 0)",
+            color: "var(--muted-foreground)",
             cursor: "pointer",
             flexShrink: 0,
           }}
@@ -1028,14 +1028,14 @@ export default function Settings() {
       {isDirty && (
         <div
           style={{
-            background: "oklch(0.97 0.06 80)",
-            borderBottom: "1px solid oklch(0.88 0.08 80)",
+            background: "var(--amber-light)",
+            borderBottom: "1px solid var(--amber-border)",
             padding: "10px 28px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             fontSize: 13,
-            color: "oklch(0.45 0.14 70)",
+            color: "var(--amber)",
             fontFamily: "'Geist', system-ui, sans-serif",
           }}
         >
@@ -1096,9 +1096,9 @@ export default function Settings() {
                     gap: 10,
                     padding: "11px 16px",
                     border: "none",
-                    borderBottom: "1px solid oklch(0.94 0 0)",
-                    background: active ? "var(--background)" : "#fff",
-                    color: active ? "oklch(0.45 0.22 264)" : "oklch(0.45 0 0)",
+                    borderBottom: "1px solid var(--border)",
+                    background: active ? "var(--background)" : "var(--card)",
+                    color: active ? "var(--primary)" : "var(--muted-foreground)",
                     fontSize: 13,
                     fontWeight: active ? 600 : 400,
                     fontFamily: "'Geist', system-ui, sans-serif",
@@ -1107,7 +1107,7 @@ export default function Settings() {
                     transition: "all 0.15s",
                   }}
                 >
-                  <span style={{ color: active ? "oklch(0.45 0.22 264)" : "oklch(0.65 0 0)" }}>
+                  <span style={{ color: active ? "var(--primary)" : "var(--muted-foreground)" }}>
                     {item.icon}
                   </span>
                   {item.label}
@@ -1141,10 +1141,10 @@ export default function Settings() {
                     padding: "8px 14px",
                     borderRadius: 20,
                     border: active
-                      ? "1.5px solid oklch(0.88 0.04 264)"
-                      : "1.5px solid oklch(0.88 0 0)",
-                    background: active ? "var(--background)" : "#fff",
-                    color: active ? "oklch(0.45 0.22 264)" : "oklch(0.45 0 0)",
+                      ? "1.5px solid var(--primary)"
+                      : "1.5px solid var(--border)",
+                    background: active ? "var(--background)" : "var(--card)",
+                    color: active ? "var(--primary)" : "var(--muted-foreground)",
                     fontSize: 12,
                     fontWeight: active ? 600 : 400,
                     fontFamily: "'Geist', system-ui, sans-serif",

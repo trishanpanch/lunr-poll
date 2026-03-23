@@ -296,7 +296,7 @@ function Topbar({
             borderRadius: 10,
             border: "none",
             background: hasQuestions
-              ? "linear-gradient(135deg, oklch(0.514 0.2 13.9) 0%, oklch(0.44 0.2 13.9) 100%)"
+              ? "linear-gradient(135deg, var(--crimson) 0%, var(--crimson-hover) 100%)"
               : "var(--border)",
             color: hasQuestions ? "#fff" : "var(--muted-foreground)",
             fontSize: 14,
@@ -385,7 +385,7 @@ function Sidebar({
             padding: "9px 14px",
             borderRadius: 9,
             border: "none",
-            background: "linear-gradient(135deg, oklch(0.52 0.22 290) 0%, oklch(0.60 0.2 290) 100%)",
+            background: "linear-gradient(135deg, var(--violet) 0%, var(--violet-hover) 100%)",
             color: "#fff",
             fontSize: 13,
             fontWeight: 700,
@@ -533,7 +533,7 @@ function OnboardingSteps({
       sub: (
         <>
           Hit <strong>Launch Session</strong> — students join with code{" "}
-          <strong style={{ color: "oklch(0.45 0.22 264)", letterSpacing: "0.08em", fontFamily: "'Geist Mono', monospace" }}>{sessionCode}</strong>.
+          <strong style={{ color: "var(--primary)", letterSpacing: "0.08em", fontFamily: "'Geist Mono', monospace" }}>{sessionCode}</strong>.
         </>
       ),
       done: false,
@@ -595,10 +595,10 @@ function OnboardingSteps({
                 zIndex: 1,
                 transition: "all 0.25s",
                 ...(step.done
-                  ? { background: "oklch(0.92 0.1 160)", color: "oklch(0.38 0.18 160)" }
+                  ? { background: "var(--green-light)", color: "var(--green)" }
                   : step.active
                   ? {
-                      background: "oklch(0.55 0.2 250)",
+                      background: "var(--blue)",
                       color: "#fff",
                       boxShadow: "0 0 0 3px oklch(0.55 0.2 250 / 0.22)",
                       animation: "step-ring-pulse 1.8s ease-in-out infinite",
@@ -623,7 +623,7 @@ function OnboardingSteps({
                   fontFamily: "'Geist', system-ui, sans-serif",
                   fontWeight: 600,
                   fontSize: 14,
-                  color: step.active || step.done ? "oklch(0.145 0 0)" : "oklch(0.556 0 0)",
+                  color: step.active || step.done ? "var(--foreground)" : "var(--muted-foreground)",
                   margin: 0,
                   transition: "color 0.25s",
                 }}
@@ -719,7 +719,7 @@ function EmptyState({
         <Button
           onClick={onMagic}
           style={{
-            background: "oklch(0.52 0.22 290)",
+            background: "var(--violet)",
             color: "#fff",
             fontSize: 13,
             fontWeight: 700,
@@ -794,9 +794,9 @@ function MCOptionRow({
         title={isCorrect ? "Unmark correct" : "Mark as correct"}
         style={{
           width: 22, height: 22, borderRadius: "50%",
-          border: isCorrect ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid var(--border)",
-          background: isCorrect ? "oklch(0.92 0.08 160)" : "var(--muted)",
-          color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
+          border: isCorrect ? "2px solid var(--green)" : "1.5px solid var(--border)",
+          background: isCorrect ? "var(--green-light)" : "var(--muted)",
+          color: isCorrect ? "var(--green)" : "var(--muted-foreground)",
           display: "flex", alignItems: "center", justifyContent: "center",
           flexShrink: 0, fontSize: 10, fontWeight: 700,
           fontFamily: "'Geist Mono', monospace",
@@ -833,7 +833,7 @@ function MCOptionRow({
           style={{
             flex: 1, fontSize: 12.5, padding: "3px 6px",
             borderRadius: 6, cursor: "text",
-            color: isCorrect ? "oklch(0.38 0.14 160)" : "oklch(0.205 0 0)",
+            color: isCorrect ? "var(--green)" : "var(--foreground)",
             fontWeight: isCorrect ? 600 : 400,
             fontFamily: "'Geist', system-ui, sans-serif",
             transition: "background 0.12s",
@@ -853,7 +853,7 @@ function MCOptionRow({
             color: "var(--muted-foreground)", display: "flex",
             alignItems: "center", padding: "3px 4px", borderRadius: 5, flexShrink: 0,
           }}
-          className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.52_0.22_10)] transition-colors"
+            className="hover:bg-[var(--muted)] hover:text-[var(--destructive)] transition-colors"
         >
           <X size={12} />
         </button>
@@ -1206,7 +1206,7 @@ function QuestionCard({
                           background: isCurrent ? `${tm.color}10` : "transparent",
                           border: "none",
                           borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
-                          color: isCurrent ? tm.color : "oklch(0.25 0 0)",
+                          color: isCurrent ? tm.color : "var(--foreground)",
                           fontSize: 12.5,
                           fontWeight: isCurrent ? 700 : 500,
                           fontFamily: "'Geist', system-ui, sans-serif",
@@ -1214,7 +1214,7 @@ function QuestionCard({
                           textAlign: "left" as const,
                           transition: "background 0.1s",
                         }}
-                        className={isCurrent ? "" : "hover:bg-[oklch(0.97_0_0)]"}
+                        className={isCurrent ? "" : "hover:bg-[var(--muted)]"}
                       >
                         <span style={{ color: tm.color, display: "flex", alignItems: "center", flexShrink: 0 }}>{tm.icon}</span>
                         {t}
@@ -1303,11 +1303,11 @@ function QuestionCard({
                 fontSize: 11.5,
                 padding: "3px 10px",
                 borderRadius: 20,
-                background: question.tfAnswer === "True" ? "oklch(0.92 0.08 160)" : "oklch(0.96 0.04 10)",
-                color: question.tfAnswer === "True" ? "oklch(0.38 0.14 160)" : "oklch(0.42 0.14 10)",
+                background: question.tfAnswer === "True" ? "var(--green-light)" : "var(--destructive-light)",
+                color: question.tfAnswer === "True" ? "var(--green)" : "var(--destructive)",
                 fontWeight: 600,
                 fontFamily: "'Geist', system-ui, sans-serif",
-                border: question.tfAnswer === "True" ? "1px solid oklch(0.82 0.1 160)" : "1px solid oklch(0.88 0.08 10)",
+                border: question.tfAnswer === "True" ? "1px solid var(--green-border)" : "1px solid var(--destructive-border)",
               }}
             >
               Answer: {question.tfAnswer}
@@ -1391,7 +1391,7 @@ function QuestionCard({
                 fontWeight: 700,
                 textTransform: "uppercase",
                 letterSpacing: "0.08em",
-                color: "oklch(0.48 0.18 264)",
+                color: "var(--primary)",
                 margin: "0 0 4px",
                 fontFamily: "'Geist', system-ui, sans-serif",
               }}
@@ -1697,14 +1697,14 @@ function AddQuestionModal({
                       padding: "10px 0",
                       borderRadius: 10,
                       border: tfAnswer === label
-                        ? "2px solid oklch(0.52 0.18 160)"
+                        ? "2px solid var(--green)"
                         : "1.5px solid var(--border)",
                       background: tfAnswer === label
-                        ? "oklch(0.92 0.08 160)"
+                        ? "var(--green-light)"
                         : "var(--card)",
                       color: tfAnswer === label
-                        ? "oklch(0.38 0.14 160)"
-                        : "oklch(0.45 0 0)",
+                        ? "var(--green)"
+                        : "var(--foreground)",
                       fontSize: 14,
                       fontWeight: 700,
                       fontFamily: "'Geist', system-ui, sans-serif",
@@ -1773,10 +1773,10 @@ function AddQuestionModal({
                     style={{
                       width: 22, height: 22, borderRadius: "50%",
                       border: correctIndex === i ? "2px solid oklch(0.52 0.18 160)" : "1.5px solid var(--border)",
-                      background: correctIndex === i ? "oklch(0.92 0.08 160)" : "transparent",
+                      background: correctIndex === i ? "var(--green-light)" : "transparent",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       flexShrink: 0, fontSize: 10, fontWeight: 700,
-                      color: correctIndex === i ? "oklch(0.38 0.14 160)" : "oklch(0.556 0 0)",
+                      color: correctIndex === i ? "var(--green)" : "var(--muted-foreground)",
                       fontFamily: "'Geist Mono', monospace",
                       cursor: "pointer",
                       transition: "all 0.15s",
@@ -1897,7 +1897,7 @@ function AddQuestionModal({
             ) }
             disabled={!canSubmit}
             style={{
-              background: "oklch(0.45 0.22 264)",
+              background: "var(--primary)",
               color: "#fff",
               fontFamily: "'Geist', system-ui, sans-serif",
               fontWeight: 700,
@@ -2317,7 +2317,7 @@ function AiPanel({
             {/* Upload / Paste area */}
             {generated.length === 0 && (
               <>
-                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                   Source material
                 </p>
 
@@ -2514,7 +2514,7 @@ function AiPanel({
                 {/* Learning Objectives */}
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                    <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                    <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                       Learning Objectives
                     </p>
                     <button
@@ -2528,7 +2528,7 @@ function AiPanel({
                         fontSize: 11,
                         fontWeight: 600,
                         color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--muted-foreground)" : "oklch(0.45 0.18 160)",
-                        background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "oklch(0.94 0 0)" : "oklch(0.94 0.06 160)",
+                        background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--muted)" : "var(--green-light)",
                         border: "1px solid " + ((!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--border)" : "oklch(0.84 0.1 160)"),
                         borderRadius: 6,
                         padding: "3px 8px",
@@ -2542,7 +2542,7 @@ function AiPanel({
                         : <><Sparkles size={10} /> Suggest</>}
                     </button>
                   </div>
-                  <p style={{ margin: "0 0 8px", fontSize: 11.5, color: "oklch(0.55 0 0)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.5 }}>
+                  <p style={{ margin: "0 0 8px", fontSize: 11.5, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.5 }}>
                     What should students be able to do after this session? AI will steer questions toward these goals.
                   </p>
                   {/* AI-suggested objectives — accept or dismiss */}
@@ -2565,7 +2565,7 @@ function AiPanel({
                               border: "1px solid var(--border)",
                             }}
                           >
-                            <span style={{ flex: 1, fontSize: 12, color: "oklch(0.32 0.14 290)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
+                            <span style={{ flex: 1, fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
                               {obj}
                             </span>
                             <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 1 }}>
@@ -2573,7 +2573,7 @@ function AiPanel({
                                 onClick={() => acceptSuggested(obj)}
                                 title="Add this objective"
                                 style={{
-                                  background: "oklch(0.52 0.18 160)",
+                                  background: "var(--green)",
                                   border: "none",
                                   borderRadius: 5,
                                   color: "#fff",
@@ -2615,13 +2615,13 @@ function AiPanel({
                             padding: "7px 10px",
                             borderRadius: 8,
                             background: "var(--green-light)",
-                            border: "1px solid oklch(0.88 0.08 160)",
+                            border: "1px solid var(--green-border)",
                           }}
                         >
-                          <span style={{ fontSize: 10, fontWeight: 700, color: "oklch(0.45 0.14 160)", fontFamily: "'Geist Mono', monospace", flexShrink: 0, marginTop: 1 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "var(--green)", fontFamily: "'Geist Mono', monospace", flexShrink: 0, marginTop: 1 }}>
                             {i + 1}.
                           </span>
-                          <span style={{ flex: 1, fontSize: 12, color: "oklch(0.28 0.1 160)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
+                          <span style={{ flex: 1, fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
                             {obj}
                           </span>
                           <button
@@ -2648,7 +2648,7 @@ function AiPanel({
                         height: 34,
                         padding: "0 10px",
                         borderRadius: 8,
-                        border: "1.5px solid oklch(0.88 0.08 160)",
+                        border: "1.5px solid var(--green-border)",
                         fontSize: 12,
                         fontFamily: "'Geist', system-ui, sans-serif",
                         color: "var(--foreground)",
@@ -2683,7 +2683,7 @@ function AiPanel({
                 </div>
 
                 {/* Question types */}
-                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                   Question types
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
@@ -2718,7 +2718,7 @@ function AiPanel({
                 </div>
 
                 {/* Count */}
-                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "oklch(0.38 0 0)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                   Number of questions
                 </p>
                 <div style={{ display: "flex", gap: 6, marginBottom: 18 }}>
@@ -3025,7 +3025,7 @@ function AiPanel({
                         {/* Short Text: model answer */}
                         {q.type === "Short Text" && q.modelAnswer && (
                           <div style={{ marginTop: 8 }}>
-                            <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "oklch(0.48 0.18 264)", display: "block", marginBottom: 4 }}>Model Answer</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--primary)", display: "block", marginBottom: 4 }}>Model Answer</span>
                             <textarea
                               value={q.modelAnswer}
                               onChange={(e) => {
@@ -3039,7 +3039,7 @@ function AiPanel({
                                 display: "block",
                                 width: "100%",
                                 fontSize: 12,
-                                color: "oklch(0.38 0.18 264)",
+                                color: "var(--foreground)",
                                 lineHeight: 1.5,
                                 fontFamily: "'Geist', system-ui, sans-serif",
                                 background: "var(--indigo-light)",
@@ -3696,7 +3696,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
               flexShrink: 0,
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Eye size={15} style={{ color: "oklch(0.45 0.22 264)" }} />
+                <Eye size={15} style={{ color: "var(--primary)" }} />
                 <span style={{ fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>
                   Student Preview
                 </span>
@@ -3863,7 +3863,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                     display: "flex", alignItems: "center", gap: 6,
                     padding: "8px 16px", borderRadius: 9,
                     border: "none",
-                    background: "oklch(0.45 0.22 264)",
+                    background: "var(--primary)",
                     color: "#fff", fontSize: 13, fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "'Geist', system-ui, sans-serif",
@@ -3878,7 +3878,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                     display: "flex", alignItems: "center", gap: 6,
                     padding: "8px 16px", borderRadius: 9,
                     border: "none",
-                    background: "oklch(0.45 0.22 264)",
+                    background: "var(--primary)",
                     color: "#fff", fontSize: 13, fontWeight: 600,
                     cursor: "pointer",
                     fontFamily: "'Geist', system-ui, sans-serif",

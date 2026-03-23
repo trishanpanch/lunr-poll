@@ -46,16 +46,16 @@ import type { Question } from "@shared/types";
 import WordCloud from "@/components/WordCloud";
 
 // ── Colour tokens ─────────────────────────────────────────────────────────────
-const INDIGO = "oklch(0.55 0.2 250)";
-const INDIGO_LIGHT = "oklch(0.96 0.04 250)";
+const INDIGO = "var(--primary)";
+const INDIGO_LIGHT = "var(--indigo-light)";
 const BORDER = "var(--border)";
-const TEXT_DARK = "oklch(0.145 0 0)";
-const TEXT_MID = "oklch(0.4 0 0)";
-const TEXT_MUTED = "oklch(0.556 0 0)";
+const TEXT_DARK = "var(--foreground)";
+const TEXT_MID = "var(--foreground)";
+const TEXT_MUTED = "var(--muted-foreground)";
 const BG = "var(--background)";
-const GREEN = "oklch(0.52 0.18 160)";
-const GREEN_LIGHT = "oklch(0.92 0.08 160)";
-const CRIMSON = "oklch(0.514 0.2 13.9)";
+const GREEN = "var(--green)";
+const GREEN_LIGHT = "var(--green-light)";
+const CRIMSON = "var(--crimson)";
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
   "Short Text": <Type size={16} />,
@@ -246,7 +246,7 @@ function ResponseChart({
                 <div style={{
                   height: "100%", borderRadius: 4,
                   width: `${pct}%`,
-                  background: "oklch(0.62 0.18 60)",
+                  background: "var(--amber)",
                   transition: "width 0.4s ease",
                 }} />
               </div>
@@ -401,7 +401,7 @@ export default function LiveSession() {
       {/* Top bar */}
       <header style={{
         position: "sticky", top: 0, zIndex: 100,
-        background: "rgba(255,255,255,0.95)", backdropFilter: "blur(12px)",
+        background: "color-mix(in oklch, var(--card) 95%, transparent)", backdropFilter: "blur(12px)",
         borderBottom: `1px solid ${BORDER}`,
         height: 60, display: "flex", alignItems: "center",
         padding: "0 24px", gap: 12,
@@ -422,11 +422,11 @@ export default function LiveSession() {
         <div style={{
           display: "flex", alignItems: "center", gap: 6,
           padding: "4px 12px", borderRadius: 20,
-          background: isLive ? "oklch(0.97 0.04 27)" : "oklch(0.96 0 0)",
-          border: `1px solid ${isLive ? "oklch(0.85 0.1 27)" : BORDER}`,
+          background: isLive ? "var(--amber-light)" : "var(--muted)",
+          border: `1px solid ${isLive ? "var(--amber-border)" : BORDER}`,
         }}>
-          {isLive && <span style={{ width: 8, height: 8, borderRadius: "50%", background: "oklch(0.57 0.22 27)", animation: "pulse 1.5s ease-in-out infinite" }} />}
-          <span style={{ fontSize: 12, fontWeight: 700, color: isLive ? "oklch(0.50 0.22 27)" : TEXT_MUTED }}>
+          {isLive && <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--amber)", animation: "pulse 1.5s ease-in-out infinite" }} />}
+          <span style={{ fontSize: 12, fontWeight: 700, color: isLive ? "var(--amber)" : TEXT_MUTED }}>
             {session.status.toUpperCase()}
           </span>
         </div>
@@ -565,7 +565,7 @@ export default function LiveSession() {
                     style={{
                       padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
                       border: `1.5px solid ${!showWordCloud ? INDIGO : BORDER}`,
-                      background: !showWordCloud ? INDIGO_LIGHT : "#fff",
+                      background: !showWordCloud ? INDIGO_LIGHT : "var(--card)",
                       color: !showWordCloud ? INDIGO : TEXT_MUTED,
                       cursor: "pointer",
                     }}
@@ -578,7 +578,7 @@ export default function LiveSession() {
                     style={{
                       padding: "5px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600,
                       border: `1.5px solid ${showWordCloud ? INDIGO : BORDER}`,
-                      background: showWordCloud ? INDIGO_LIGHT : "#fff",
+                      background: showWordCloud ? INDIGO_LIGHT : "var(--card)",
                       color: showWordCloud ? INDIGO : TEXT_MUTED,
                       cursor: "pointer",
                     }}
@@ -627,7 +627,7 @@ export default function LiveSession() {
                 {questions.map((_, i) => (
                   <div key={i} style={{
                     width: 10, height: 10, borderRadius: "50%",
-                    background: i === currentIdx ? INDIGO : i < currentIdx ? GREEN : "oklch(0.88 0 0)",
+                    background: i === currentIdx ? INDIGO : i < currentIdx ? GREEN : "var(--border)",
                     transition: "background 0.2s",
                   }} />
                 ))}
@@ -664,8 +664,8 @@ export default function LiveSession() {
                     <div key={q.id} style={{
                       display: "flex", alignItems: "center", gap: 12,
                       padding: "8px 12px", borderRadius: 10,
-                      background: i === currentIdx ? INDIGO_LIGHT : "oklch(0.985 0 0)",
-                      border: `1px solid ${i === currentIdx ? "oklch(0.88 0.04 250)" : BORDER}`,
+                      background: i === currentIdx ? INDIGO_LIGHT : "var(--card)",
+                      border: `1px solid ${i === currentIdx ? INDIGO : BORDER}`,
                     }}>
                       <span style={{ fontSize: 11, fontWeight: 700, color: i === currentIdx ? INDIGO : TEXT_MUTED, width: 20 }}>
                         Q{i + 1}

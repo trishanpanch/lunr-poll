@@ -44,23 +44,23 @@ function StatusBadge({ status }: { status: SessionStatus }) {
   const config = {
     draft: {
       label: "Draft",
-      bg: "oklch(0.97 0.06 80)",
-      color: "oklch(0.52 0.18 70)",
-      border: "oklch(0.88 0.08 80)",
+      bg: "var(--amber-light)",
+      color: "var(--amber)",
+      border: "var(--amber-border)",
       icon: <Clock size={10} />,
     },
     live: {
       label: "Live",
-      bg: "oklch(0.94 0.08 160)",
-      color: "oklch(0.38 0.14 160)",
-      border: "oklch(0.82 0.1 160)",
+      bg: "var(--green-light)",
+      color: "var(--green)",
+      border: "var(--green-border)",
       icon: <CheckCircle2 size={10} />,
     },
     closed: {
       label: "Closed",
-      bg: "oklch(0.96 0 0)",
-      color: "oklch(0.5 0 0)",
-      border: "oklch(0.88 0 0)",
+      bg: "var(--muted)",
+      color: "var(--muted-foreground)",
+      border: "var(--border)",
       icon: <XCircle size={10} />,
     },
   }[status];
@@ -93,7 +93,7 @@ function TypeIcons({ questions }: { questions: { type: string }[] }) {
       {types.map((t) => (
         <span key={t} title={t} style={{
           width: 20, height: 20, borderRadius: 5,
-          background: "oklch(0.96 0.03 264)", color: "oklch(0.48 0.18 264)",
+          background: "var(--indigo-light)", color: "var(--primary)",
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
         }}>
           {iconMap[t] ?? <Type size={11} />}
@@ -114,8 +114,8 @@ function QRPopover({ code, onClose }: { code: string; onClose: () => void }) {
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 16, padding: "24px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 280, width: "100%" }}>
         <p style={{ margin: 0, fontWeight: 700, fontSize: 16, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scan to Join</p>
-        {dataUrl ? <img src={dataUrl} alt="QR" style={{ width: 160, height: 160, borderRadius: 8 }} /> : <Loader2 size={24} style={{ color: "oklch(0.55 0.2 250)", animation: "spin 1s linear infinite" }} />}
-        <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 20, fontWeight: 800, letterSpacing: "0.15em", color: "oklch(0.55 0.2 250)" }}>{code}</span>
+        {dataUrl ? <img src={dataUrl} alt="QR" style={{ width: 160, height: 160, borderRadius: 8 }} /> : <Loader2 size={24} style={{ color: "var(--primary)", animation: "spin 1s linear infinite" }} />}
+        <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 20, fontWeight: 800, letterSpacing: "0.15em", color: "var(--primary)" }}>{code}</span>
         <button onClick={onClose} style={{ fontSize: 12, color: "var(--muted-foreground)", background: "none", border: "none", cursor: "pointer" }}>Close</button>
       </div>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
@@ -161,15 +161,15 @@ function SessionCard({
         boxShadow: "0 1px 6px rgba(0,0,0,0.04)", transition: "box-shadow 0.15s, border-color 0.15s",
         position: "relative",
       }}
-        className="hover:shadow-md hover:border-[oklch(0.88_0.04_264)] transition-all"
+        className="hover:shadow-md hover:border-[var(--primary)] transition-all"
       >
         {/* Top row */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{
               fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
-              fontFamily: "'Geist Mono', monospace", color: "oklch(0.48 0.18 264)",
-              background: "oklch(0.96 0.03 264)", border: "1px solid oklch(0.88 0.04 264)",
+              fontFamily: "'Geist Mono', monospace", color: "var(--primary)",
+              background: "var(--indigo-light)", border: "1px solid var(--border)",
               padding: "2px 8px", borderRadius: 6,
             }}>
               {session.code}
@@ -181,7 +181,7 @@ function SessionCard({
               onClick={() => setShowQR(true)}
               title="Show QR code"
               style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
-              className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
+              className="hover:bg-[var(--muted)] hover:text-[var(--primary)] transition-colors"
             >
               <QrCode size={15} />
             </button>
@@ -189,7 +189,7 @@ function SessionCard({
               onClick={handleCopyLink}
               title="Copy join link"
               style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
-              className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
+              className="hover:bg-[var(--muted)] hover:text-[var(--primary)] transition-colors"
             >
               <Link2 size={15} />
             </button>
@@ -197,7 +197,7 @@ function SessionCard({
               <button
                 onClick={() => setMenuOpen((v) => !v)}
                 style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "4px 5px", borderRadius: 7, display: "flex", alignItems: "center" }}
-                className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.4_0_0)] transition-colors"
+                className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
               >
                 <MoreHorizontal size={16} />
               </button>
@@ -214,7 +214,7 @@ function SessionCard({
                       <BookOpen size={13} /> Edit Session
                     </button>
                     <div style={{ height: 1, background: "var(--muted)", margin: "2px 0" }} />
-                    <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "oklch(0.577 0.245 27.325)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.97_0.02_27)] transition-colors">
+                    <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--destructive)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[var(--destructive-light)] transition-colors">
                       <Trash2 size={13} /> Delete
                     </button>
                   </div>
@@ -239,13 +239,13 @@ function SessionCard({
           <span style={{ fontSize: 12, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>
             {session.questions.length} {session.questions.length === 1 ? "question" : "questions"}
           </span>
-          <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
-          <span style={{ fontSize: 12, color: "oklch(0.7 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+          <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>
+          <span style={{ fontSize: 12, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>
             {timeAgo(session.updatedAt)}
           </span>
           {session.questions.length > 0 && (
             <>
-              <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
+              <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>
               <TypeIcons questions={session.questions} />
             </>
           )}
@@ -260,11 +260,11 @@ function SessionCard({
                 style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                   padding: "9px 14px", borderRadius: 10, background: "var(--background)",
-                  border: "1.5px solid oklch(0.88 0.04 264)", color: "oklch(0.45 0.22 264)",
+                  border: "1.5px solid var(--border)", color: "var(--primary)",
                   fontSize: 13, fontWeight: 600, fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                   transition: "all 0.15s",
                 }}
-                className="hover:bg-[oklch(0.96_0.04_264)] transition-colors"
+                className="hover:bg-[var(--indigo-light)] transition-colors"
               >
                 Edit Session <ChevronRight size={14} />
               </button>
@@ -275,7 +275,7 @@ function SessionCard({
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                     padding: "9px 14px", borderRadius: 10,
-                    background: "linear-gradient(135deg, oklch(0.514 0.2 13.9) 0%, oklch(0.44 0.2 13.9) 100%)",
+                    background: "linear-gradient(135deg, var(--crimson) 0%, var(--crimson-hover) 100%)",
                     border: "none", color: "#fff", fontSize: 13, fontWeight: 700,
                     fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                     boxShadow: "0 2px 8px oklch(0.514 0.2 13.9 / 0.28)", transition: "opacity 0.15s",
@@ -292,12 +292,12 @@ function SessionCard({
               onClick={onViewLive}
               style={{
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-                padding: "9px 14px", borderRadius: 10, background: "oklch(0.94 0.08 160)",
-                border: "1.5px solid oklch(0.82 0.1 160)", color: "oklch(0.38 0.14 160)",
+                padding: "9px 14px", borderRadius: 10, background: "var(--green-light)",
+                border: "1.5px solid var(--green-border)", color: "var(--green)",
                 fontSize: 13, fontWeight: 600, fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                 transition: "all 0.15s",
               }}
-              className="hover:bg-[oklch(0.9_0.1_160)] transition-colors"
+              className="hover:bg-[var(--green-light)] transition-colors"
             >
               <BarChart2 size={13} /> Live Results <ChevronRight size={14} />
             </button>
@@ -308,11 +308,11 @@ function SessionCard({
               style={{
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                 padding: "9px 14px", borderRadius: 10, background: "var(--muted)",
-                border: "1.5px solid oklch(0.88 0 0)", color: "oklch(0.45 0 0)",
+                border: "1.5px solid var(--border)", color: "var(--muted-foreground)",
                 fontSize: 13, fontWeight: 600, fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                 transition: "all 0.15s",
               }}
-              className="hover:bg-[oklch(0.93_0_0)] transition-colors"
+              className="hover:bg-[var(--muted)] transition-colors"
             >
               <BarChart2 size={13} /> View Results <ChevronRight size={14} />
             </button>
@@ -358,7 +358,7 @@ function PastSessionRow({
       padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
       boxShadow: "0 1px 4px rgba(0,0,0,0.03)", transition: "box-shadow 0.15s, border-color 0.15s",
     }}
-      className="hover:shadow-md hover:border-[oklch(0.88_0_0)] transition-all"
+      className="hover:shadow-md hover:border-[var(--border)] transition-all"
     >
       {/* Left: name + meta */}
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -372,17 +372,17 @@ function PastSessionRow({
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{
             fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
-            fontFamily: "'Geist Mono', monospace", color: "oklch(0.55 0 0)",
+            fontFamily: "'Geist Mono', monospace", color: "var(--muted-foreground)",
           }}>
             {session.code}
           </span>
-          <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
+          <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>
           <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
             {session.questions.length} {session.questions.length === 1 ? "question" : "questions"}
           </span>
           {session.questions.length > 0 && (
             <>
-              <span style={{ fontSize: 11, color: "oklch(0.78 0 0)" }}>·</span>
+              <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>
               <TypeIcons questions={session.questions} />
             </>
           )}
@@ -391,7 +391,7 @@ function PastSessionRow({
 
       {/* Dates */}
       <div style={{ textAlign: "right", flexShrink: 0 }}>
-        <p style={{ margin: 0, fontSize: 12, color: "oklch(0.5 0 0)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+        <p style={{ margin: 0, fontSize: 12, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>
           Closed {formatDate(session.closedAt ?? session.updatedAt)}
         </p>
         {session.launchedAt && (
@@ -407,7 +407,7 @@ function PastSessionRow({
           onClick={handleCopyLink}
           title="Copy join link"
           style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
-          className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.48_0.18_264)] transition-colors"
+          className="hover:bg-[var(--muted)] hover:text-[var(--primary)] transition-colors"
         >
           <Copy size={14} />
         </button>
@@ -416,12 +416,12 @@ function PastSessionRow({
           style={{
             display: "flex", alignItems: "center", gap: 6,
             padding: "7px 14px", borderRadius: 9,
-            background: "var(--indigo-light)", border: "1.5px solid oklch(0.88 0.04 264)",
-            color: "oklch(0.45 0.22 264)", fontSize: 13, fontWeight: 600,
+            background: "var(--indigo-light)", border: "1.5px solid var(--border)",
+            color: "var(--primary)", fontSize: 13, fontWeight: 600,
             fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
             transition: "all 0.15s",
           }}
-          className="hover:bg-[oklch(0.92_0.06_264)] transition-colors"
+          className="hover:bg-[var(--indigo-light)] transition-colors"
         >
           <BarChart2 size={13} /> View Results
         </button>
@@ -429,7 +429,7 @@ function PastSessionRow({
           <button
             onClick={() => setMenuOpen((v) => !v)}
             style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
-            className="hover:bg-[oklch(0.96_0_0)] hover:text-[oklch(0.4_0_0)] transition-colors"
+            className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
           >
             <MoreHorizontal size={16} />
           </button>
@@ -442,7 +442,7 @@ function PastSessionRow({
                 boxShadow: "0 4px 20px rgba(0,0,0,0.1)", zIndex: 20, minWidth: 140, overflow: "hidden",
                 fontFamily: "'Geist', system-ui, sans-serif",
               }}>
-                <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "oklch(0.577 0.245 27.325)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.97_0.02_27)] transition-colors">
+                <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--destructive)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[var(--destructive-light)] transition-colors">
                   <Trash2 size={13} /> Delete
                 </button>
               </div>
@@ -469,7 +469,7 @@ function EmptyState({ onNew }: { onNew: () => void }) {
         onClick={onNew}
         style={{
           marginTop: 8, display: "flex", alignItems: "center", gap: 7,
-          padding: "10px 22px", borderRadius: 10, background: "oklch(0.45 0.22 264)",
+          padding: "10px 22px", borderRadius: 10, background: "var(--primary)",
           color: "#fff", fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer",
           fontFamily: "'Geist', system-ui, sans-serif", boxShadow: "0 2px 10px oklch(0.45 0.22 264 / 0.3)",
         }}
@@ -510,7 +510,7 @@ function FilterTabs({ active, counts, onChange }: {
     { key: "closed", label: "Closed" },
   ];
   return (
-    <div style={{ display: "flex", gap: 4, background: "oklch(0.96 0.005 264)", borderRadius: 10, padding: 3 }}>
+    <div style={{ display: "flex", gap: 4, background: "var(--muted)", borderRadius: 10, padding: 3 }}>
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         return (
@@ -520,8 +520,8 @@ function FilterTabs({ active, counts, onChange }: {
             style={{
               display: "flex", alignItems: "center", gap: 5,
               padding: "6px 14px", borderRadius: 8,
-              background: isActive ? "#fff" : "transparent",
-              color: isActive ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
+              background: isActive ? "var(--card)" : "transparent",
+              color: isActive ? "var(--primary)" : "var(--muted-foreground)",
               fontSize: 13, fontWeight: isActive ? 600 : 500, border: "none", cursor: "pointer",
               fontFamily: "'Geist', system-ui, sans-serif",
               boxShadow: isActive ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
@@ -532,8 +532,8 @@ function FilterTabs({ active, counts, onChange }: {
             {counts[tab.key] > 0 && (
               <span style={{
                 fontSize: 10.5, fontWeight: 700,
-                background: isActive ? "oklch(0.96 0.04 264)" : "oklch(0.9 0 0)",
-                color: isActive ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
+                background: isActive ? "var(--indigo-light)" : "var(--border)",
+                color: isActive ? "var(--primary)" : "var(--muted-foreground)",
                 padding: "1px 6px", borderRadius: 20,
               }}>
                 {counts[tab.key]}
@@ -578,7 +578,7 @@ export default function Sessions() {
   if (authLoading || isLoading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--background)" }}>
-        <Loader2 size={28} style={{ color: "oklch(0.55 0.2 250)", animation: "spin 1s linear infinite" }} />
+        <Loader2 size={28} style={{ color: "var(--primary)", animation: "spin 1s linear infinite" }} />
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
     );
@@ -625,7 +625,7 @@ export default function Sessions() {
     <div style={{ minHeight: "100vh", background: "var(--background)", fontFamily: "'Geist', system-ui, sans-serif" }}>
       {/* Header */}
       <header style={{
-        background: "rgba(255,255,255,0.88)", backdropFilter: "blur(12px)",
+        background: "color-mix(in oklch, var(--card) 88%, transparent)", backdropFilter: "blur(12px)",
         borderBottom: "1px solid var(--border)", padding: "0 32px", height: 64,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 8px rgba(0,0,0,0.04)",
@@ -653,7 +653,7 @@ export default function Sessions() {
                 background: "var(--background)", outline: "none", width: 200,
                 fontFamily: "'Geist', system-ui, sans-serif", transition: "border-color 0.15s",
               }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.45 0.22 264)"; }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "var(--primary)"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
             />
           </div>
@@ -664,7 +664,7 @@ export default function Sessions() {
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 36, height: 36, borderRadius: 9,
               background: "none", border: "1.5px solid var(--border)",
-              color: "oklch(0.45 0 0)", cursor: "pointer",
+              color: "var(--muted-foreground)", cursor: "pointer",
               transition: "all 0.15s",
             }}
           >
@@ -674,7 +674,7 @@ export default function Sessions() {
             onClick={() => navigate("/session")}
             style={{
               display: "flex", alignItems: "center", gap: 7, padding: "8px 18px", borderRadius: 10,
-              background: "linear-gradient(135deg, oklch(0.514 0.2 13.9) 0%, oklch(0.44 0.2 13.9) 100%)",
+              background: "linear-gradient(135deg, var(--crimson) 0%, var(--crimson-hover) 100%)",
               color: "#fff", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer",
               boxShadow: "0 2px 10px oklch(0.514 0.2 13.9 / 0.28)", transition: "opacity 0.15s",
             }}
@@ -702,9 +702,9 @@ export default function Sessions() {
                 style={{
                   display: "flex", alignItems: "center", gap: 7,
                   padding: "10px 20px", background: "none", border: "none",
-                  borderBottom: isActive ? "2px solid oklch(0.45 0.22 264)" : "2px solid transparent",
+                  borderBottom: isActive ? "2px solid var(--primary)" : "2px solid transparent",
                   marginBottom: -2,
-                  color: isActive ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
+                  color: isActive ? "var(--primary)" : "var(--muted-foreground)",
                   fontSize: 14, fontWeight: isActive ? 700 : 500,
                   fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
                   transition: "all 0.15s",
@@ -715,8 +715,8 @@ export default function Sessions() {
                 {tab.count > 0 && (
                   <span style={{
                     fontSize: 11, fontWeight: 700, padding: "1px 7px", borderRadius: 20,
-                    background: isActive ? "oklch(0.96 0.04 264)" : "oklch(0.93 0 0)",
-                    color: isActive ? "oklch(0.45 0.22 264)" : "oklch(0.6 0 0)",
+                    background: isActive ? "var(--indigo-light)" : "var(--muted)",
+                    color: isActive ? "var(--primary)" : "var(--muted-foreground)",
                   }}>
                     {tab.count}
                   </span>

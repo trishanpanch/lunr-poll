@@ -236,3 +236,13 @@
 - [x] Implement drag-from-edge resize (Manus-style, no visible handle)
 - [x] Update gradient background to use dynamic panel width
 - [x] Disable transition during active resize for smooth dragging
+
+## Accessibility — Dark Mode Contrast Audit
+- [x] Scan all pages for hardcoded light-only colors (oklch light values, #fff, #000, white/black hex)
+- [x] Fix contrast issues in Home.tsx (session builder, sidebar, topbar, modals)
+- [x] Fix contrast issues in Sessions.tsx
+- [x] Fix contrast issues in Settings.tsx
+- [x] Fix contrast issues in LiveSession.tsx
+- [x] Fix contrast issues in DesignSystem.tsx
+- [x] Replace all hardcoded oklch/hex colors with CSS variables across all pages
+- [x] Add --destructive-border CSS variable to light and dark themes
