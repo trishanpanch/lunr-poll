@@ -2297,7 +2297,7 @@ function AiPanel({
             flexShrink: 0,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Sparkles size={16} style={{ color: "var(--indigo-light)" }} />
+              <Sparkles size={16} style={{ color: "var(--ai-tab-icon)" }} />
               <span style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>
                 Generate with AI
               </span>
