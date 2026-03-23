@@ -3176,10 +3176,19 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   const [questions, setQuestions] = useState<Question[]>([]);
 
   // Load existing session from DB if editing
-  const { data: existingSession } = trpc.session.get.useQuery(
+  const { data: existingSession, error: sessionLoadError } = trpc.session.get.useQuery(
     { id: dbSessionId! },
     { enabled: !!dbSessionId, retry: false }
   );
+
+  // If the session ID in the URL doesn't exist in the DB, reset to a new session
+  useEffect(() => {
+    if (!sessionLoadError) return;
+    toast.error("Session not found — starting a new session.");
+    setDbSessionId(null);
+    window.history.replaceState(null, "", "/session");
+  }, [sessionLoadError]);
+
   useEffect(() => {
     if (!existingSession) return;
     setSessionName(existingSession.name);

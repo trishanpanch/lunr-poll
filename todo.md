@@ -246,3 +246,7 @@
 - [x] Fix contrast issues in DesignSystem.tsx
 - [x] Replace all hardcoded oklch/hex colors with CSS variables across all pages
 - [x] Add --destructive-border CSS variable to light and dark themes
+
+## Bug — Session Not Found on /session/:id
+- [x] Diagnose "Session not found" error on /session/60004 (stale URL, session deleted/rolled back)
+- [x] Add graceful error handling: show toast and reset to new session when ID not found in DB
