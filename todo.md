@@ -259,3 +259,6 @@
 - [x] Add Selection States section to Design System page with live examples (Indigo for general UI, Violet for AI panel)
 - [x] Update question type filter buttons selection state in AI panel to match Design System (violet border + violet-light bg)
 - [x] Update question count selector selection state in AI panel to match Design System (violet border + violet-light bg)
+
+## Polish — AI Panel Collapse Button
+- [x] Replace X close button with ChevronsRight collapse button in AI panel header

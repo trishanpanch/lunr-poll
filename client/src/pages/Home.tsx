@@ -9,7 +9,7 @@ import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   Rocket, Sparkles, Type, ListChecks, Paperclip, Star,
-  RotateCcw, GripVertical, X, ChevronRight, CheckCircle2,
+  RotateCcw, GripVertical, X, ChevronRight, CheckCircle2, ChevronsRight,
   Circle, Pencil, ArrowLeft, ToggleLeft, Upload, FileText,
   Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
   ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
@@ -2304,10 +2304,11 @@ function AiPanel({
             </div>
             <button
               onClick={onClose}
+              title="Collapse AI panel"
               style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: 4, borderRadius: 6 }}
-              className="hover:bg-[var(--muted)] transition-colors"
+              className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
             >
-              <X size={15} />
+              <ChevronsRight size={16} />
             </button>
           </div>
 
