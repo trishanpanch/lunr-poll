@@ -5,6 +5,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { SavedButton } from "@/components/SavedButton";
+import { DiscardButton } from "@/components/DiscardButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -465,6 +467,36 @@ Harvard Poll — Design System
               <Badge variant="destructive">Destructive</Badge>
               <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.96 0.04 264)", color: "oklch(0.45 0.22 264)", padding: "3px 8px", borderRadius: 20 }}>3Q</span>
               <span style={{ fontSize: 10, fontWeight: 700, background: "oklch(0.96 0.04 290)", color: "oklch(0.52 0.22 290)", padding: "3px 8px", borderRadius: 20 }}>AI</span>
+            </div>
+          </SubSection>
+
+          <SubSection title="SavedButton" path="components/SavedButton.tsx">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "oklch(0.556 0 0)", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 8px" }}>Dirty State (Unsaved Changes)</p>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <SavedButton isDirty={true} hasEverSaved={true} onSave={() => toast.success("Saved!")} saveLabel="Save Draft" />
+                  <SavedButton isDirty={true} hasEverSaved={true} onSave={() => toast.success("Saved!")} saveLabel="Save Changes" />
+                </div>
+              </div>
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "oklch(0.556 0 0)", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 8px" }}>Saved State (No Changes)</p>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <SavedButton isDirty={false} hasEverSaved={true} onSave={() => toast.success("Saved!")} saveLabel="Save Draft" />
+                </div>
+              </div>
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "oklch(0.556 0 0)", textTransform: "uppercase", letterSpacing: "0.07em", margin: "0 0 8px" }}>First Save (Never Saved Before)</p>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <SavedButton isDirty={true} hasEverSaved={false} onSave={() => toast.success("Saved!")} saveLabel="Save Draft" />
+                </div>
+              </div>
+            </div>
+          </SubSection>
+
+          <SubSection title="DiscardButton" path="components/DiscardButton.tsx">
+            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              <DiscardButton onDiscard={() => toast.info("Changes discarded")} />
             </div>
           </SubSection>
         </section>
