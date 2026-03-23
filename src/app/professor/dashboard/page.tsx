@@ -6,7 +6,7 @@ import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from "f
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { Session } from "@/lib/types";
-import { generateSessionCode } from "@/utils/code";
+import { generateSessionCode } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Plus, ArrowRight } from "lucide-react";

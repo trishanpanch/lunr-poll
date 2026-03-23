@@ -17,7 +17,7 @@ import { StarRating } from "@/components/ui/StarRating";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { IS_DEMO_MODE } from "@/lib/config";
+import { isDemoSession, updateLocalSession } from "@/lib/storage";
 
 export function LiveDashboard({ session }: { session: Session }) {
     const [responses, setResponses] = useState<StudentResponse[]>([]);
@@ -69,16 +69,9 @@ export function LiveDashboard({ session }: { session: Session }) {
                     body: JSON.stringify({ questions: updatedQuestions })
                 });
             }
-            if (IS_DEMO_MODE && session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    const sessions = JSON.parse(localSessionsStr) as Session[];
-                    const updatedSessions = sessions.map(s =>
-                        s.id === session.id ? { ...s, questions: updatedQuestions } : s
-                    );
-                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
-                    window.location.reload();
-                }
+            if (isDemoSession(session)) {
+                updateLocalSession(session.id!, { questions: updatedQuestions });
+                window.location.reload();
             }
 
             setIsAddOpen(false);
@@ -116,20 +109,12 @@ export function LiveDashboard({ session }: { session: Session }) {
                         activeQuestionId: newActiveIds.length > 0 ? newActiveIds[newActiveIds.length - 1] : null // Keep legacy field partially in sync for safety
                     })
                 });
-            } else if (IS_DEMO_MODE) {
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    const sessions = JSON.parse(localSessionsStr) as Session[];
-                    const sessionsUpd = sessions.map(s =>
-                        s.id === session.id ? {
-                            ...s,
-                            activeQuestionIds: newActiveIds,
-                            activeQuestionId: newActiveIds.length > 0 ? newActiveIds[newActiveIds.length - 1] : null
-                        } : s
-                    );
-                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(sessionsUpd));
-                    window.location.reload();
-                }
+            } else if (isDemoSession(session)) {
+                updateLocalSession(session.id!, {
+                    activeQuestionIds: newActiveIds,
+                    activeQuestionId: newActiveIds.length > 0 ? newActiveIds[newActiveIds.length - 1] : null
+                });
+                window.location.reload();
             }
             if (isNowActive) {
                 toast.success("Question is NOW LIVE");
@@ -151,16 +136,9 @@ export function LiveDashboard({ session }: { session: Session }) {
                     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                     body: JSON.stringify({ questions: updatedQuestions })
                 });
-            } else if (IS_DEMO_MODE) {
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    const sessions = JSON.parse(localSessionsStr) as Session[];
-                    const sessionsUpd = sessions.map(s =>
-                        s.id === session.id ? { ...s, questions: updatedQuestions } : s
-                    );
-                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(sessionsUpd));
-                    window.location.reload();
-                }
+            } else if (isDemoSession(session)) {
+                updateLocalSession(session.id!, { questions: updatedQuestions });
+                window.location.reload();
             }
             toast.success("Question deleted");
         } catch (e) {
@@ -207,17 +185,10 @@ export function LiveDashboard({ session }: { session: Session }) {
             console.warn("Cloud close failed, trying local", e);
         }
 
-        if (IS_DEMO_MODE && session.id && (session.id.startsWith("local_") || session.ownerId === "dev_lunr_ID")) {
+        if (isDemoSession(session)) {
             try {
-                const localSessionsStr = localStorage.getItem("harvard_poll_dev_sessions");
-                if (localSessionsStr) {
-                    const sessions = JSON.parse(localSessionsStr) as Session[];
-                    const updatedSessions = sessions.map(s =>
-                        s.id === session.id ? { ...s, status: "CLOSED" as const } : s
-                    );
-                    localStorage.setItem("harvard_poll_dev_sessions", JSON.stringify(updatedSessions));
-                    window.location.reload();
-                }
+                updateLocalSession(session.id!, { status: "CLOSED" });
+                window.location.reload();
             } catch (e) {
                 console.error(e);
             }
