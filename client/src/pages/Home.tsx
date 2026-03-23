@@ -2249,7 +2249,7 @@ function AiPanel({
           }}
           className="hover:bg-[var(--muted)] transition-colors"
         >
-          <Sparkles size={16} style={{ color: "#fff", flexShrink: 0 }} />
+          <Sparkles size={16} style={{ color: "var(--ai-tab-icon)", flexShrink: 0 }} />
         </button>
       )}
 
