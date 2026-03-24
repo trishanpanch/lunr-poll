@@ -62,7 +62,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type QuestionType = "Short Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False";
+type QuestionType = "Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False";
 
 interface Question {
   id: string;
@@ -73,11 +73,11 @@ interface Question {
   options?: string[]; // Multiple Choice answer options
   correctIndex?: number; // Index of the correct answer for Multiple Choice
   tfAnswer?: "True" | "False"; // Correct answer for True / False questions
-  modelAnswer?: string; // Model answer for Short Text questions
+  modelAnswer?: string; // Model answer for Text questions
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
-  "Short Text":      { icon: <Type size={18} />,        color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
+  "Text":      { icon: <Type size={18} />,        color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
   "Multiple Choice": { icon: <ListChecks size={18} />,  color: "oklch(0.52 0.22 290)", desc: "Select from options" },
   "File Upload":     { icon: <Paperclip size={18} />,   color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
   "Star Rating":     { icon: <Star size={18} />,        color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
@@ -85,7 +85,7 @@ const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; de
 };
 
 const TYPE_META_SMALL: Record<QuestionType, React.ReactNode> = {
-  "Short Text":      <Type size={10} />,
+  "Text":      <Type size={10} />,
   "Multiple Choice": <ListChecks size={10} />,
   "File Upload":     <Paperclip size={10} />,
   "Star Rating":     <Star size={10} />,
@@ -98,9 +98,9 @@ const PRESETS = [
     icon: <RotateCcw size={15} />,
     count: 3,
     questions: [
-      { type: "Short Text" as QuestionType, text: "What should we START doing in this class?" },
-      { type: "Short Text" as QuestionType, text: "What should we STOP doing in this class?" },
-      { type: "Short Text" as QuestionType, text: "What should we CONTINUE doing in this class?" },
+      { type: "Text" as QuestionType, text: "What should we START doing in this class?" },
+      { type: "Text" as QuestionType, text: "What should we STOP doing in this class?" },
+      { type: "Text" as QuestionType, text: "What should we CONTINUE doing in this class?" },
     ],
   },
   {
@@ -411,7 +411,7 @@ function Sidebar({
           <div style={{ width: 28, height: 1, background: "var(--border)", margin: "4px 0" }} />
 
           {/* Question type icons */}
-          {(["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
+          {(["Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
             const meta = TYPE_META[type];
             return (
               <button
@@ -517,7 +517,7 @@ function Sidebar({
               Add a Question
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {(["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button
@@ -1233,8 +1233,10 @@ function QuestionCard({
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
           {onUpdateType ? (
             <div ref={typeDropdownRef} style={{ position: "relative", marginLeft: iconNudge }}>
+              {/* Only Text, Multiple Choice, and True / False can be switched */}
+              {/* File Upload and Star Rating show a static badge with no dropdown */}
               <button
-                onClick={() => !transforming && setTypeDropdownOpen((v) => !v)}
+                onClick={() => !transforming && question.type !== "File Upload" && question.type !== "Star Rating" && setTypeDropdownOpen((v) => !v)}
                 disabled={transforming}
                 style={{
                   display: "inline-flex",
@@ -1259,7 +1261,7 @@ function QuestionCard({
                   ? <Loader2 size={10} className="animate-spin" />
                   : <span style={{ color: meta.color, display: "flex", alignItems: "center" }}>{meta.icon}</span>}
                 {question.type}
-                {!transforming && <ChevronDown size={10} style={{ opacity: 0.6 }} />}
+                {!transforming && question.type !== "File Upload" && question.type !== "Star Rating" && <ChevronDown size={10} style={{ opacity: 0.6 }} />}
               </button>
               {typeDropdownOpen && (
                 <div
@@ -1276,7 +1278,7 @@ function QuestionCard({
                     overflow: "hidden",
                   }}
                 >
-                  {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t, i, arr) => {
+                  {(["Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t, i, arr) => {
                     const tm = TYPE_META[t];
                     const isCurrent = t === question.type;
                     return (
@@ -1468,8 +1470,8 @@ function QuestionCard({
             )}
           </div>
         )}
-        {/* Short Text model answer — always shown for Short Text, click to edit */}
-        {question.type === "Short Text" && (
+        {/* Text model answer — always shown for Text, click to edit */}
+        {question.type === "Text" && (
           <div style={{ marginTop: 10 }}>
             {editingAnswer ? (
               <>
@@ -1583,7 +1585,7 @@ function QuestionCard({
 
 // ── Add Question Modal ──────────────────────────────────────────────────────
 const SUGGESTIONS: Record<QuestionType, string[]> = {
-  "Short Text": [
+  "Text": [
     "What was the main takeaway from today's lecture?",
     "In your own words, explain the concept we covered today.",
     "What's one question you still have after today's class?",
@@ -1634,7 +1636,7 @@ function AddQuestionModal({
   const suggestions = type ? SUGGESTIONS[type] : [];
   const isMultipleChoice = type === "Multiple Choice";
   const isTrueFalse = type === "True / False";
-  const isShortText = type === "Short Text";
+  const isShortText = type === "Text";
   const [tfAnswer, setTfAnswer] = useState<"True" | "False" | null>(null);
   const filledOptions = options.map((o, i) => ({ text: o, idx: i })).filter((o) => o.text.trim() !== "");
   const canSubmit = text.trim() !== ""
@@ -1826,7 +1828,7 @@ function AddQuestionModal({
             </div>
           )}
 
-          {/* Short Text model answer field */}
+          {/* Text model answer field */}
           {isShortText && (
             <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
               <Label
@@ -2014,7 +2016,7 @@ type AiGenQuestion = {
   selected: boolean;
   options?: string[];       // Multiple Choice
   correctAnswer?: string;  // Multiple Choice (option text) or True / False ("True"/"False")
-  modelAnswer?: string;    // Short Text model answer
+  modelAnswer?: string;    // Text model answer
 };
 
 function AiPanel({
@@ -2039,7 +2041,7 @@ function AiPanel({
   maxPanelWidth: number;
 }) {
   const [content, setContent] = useState("");
-  const [selectedTypes, setSelectedTypes] = useState<Set<QuestionType>>(new Set(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]));
+  const [selectedTypes, setSelectedTypes] = useState<Set<QuestionType>>(new Set(["Text", "Multiple Choice", "True / False"] as QuestionType[]));
   const [count, setCount] = useState(3);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
@@ -2308,8 +2310,8 @@ function AiPanel({
         if (q.type === "True / False" && (q.correctAnswer === "True" || q.correctAnswer === "False")) {
           base.tfAnswer = q.correctAnswer as "True" | "False";
         }
-        // Carry over Short Text model answer
-        if (q.type === "Short Text" && q.modelAnswer) {
+        // Carry over Text model answer
+        if (q.type === "Text" && q.modelAnswer) {
           base.modelAnswer = q.modelAnswer;
         }
         return base;
@@ -2783,7 +2785,7 @@ function AiPanel({
                   Question types
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-                  {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
+                  {(["Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
                     const meta = TYPE_META[t];
                     const active = selectedTypes.has(t);
                     return (
@@ -2929,7 +2931,7 @@ function AiPanel({
                           </div>
                           {/* Type switcher pills — only transformable types */}
                           <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                            {(["Short Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
+                            {(["Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
                               const tm = TYPE_META[t];
                               const active = q.type === t;
                               const isTransforming = transformingIdx.has(i);
@@ -3118,8 +3120,8 @@ function AiPanel({
                           </button>
                         )}
 
-                        {/* Short Text: model answer */}
-                        {q.type === "Short Text" && q.modelAnswer && (
+                        {/* Text: model answer */}
+                        {q.type === "Text" && q.modelAnswer && (
                           <div style={{ marginTop: 8 }}>
                             <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--primary)", display: "block", marginBottom: 4 }}>Model Answer</span>
                             <textarea
@@ -3719,7 +3721,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
               </button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {(Object.keys(TYPE_META) as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button
@@ -3765,6 +3767,44 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                   </button>
                 );
               })}
+              {/* Generate with AI tile */}
+              <button
+                onClick={() => { setTypePickerOpen(false); setAiPanelOpen(true); }}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  gap: 8,
+                  padding: "16px 14px",
+                  borderRadius: 12,
+                  border: "1.5px solid oklch(0.88 0.06 290)",
+                  background: "linear-gradient(135deg, oklch(0.97 0.03 290) 0%, oklch(0.98 0.02 10) 100%)",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "all 0.15s",
+                }}
+                className="hover:border-[oklch(0.7_0.18_290)] hover:shadow-sm transition-all"
+              >
+                <span
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    background: "oklch(0.52 0.22 290 / 0.15)",
+                    color: "oklch(0.52 0.22 290)",
+                    alignSelf: "flex-start",
+                  }}
+                >
+                  <Sparkles size={18} />
+                </span>
+                <div>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "oklch(0.38 0.18 290)", fontFamily: "'Geist', system-ui, sans-serif" }}>Generate with AI</p>
+                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "oklch(0.52 0.14 290)", fontFamily: "'Geist', system-ui, sans-serif" }}>AI drafts questions for you</p>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -3864,7 +3904,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                     </p>
 
                     {/* Response area by type */}
-                    {q.type === "Short Text" && (
+                    {q.type === "Text" && (
                       <textarea
                         placeholder="Type your answer here…"
                         rows={4}

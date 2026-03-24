@@ -44,7 +44,7 @@ function extractTextContent(content: unknown): string {
 
 const router = Router();
 
-const QUESTION_TYPES = ["Short Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as const;
+const QUESTION_TYPES = ["Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as const;
 type QuestionType = typeof QUESTION_TYPES[number];
 
 interface GenerateRequest {
@@ -108,7 +108,7 @@ router.post("/api/generate-questions", async (req: Request, res: Response) => {
         return `Question ${i + 1}: type "Star Rating" — ask students to rate something specific from the content on a 1–5 scale`;
       if (t === "File Upload")
         return `Question ${i + 1}: type "File Upload" — ask students to upload something directly related to the content`;
-      return `Question ${i + 1}: type "Short Text" — open-ended question requiring a written answer grounded in the content`;
+      return `Question ${i + 1}: type "Text" — open-ended question requiring a written answer grounded in the content`;
     })
     .join("\n");
 
@@ -126,10 +126,10 @@ CRITICAL RULES:
 - Multiple Choice: the 3 wrong options must be plausible but clearly incorrect based on the text.
 - True / False: write a direct declarative statement about the subject matter itself. NEVER say "The article mentions...", "According to the text...", or any meta-reference to a source. The statement must stand alone as a factual claim.
 - Return ONLY a valid JSON array. No markdown, no explanation, no code fences.
-- For Short Text questions, include a "modelAnswer" field with a concise ideal answer (1–3 sentences) grounded in the source material.
+- For Text questions, include a "modelAnswer" field with a concise ideal answer (1–3 sentences) grounded in the source material.
 
 JSON schema for each item:
-{ "type": "Short Text" | "Multiple Choice" | "True / False" | "Star Rating" | "File Upload", "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only), "modelAnswer": "string" (Short Text only) }`;
+{ "type": "Text" | "Multiple Choice" | "True / False" | "Star Rating" | "File Upload", "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only), "modelAnswer": "string" (Text only) }`;
 
   const userPrompt = `Source material:
 ---
@@ -214,9 +214,9 @@ router.post("/api/transform-question", async (req: Request, res: Response) => {
   else if (toType === "True / False")
     typeInstruction = `Transform it into a True / False question. Write a direct declarative statement about the subject matter itself — NEVER phrase it as "The article mentions..." or "According to the text..." or any meta-reference to a source. The statement should be a standalone factual claim that is verifiably true or false based on the content. Set "correctAnswer" to exactly "True" or "False".`;
   else
-    typeInstruction = `Transform it into an open-ended Short Text question. Include a "modelAnswer" field with a concise ideal answer (1–3 sentences).`;
+    typeInstruction = `Transform it into an open-ended Text question. Include a "modelAnswer" field with a concise ideal answer (1–3 sentences).`;
 
-  const systemPrompt = `You are an expert educator. You will be given a question and asked to transform it into a different question type while preserving the underlying knowledge atom being tested. Keep the core fact or concept identical — only change the question format.\n\nReturn ONLY a valid JSON object. No markdown, no explanation.\n\nJSON schema: { "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only), "modelAnswer": "string" (Short Text only) }`;
+  const systemPrompt = `You are an expert educator. You will be given a question and asked to transform it into a different question type while preserving the underlying knowledge atom being tested. Keep the core fact or concept identical — only change the question format.\n\nReturn ONLY a valid JSON object. No markdown, no explanation.\n\nJSON schema: { "text": "question text", "options": ["A","B","C","D"] (Multiple Choice only), "correctAnswer": "string" (Multiple Choice and True/False only), "modelAnswer": "string" (Text only) }`;
 
   const userPrompt = `Original question (${fromType}):\n"${text}"${contextSection}\n\n${typeInstruction}\n\nReturn ONLY the JSON object.`;
 

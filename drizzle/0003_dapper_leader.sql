@@ -1,0 +1,1 @@
+ALTER TABLE `professorSettings` MODIFY COLUMN `defaultQuestionType` varchar(64) NOT NULL DEFAULT 'Text';

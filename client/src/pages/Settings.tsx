@@ -77,7 +77,7 @@ const DEFAULT_SETTINGS: SettingsData = {
   autoAdvanceTimer: 30,
   anonymousResponses: true,
   maxResponsesPerStudent: 1,
-  defaultQuestionType: "Short Text",
+  defaultQuestionType: "Text",
   waitingRoomMessage: null,
   sessionEndedMessage: null,
   requireStudentName: false,
@@ -519,7 +519,7 @@ function SessionDefaultsSection({
           value={s.defaultQuestionType}
           onChange={(v) => set("defaultQuestionType", v)}
           options={[
-            { value: "Short Text", label: "Short Text" },
+            { value: "Text", label: "Text" },
             { value: "Multiple Choice", label: "Multiple Choice" },
             { value: "True / False", label: "True / False" },
             { value: "Star Rating", label: "Star Rating" },
@@ -671,7 +671,7 @@ function LiveModeSection({
       </FieldRow>
       <FieldRow
         label="Show Word Cloud by Default"
-        description="Short Text panels open in Word Cloud view instead of List view."
+        description="Text panels open in Word Cloud view instead of List view."
       >
         <Toggle
           checked={s.showWordCloudByDefault}
@@ -896,7 +896,7 @@ export default function Settings() {
       autoAdvanceTimer: Number(raw.autoAdvanceTimer ?? 30),
       anonymousResponses: Boolean(raw.anonymousResponses ?? true),
       maxResponsesPerStudent: Number(raw.maxResponsesPerStudent ?? 1),
-      defaultQuestionType: (raw.defaultQuestionType as string) ?? "Short Text",
+      defaultQuestionType: (raw.defaultQuestionType as string) ?? "Text",
       waitingRoomMessage: (raw.waitingRoomMessage as string | null) ?? null,
       sessionEndedMessage: (raw.sessionEndedMessage as string | null) ?? null,
       requireStudentName: Boolean(raw.requireStudentName ?? false),
@@ -936,7 +936,7 @@ export default function Settings() {
     saveMutation.mutate({
       ...localSettings,
       defaultQuestionType: localSettings.defaultQuestionType as
-        | "Short Text"
+        | "Text"
         | "Multiple Choice"
         | "File Upload"
         | "Star Rating"

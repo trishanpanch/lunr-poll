@@ -73,7 +73,7 @@ const defaultRow = {
   autoAdvanceTimer: 30,
   anonymousResponses: true,
   maxResponsesPerStudent: 1,
-  defaultQuestionType: "Short Text",
+  defaultQuestionType: "Text",
   waitingRoomMessage: null,
   sessionEndedMessage: null,
   requireStudentName: false,

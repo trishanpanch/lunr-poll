@@ -26,7 +26,7 @@ const SettingsInputSchema = z.object({
   anonymousResponses: z.boolean().optional(),
   maxResponsesPerStudent: z.number().int().min(1).max(10).optional(),
   defaultQuestionType: z
-    .enum(["Short Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"])
+    .enum(["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"])
     .optional(),
 
   // Student Experience
@@ -71,7 +71,7 @@ export const settingsRouter = router({
       autoAdvanceTimer: 30,
       anonymousResponses: true,
       maxResponsesPerStudent: 1,
-      defaultQuestionType: "Short Text",
+      defaultQuestionType: "Text",
       waitingRoomMessage: null,
       sessionEndedMessage: null,
       requireStudentName: false,

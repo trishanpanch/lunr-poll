@@ -723,7 +723,7 @@ export default function StudentSession() {
 
             {/* Answer input */}
             <div style={{ flex: 1 }}>
-              {currentQ.type === "Short Text" && (
+              {currentQ.type === "Text" && (
                 <ShortTextInput onSubmit={handleSubmit} disabled={submitting} />
               )}
               {currentQ.type === "Multiple Choice" && currentQ.options && (

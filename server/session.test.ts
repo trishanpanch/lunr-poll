@@ -55,7 +55,7 @@ function makeCtx(user: AuthenticatedUser | null = makeUser()): TrpcContext {
 
 const sampleQuestion = {
   id: "q1",
-  type: "Short Text" as const,
+  type: "Text" as const,
   text: "What did you learn today?",
   color: "oklch(0.48 0.18 264)",
 };

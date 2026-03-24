@@ -58,7 +58,7 @@ const GREEN_LIGHT = "var(--green-light)";
 const CRIMSON = "var(--crimson)";
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
-  "Short Text": <Type size={16} />,
+  "Text": <Type size={16} />,
   "Multiple Choice": <ListChecks size={16} />,
   "File Upload": <Paperclip size={16} />,
   "Star Rating": <Star size={16} />,
@@ -258,7 +258,7 @@ function ResponseChart({
     );
   }
 
-  // Short Text — list responses
+  // Text — list responses
   const textResponses = Object.entries(tally);
   if (textResponses.length === 0) {
     return <p style={{ fontSize: 13, color: TEXT_MUTED, margin: 0 }}>No responses yet.</p>;
@@ -557,8 +557,8 @@ export default function LiveSession() {
                 {currentQ.text}
               </h2>
 
-              {/* Response chart / word cloud toggle for Short Text */}
-              {currentQ.type === "Short Text" && currentStats && currentStats.total > 0 && (
+              {/* Response chart / word cloud toggle for Text */}
+              {currentQ.type === "Text" && currentStats && currentStats.total > 0 && (
                 <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
                   <button
                     onClick={() => setShowWordCloud(false)}
@@ -590,7 +590,7 @@ export default function LiveSession() {
               )}
 
               {currentStats ? (
-                showWordCloud && currentQ.type === "Short Text" ? (
+                showWordCloud && currentQ.type === "Text" ? (
                   <div style={{ display: "flex", justifyContent: "center", padding: "8px 0" }}>
                     <WordCloud
                       responses={(currentStats.responses ?? []).map((r: { answer: string }) => r.answer)}

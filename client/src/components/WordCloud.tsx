@@ -1,7 +1,7 @@
 /**
  * WordCloud.tsx
  *
- * Renders a word-frequency cloud for Short Text responses using d3-cloud.
+ * Renders a word-frequency cloud for Text responses using d3-cloud.
  * Words are sized by frequency; common stop-words are filtered out.
  */
 

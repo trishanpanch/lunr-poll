@@ -43,7 +43,7 @@ const GREEN = "oklch(0.52 0.18 160)";
 const GREEN_LIGHT = "oklch(0.92 0.08 160)";
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
-  "Short Text": <Type size={15} />,
+  "Text": <Type size={15} />,
   "Multiple Choice": <ListChecks size={15} />,
   "File Upload": <Paperclip size={15} />,
   "Star Rating": <Star size={15} />,
@@ -170,7 +170,7 @@ function ResponseChart({
     );
   }
 
-  // Short Text — list + word cloud toggle
+  // Text — list + word cloud toggle
   const answers = rawAnswers && rawAnswers.length > 0 ? rawAnswers : Object.keys(tally);
   return (
     <div>

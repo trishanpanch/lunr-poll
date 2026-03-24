@@ -20,7 +20,7 @@ import type { Question } from "../../drizzle/schema";
 
 const QuestionSchema = z.object({
   id: z.string(),
-  type: z.enum(["Short Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"]),
+  type: z.enum(["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"]),
   text: z.string(),
   color: z.string(),
   options: z.array(z.string()).optional(),
@@ -309,7 +309,7 @@ export const sessionRouter = router({
           question: q,
           total: qResponses.length,
           tally,
-          rawAnswers: q.type === "Short Text" ? qResponses.map((r) => r.answer) : [],
+          rawAnswers: q.type === "Text" ? qResponses.map((r) => r.answer) : [],
         };
       });
 

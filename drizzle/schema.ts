@@ -103,7 +103,7 @@ export const professorSettings = mysqlTable("professorSettings", {
   autoAdvanceTimer: int("autoAdvanceTimer").default(30).notNull(),
   anonymousResponses: boolean("anonymousResponses").default(true).notNull(),
   maxResponsesPerStudent: int("maxResponsesPerStudent").default(1).notNull(),
-  defaultQuestionType: varchar("defaultQuestionType", { length: 64 }).default("Short Text").notNull(),
+  defaultQuestionType: varchar("defaultQuestionType", { length: 64 }).default("Text").notNull(),
 
   // ── Student Experience ────────────────────────────────────────────────────
   waitingRoomMessage: text("waitingRoomMessage"),
@@ -137,7 +137,7 @@ export type InsertProfessorSettings = typeof professorSettings.$inferInsert;
 // ── Shared Question type (mirrors client-side type) ───────────────────────────
 
 export type QuestionType =
-  | "Short Text"
+  | "Text"
   | "Multiple Choice"
   | "File Upload"
   | "Star Rating"

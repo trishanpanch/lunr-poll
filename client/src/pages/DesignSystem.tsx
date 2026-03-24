@@ -288,7 +288,7 @@ function DesignSystemContent() {
   ];
 
   const questionTypes = [
-    { type: "Short Text", icon: <Type size={18} />, color: "oklch(0.45 0.22 264)", bg: "oklch(0.96 0.04 264)", desc: "Open-ended written response", token: "short_text" },
+    { type: "Text", icon: <Type size={18} />, color: "oklch(0.45 0.22 264)", bg: "oklch(0.96 0.04 264)", desc: "Open-ended written response", token: "short_text" },
     { type: "Multiple Choice", icon: <ListChecks size={18} />, color: "oklch(0.52 0.22 290)", bg: "oklch(0.96 0.04 290)", desc: "Select from defined options", token: "multiple_choice" },
     { type: "True / False", icon: <ToggleLeft size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.92 0.08 160)", desc: "Binary correct-answer question", token: "true_false" },
     { type: "File Upload", icon: <Paperclip size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.96 0.04 160)", desc: "Students submit a file", token: "file_upload" },
@@ -620,7 +620,7 @@ Harvard Poll — Design System
                   <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--muted-foreground)", margin: "0 0 8px" }}>AI Panel — Violet</p>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}
                   >
-                    {["Short Text", "Multiple Choice", "True / False"].map((label, i) => (
+                    {["Text", "Multiple Choice", "True / False"].map((label, i) => (
                       <div key={label} style={{
                         padding: "5px 12px", borderRadius: 20, fontSize: 12, fontWeight: 600,
                         fontFamily: "'Geist', system-ui, sans-serif", cursor: "default",

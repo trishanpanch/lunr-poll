@@ -81,7 +81,7 @@ function StatusBadge({ status }: { status: SessionStatus }) {
 // ── Question type icon strip ───────────────────────────────────────────────────
 function TypeIcons({ questions }: { questions: { type: string }[] }) {
   const iconMap: Record<string, React.ReactNode> = {
-    "Short Text": <Type size={11} />,
+    "Text": <Type size={11} />,
     "Multiple Choice": <ListChecks size={11} />,
     "File Upload": <Paperclip size={11} />,
     "Star Rating": <Star size={11} />,
