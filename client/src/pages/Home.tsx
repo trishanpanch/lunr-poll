@@ -1471,73 +1471,84 @@ function QuestionCard({
         {/* Short Text model answer — always shown for Short Text, click to edit */}
         {question.type === "Short Text" && (
           <div style={{ marginTop: 10 }}>
-            <p
-              style={{
-                fontSize: 10,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                color: "var(--primary)",
-                margin: "0 0 4px",
-                fontFamily: "'Geist', system-ui, sans-serif",
-              }}
-            >
-              Model Answer
-            </p>
             {editingAnswer ? (
-              <textarea
-                ref={answerRef}
-                value={answerDraft}
-                onChange={(e) => { setAnswerDraft(e.target.value); autoResize(e.target); }}
-                onBlur={commitAnswerEdit}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") { setAnswerDraft(question.modelAnswer ?? ""); setEditingAnswer(false); }
-                }}
-                placeholder="Write a model answer…"
-                rows={1}
-                style={{
-                  width: "100%",
-                  fontSize: 12.5,
-                  color: "var(--foreground)",
-                  lineHeight: 1.55,
-                  fontFamily: "'Geist', system-ui, sans-serif",
-                  border: "1.5px solid oklch(0.45 0.22 264)",
-                  borderRadius: 8,
-                  padding: "7px 10px",
-                  resize: "none",
-                  outline: "none",
-                  overflow: "hidden",
-                  background: "var(--indigo-light)",
-                  boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
-                  minHeight: 60,
-                  boxSizing: "border-box",
-                }}
-              />
+              <>
+                <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)", margin: "0 0 4px", fontFamily: "'Geist', system-ui, sans-serif" }}>Model Answer</p>
+                <textarea
+                  ref={answerRef}
+                  value={answerDraft}
+                  onChange={(e) => { setAnswerDraft(e.target.value); autoResize(e.target); }}
+                  onBlur={commitAnswerEdit}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") { setAnswerDraft(question.modelAnswer ?? ""); setEditingAnswer(false); }
+                  }}
+                  placeholder="Write a model answer…"
+                  rows={1}
+                  style={{
+                    width: "100%",
+                    fontSize: 12.5,
+                    color: "var(--foreground)",
+                    lineHeight: 1.55,
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                    border: "1.5px solid oklch(0.45 0.22 264)",
+                    borderRadius: 8,
+                    padding: "7px 10px",
+                    resize: "none",
+                    outline: "none",
+                    overflow: "hidden",
+                    background: "var(--indigo-light)",
+                    boxShadow: "0 0 0 3px oklch(0.45 0.22 264 / 0.12)",
+                    minHeight: 60,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </>
+            ) : question.modelAnswer ? (
+              <>
+                <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)", margin: "0 0 4px", fontFamily: "'Geist', system-ui, sans-serif" }}>Model Answer</p>
+                <p
+                  onClick={startEditAnswer}
+                  title="Click to edit model answer"
+                  style={{
+                    fontSize: 12.5,
+                    color: "oklch(0.3 0.12 264)",
+                    lineHeight: 1.55,
+                    margin: 0,
+                    padding: "7px 10px",
+                    background: "var(--indigo-light)",
+                    borderRadius: 8,
+                    border: "1px solid var(--border)",
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                    cursor: "text",
+                    transition: "background 0.12s, border-color 0.12s",
+                    boxSizing: "border-box",
+                    display: "block",
+                  }}
+                  className="hover:bg-[oklch(0.95_0.03_264_/_0.5)] hover:border-[oklch(0.78_0.1_264)]"
+                >
+                  {question.modelAnswer}
+                </p>
+              </>
             ) : (
-              <p
+              <button
                 onClick={startEditAnswer}
-                title="Click to edit model answer"
                 style={{
-                  fontSize: 12.5,
-                  color: question.modelAnswer ? "oklch(0.3 0.12 264)" : "oklch(0.65 0.04 264)",
-                  lineHeight: 1.55,
-                  margin: 0,
-                  padding: "7px 10px",
-                  background: "var(--indigo-light)",
-                  borderRadius: 8,
-                  border: "1px solid var(--border)",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontSize: 12,
+                  color: "var(--muted-foreground)",
                   fontFamily: "'Geist', system-ui, sans-serif",
-                  cursor: "text",
-                  fontStyle: question.modelAnswer ? "normal" : "italic",
-                  transition: "background 0.12s, border-color 0.12s",
-                  minHeight: 60,
-                  boxSizing: "border-box",
-                  display: "block",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  transition: "color 0.12s",
                 }}
-                className="hover:bg-[oklch(0.95_0.03_264_/_0.5)] hover:border-[oklch(0.78_0.1_264)]"
+                className="hover:text-[oklch(0.45_0.22_264)]"
               >
-                {question.modelAnswer || "Click to add a model answer…"}
-              </p>
+                <span style={{ fontSize: 14, lineHeight: 1 }}>+</span> Add model answer
+              </button>
             )}
           </div>
         )}
