@@ -322,23 +322,16 @@ function Sidebar({
   onAddType,
   onAddPreset,
   onOpenMagic,
+  collapsed,
+  onToggleCollapsed,
 }: {
   onAddType: (t: QuestionType) => void;
   onAddPreset: (p: typeof PRESETS[0]) => void;
   onOpenMagic: () => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }) {
-  const [collapsed, setCollapsed] = useState(() => {
-    try { return localStorage.getItem("lunr_sidebar_collapsed") === "true"; }
-    catch { return false; }
-  });
-
-  const toggleCollapsed = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); }
-    catch { /* ignore */ }
-  };
-
+  const toggleCollapsed = onToggleCollapsed;
   const W = collapsed ? 56 : 280;
 
   return (
@@ -347,18 +340,23 @@ function Sidebar({
         width: W,
         minWidth: W,
         background: "transparent",
+        flexShrink: 0,
+        transition: "width 0.2s ease",
+        alignSelf: "stretch",
+        position: "relative",
+      }}
+    >
+      {/* Sticky inner container — pins content to viewport while aside fills full page height */}
+      <div style={{
+        position: "sticky",
+        top: 64,
+        height: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
         overflowY: collapsed ? "visible" : "auto",
         overflowX: "hidden",
-        position: "sticky",
-        top: 64,
-        height: "calc(100vh - 64px)",
-        alignSelf: "flex-start",
-        flexShrink: 0,
-        transition: "width 0.2s ease",
-      }}
-    >
+        width: "100%",
+      }}>
       {/* Toggle button — always visible at top */}
       <div style={{
         display: "flex",
@@ -585,6 +583,7 @@ function Sidebar({
           </div>
         </>
       )}
+      </div>
     </aside>
   );
 }
@@ -2360,11 +2359,8 @@ function AiPanel({
           background: "transparent",
           display: "flex",
           flexDirection: "column",
-          position: "sticky",
-          top: 64,
-          height: "calc(100vh - 64px)",
-          alignSelf: "flex-start",
           flexShrink: 0,
+          alignSelf: "stretch",
         }}
       >
         {/* Resize zone — drag from left edge */}
@@ -3425,6 +3421,13 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   const maxPanelWidth = 600;
   const [isResizingPanel, setIsResizingPanel] = useState(false);
 
+  // Sidebar collapsed state — lifted to Home so the gradient can use the correct width
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem("lunr_sidebar_collapsed") === "true"; }
+    catch { return false; }
+  });
+  const sidebarWidth = sidebarCollapsed ? 56 : 280;
+
   // Preview modal
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
@@ -3528,8 +3531,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         background: `linear-gradient(
           to right,
           var(--card) 0px,
-          var(--card) 280px,
-          var(--background) 280px,
+          var(--card) ${sidebarWidth}px,
+          var(--background) ${sidebarWidth}px,
           var(--background) calc(100% - ${aiPanelOpen ? aiPanelWidth : 0}px),
           var(--card) calc(100% - ${aiPanelOpen ? aiPanelWidth : 0}px),
           var(--card) 100%
@@ -3540,6 +3543,12 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           onAddType={openAddType}
           onAddPreset={addPreset}
           onOpenMagic={() => setAiPanelOpen(true)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => {
+            const next = !sidebarCollapsed;
+            setSidebarCollapsed(next);
+            try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); } catch { /* ignore */ }
+          }}
         />
 
         {/* Canvas — shrinks when AI panel is open */}
