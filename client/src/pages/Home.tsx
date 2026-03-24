@@ -2355,14 +2355,14 @@ function AiPanel({
         <div
           onMouseDown={() => setIsResizingPanel(true)}
           style={{
-            width: 5,
+            width: 0,
             flexShrink: 0,
             cursor: "col-resize",
             background: "transparent",
             alignSelf: "stretch",
             zIndex: 10,
             borderLeft: "1px solid var(--border)",
-            marginRight: -2,
+            paddingRight: 3, /* extend hit area without visual gap */
           }}
         />
       )}
