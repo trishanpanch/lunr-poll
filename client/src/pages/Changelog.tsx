@@ -31,6 +31,36 @@ interface ChangelogItem {
 
 const DAYS: ChangelogDay[] = [
   {
+    date: "March 23, 2026",
+    title: "Collapsible Sidebar & Panel Polish",
+    groups: [
+      {
+        category: "Session Builder",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Manus-style collapsible left sidebar",
+            description:
+              "The left sidebar now supports a collapsed icon-only mode, matching the Manus panel pattern. A PanelLeftClose / PanelLeftOpen toggle button at the top switches between the full 280px expanded view (with labels, descriptions, and the AI banner) and a compact 56px strip showing icon-only buttons for all actions. Thin dividers separate the AI, question types, and preset sections in the collapsed strip. The transition animates smoothly at 0.2s. Collapsed state persists in localStorage across page reloads.",
+            tag: "Feature",
+          },
+          {
+            title: "AI panel collapsed state persisted in localStorage",
+            description:
+              "The open/closed state of the right-side AI panel is now saved to localStorage alongside its width. Reopening the session builder restores the panel to whichever state it was last left in, so professors who prefer a wider canvas don't have to re-collapse the panel on every visit.",
+            tag: "Polish",
+          },
+          {
+            title: "Collapsed sidebar AI button background fixed",
+            description:
+              "In the collapsed icon strip, the AI (Sparkles) button was rendering with a large violet-to-crimson gradient fill that was visually inconsistent with the plain outlined style of all other icon buttons. The button now uses the same 1.5px border, var(--card) background, and var(--violet) icon color as the question-type and preset buttons, giving the strip a uniform appearance.",
+            tag: "Bug Fix",
+          },
+        ],
+      },
+    ],
+  },
+  {
     date: "March 22, 2026",
     title: "Dark Mode & Design System",
     groups: [
