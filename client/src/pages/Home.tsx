@@ -2355,13 +2355,14 @@ function AiPanel({
         <div
           onMouseDown={() => setIsResizingPanel(true)}
           style={{
-            width: 6,
+            width: 5,
             flexShrink: 0,
             cursor: "col-resize",
             background: "transparent",
             alignSelf: "stretch",
             zIndex: 10,
-            marginRight: -3,
+            borderLeft: "1px solid var(--border)",
+            marginRight: -2,
           }}
         />
       )}
@@ -2377,7 +2378,7 @@ function AiPanel({
           flexDirection: "column",
           flexShrink: 0,
           alignSelf: "stretch",
-          borderLeft: open ? "1px solid var(--border)" : "none",
+          borderLeft: "none",
         }}
       >
         {/* Resize zone removed — now handled by sibling div above */}
