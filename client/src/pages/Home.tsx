@@ -339,11 +339,12 @@ function Sidebar({
       style={{
         width: W,
         minWidth: W,
-        background: "transparent",
+        background: "var(--card)",
         flexShrink: 0,
         transition: "width 0.2s ease",
         alignSelf: "stretch",
         position: "relative",
+        borderRight: "1px solid var(--border)",
       }}
     >
       {/* Sticky inner container — pins content to viewport while aside fills full page height */}
@@ -2356,11 +2357,12 @@ function AiPanel({
           minWidth: open ? aiPanelWidth : 0,
           overflow: "hidden",
           transition: isResizingPanel ? "none" : "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)",
-          background: "transparent",
+          background: "var(--card)",
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
           alignSelf: "stretch",
+          borderLeft: open ? "1px solid var(--border)" : "none",
         }}
       >
         {/* Resize zone — drag from left edge */}
@@ -3500,7 +3502,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh", paddingTop: 64 }} className="home-root">
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 64px)", paddingTop: 64, flex: 1 }} className="home-root">
       <Topbar
         sessionName={sessionName}
         onNameChange={setSessionName}
@@ -3523,21 +3525,9 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
       <div style={{
         display: "flex",
         flex: 1,
-        minHeight: "calc(100vh - 64px)",
         alignItems: "stretch",
-        /* Paint the sidebar backgrounds all the way to the page bottom.
-           Left sidebar = 280px white, canvas = gray, right AI panel = white when open.
-           The canvas border lines are on the <main> element itself. */
-        background: `linear-gradient(
-          to right,
-          var(--card) 0px,
-          var(--card) ${sidebarWidth}px,
-          var(--background) ${sidebarWidth}px,
-          var(--background) calc(100% - ${aiPanelOpen ? aiPanelWidth : 0}px),
-          var(--card) calc(100% - ${aiPanelOpen ? aiPanelWidth : 0}px),
-          var(--card) 100%
-        )`,
-        /* Ensure the AI panel always has a visible left border via the canvas right border */
+        alignSelf: "stretch",
+        background: "var(--background)",
       }}>
         <Sidebar
           onAddType={openAddType}
