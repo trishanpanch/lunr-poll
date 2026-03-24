@@ -2350,6 +2350,21 @@ function AiPanel({
         </button>
       )}
 
+      {/* Resize handle — outside the overflow:hidden aside so it isn't clipped */}
+      {open && (
+        <div
+          onMouseDown={() => setIsResizingPanel(true)}
+          style={{
+            width: 6,
+            flexShrink: 0,
+            cursor: "col-resize",
+            background: "transparent",
+            alignSelf: "stretch",
+            zIndex: 10,
+            marginRight: -3,
+          }}
+        />
+      )}
       {/* Inline aside — width animates so the canvas resizes naturally */}
       <aside
         style={{
@@ -2365,21 +2380,7 @@ function AiPanel({
           borderLeft: open ? "1px solid var(--border)" : "none",
         }}
       >
-        {/* Resize zone — drag from left edge */}
-        {open && (
-          <div
-            onMouseDown={() => setIsResizingPanel(true)}
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              width: 8,
-              height: "100%",
-              cursor: "col-resize",
-              zIndex: 1000,
-            }}
-          />
-        )}
+        {/* Resize zone removed — now handled by sibling div above */}
         <div style={{ width: aiPanelWidth, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "transparent" }}>
           {/* Header */}
           <div style={{
