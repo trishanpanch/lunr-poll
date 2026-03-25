@@ -281,3 +281,6 @@
 
 ## Polish — Remove Icon Boxes
 - [x] Remove colored rounded-square icon boxes from question type icons everywhere (dialog tiles, question card badges, AI panel, type dropdown)
+
+## Polish — Q-Number Badge Position
+- [x] Move Q-number badge from bottom of question card to top-left header row (inline with drag handle and type badge)
