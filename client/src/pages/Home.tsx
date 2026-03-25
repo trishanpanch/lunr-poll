@@ -2310,6 +2310,25 @@ function AiPanel({
         return base;
       });
     onAddQuestions(toAdd);
+    // Option B: keep source material, clear objectives + generated results
+    setGenerated([]);
+    setObjectives([]);
+    setSuggestedObjectives([]);
+    localStorage.removeItem("lunr_objectives");
+  };
+
+  const handleStartFresh = () => {
+    setGenerated([]);
+    setContent("");
+    setUrlChips([]);
+    setFileChips([]);
+    setUrlInput("");
+    setObjectives([]);
+    setSuggestedObjectives([]);
+    setObjectiveInput("");
+    setSelectedTypes(new Set(["Text", "Multiple Choice", "True / False"] as QuestionType[]));
+    setCount(3);
+    localStorage.removeItem("lunr_objectives");
   };
 
   const selectedCount = generated.filter((q) => q.selected).length;
@@ -2392,6 +2411,26 @@ function AiPanel({
                 Generate with AI
               </span>
             </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              {(content.trim() || urlChips.length > 0 || fileChips.length > 0 || objectives.length > 0 || generated.length > 0) && (
+                <button
+                  onClick={handleStartFresh}
+                  title="Clear everything and start over"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 4,
+                    background: "none", border: "1px solid var(--border)",
+                    borderRadius: 6, padding: "3px 8px",
+                    fontSize: 11, fontWeight: 600,
+                    color: "var(--muted-foreground)",
+                    fontFamily: "'Geist', system-ui, sans-serif",
+                    cursor: "pointer", transition: "all 0.15s",
+                  }}
+                  className="hover:border-[oklch(0.52_0.22_10)] hover:text-[oklch(0.52_0.22_10)] hover:bg-[oklch(0.97_0.01_10)] transition-all"
+                >
+                  <RotateCcw size={10} />
+                  Start fresh
+                </button>
+              )}
             <button
               onClick={onClose}
               title="Collapse AI panel"
@@ -2400,6 +2439,7 @@ function AiPanel({
             >
               <ChevronsRight size={16} />
             </button>
+            </div>
           </div>
 
           {/* Scrollable body */}
@@ -3441,7 +3481,11 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
     };
     const handleMouseUp = () => {
       setIsResizingPanel(false);
-      localStorage.setItem("lunr_ai_panel_width", aiPanelWidth.toString());
+      // Use functional setter to read latest width without stale closure
+      setAiPanelWidth((w) => {
+        try { localStorage.setItem("lunr_ai_panel_width", w.toString()); } catch { /* ignore */ }
+        return w;
+      });
     };
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
@@ -3449,7 +3493,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isResizingPanel, aiPanelWidth]);
+  }, [isResizingPanel]);
 
   // Persist AI panel open/close state
   useEffect(() => {

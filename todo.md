@@ -281,3 +281,10 @@
 
 ## Polish — Remove Icon Boxes
 - [x] Remove colored rounded-square icon boxes from question type icons everywhere (dialog tiles, question card badges, AI panel, type dropdown)
+
+## Feature — AI Panel Post-Generation Flow
+- [x] After adding generated questions, return to pre-generation panel keeping source material (URLs, files, pasted text) but clearing objectives and generated results
+- [x] Add "Start fresh" button to reset all source material, objectives, and results to blank state
+
+## Feature — Persist AI Panel Width
+- [x] Save AI panel width to localStorage on resize; restore on mount (fixed stale closure bug)
