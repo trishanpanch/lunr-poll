@@ -278,3 +278,6 @@
 - [x] Add toggle button (PanelLeftClose / PanelLeftOpen icons)
 - [x] Smooth width transition between states
 - [x] Show tooltips on icons when collapsed (native title attribute)
+
+## Polish — Remove Icon Boxes
+- [x] Remove colored rounded-square icon boxes from question type icons everywhere (dialog tiles, question card badges, AI panel, type dropdown)

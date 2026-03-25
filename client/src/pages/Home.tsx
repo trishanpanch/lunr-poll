@@ -85,10 +85,6 @@ const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; de
   "True / False":    { icon: <ToggleLeft size={18} />,  color: "oklch(0.42 0.14 60)",  desc: "True or false answer" },
 };
 
-/** Convert oklch(L C H) → oklch(L C H / alpha) */
-function colorAlpha(color: string, alpha: number) {
-  return color.replace(/^oklch\((.+)\)$/, `oklch($1 / ${alpha})`);
-}
 
 const TYPE_META_SMALL: Record<QuestionType, React.ReactNode> = {
   "Text":      <Type size={10} />,
@@ -1253,7 +1249,7 @@ function QuestionCard({
               >
                 {transforming
                   ? <Loader2 size={10} className="animate-spin" />
-                  : <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, borderRadius: 4, background: colorAlpha(meta.color, 0.1), color: meta.color, flexShrink: 0 }}>{meta.icon}</span>}
+                  : <span style={{ display: "flex", alignItems: "center", color: meta.color, flexShrink: 0 }}>{meta.icon}</span>}
                 {question.type}
                 {!transforming && question.type !== "File Upload" && question.type !== "Star Rating" && <ChevronDown size={10} style={{ opacity: 0.6 }} />}
 
@@ -3649,7 +3645,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       <div style={{ color: "var(--muted-foreground)", marginTop: 3 }}>
                         <GripVertical size={16} />
                       </div>
-                      <div style={{ width: 28, height: 28, borderRadius: 7, background: colorAlpha(meta.color, 0.1), display: "flex", alignItems: "center", justifyContent: "center", color: meta.color }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", color: meta.color, flexShrink: 0, marginTop: 2 }}>
                         {meta.icon}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -3748,11 +3744,6 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        width: 34,
-                        height: 34,
-                        borderRadius: 8,
-                        background: colorAlpha(meta.color, 0.1),
                         color: meta.color,
                         alignSelf: "flex-start",
                       }}
@@ -3788,11 +3779,6 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    width: 34,
-                    height: 34,
-                    borderRadius: 8,
-                    background: "oklch(0.52 0.22 290 / 0.15)",
                     color: "oklch(0.52 0.22 290)",
                     alignSelf: "flex-start",
                   }}
