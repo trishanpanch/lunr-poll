@@ -31,6 +31,48 @@ interface ChangelogItem {
 
 const DAYS: ChangelogDay[] = [
   {
+    date: "March 24, 2026",
+    title: "AI Panel Flow, Button Polish & Icon Cleanup",
+    groups: [
+      {
+        category: "Session Builder",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "AI panel post-generation flow (Option B)",
+            description:
+              "After clicking 'Add Questions to Session,' the AI panel now returns to the pre-generation view instead of closing entirely. Source material (uploaded files, pasted text, and URLs) is preserved so professors can immediately run another round of generation from the same content. Learning objectives and generated results are cleared to signal a fresh generation round. This avoids the frustration of re-uploading lecture notes for a second pass.",
+            tag: "Feature",
+          },
+          {
+            title: "'Start fresh' reset button in AI panel header",
+            description:
+              "A 'Start fresh' button now appears in the AI panel header whenever any content is present (source material, objectives, or generated results). Clicking it clears everything — source material, URLs, files, objectives, question type selection, and count — returning the panel to a completely blank state. The button is styled as a subtle outlined pill so it doesn't compete with the primary Generate action.",
+            tag: "Feature",
+          },
+          {
+            title: "AI panel width persistence bug fix",
+            description:
+              "The AI panel width was already being saved to localStorage, but a stale closure bug in the resize mouseup handler meant the initial width (before any drag) was being saved instead of the final dragged width. Fixed by using a functional state setter in the mouseup handler to read the latest width value at save time.",
+            tag: "Bug Fix",
+          },
+          {
+            title: "Removed colored icon boxes from question type badges",
+            description:
+              "All rounded-square tinted background boxes behind question type icons have been removed across the app — the type picker dialog tiles, question card header badges, AI panel drag overlay, and the Generate with AI tile. Icons now render directly with their accent color against the card background, reducing visual noise and giving the UI a cleaner, flatter feel. The unused colorAlpha() helper function was also removed.",
+            tag: "Polish",
+          },
+          {
+            title: "Generate Questions and URL Add buttons changed to purple",
+            description:
+              "The 'Generate Questions' button and the 'Add' URL button in the AI panel were rendering in a washed-out light blue tint (oklch 0.96 lightness). Both are now solid violet (oklch 0.52 0.22 290), consistent with the rest of the app's primary action color.",
+            tag: "Polish",
+          },
+        ],
+      },
+    ],
+  },
+  {
     date: "March 23, 2026",
     title: "Collapsible Sidebar & Panel Polish",
     groups: [
