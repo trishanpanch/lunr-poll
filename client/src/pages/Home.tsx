@@ -541,7 +541,7 @@ function Sidebar({
                     }}
                     className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
                   >
-                    <span style={{ color: meta.color }}>{meta.icon}</span>
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, background: `${meta.color}18`, color: meta.color }}>{meta.icon}</span>
                     {type}
                   </button>
                 );
@@ -805,7 +805,7 @@ function EmptyState({
         <Button
           onClick={onManual}
           style={{
-            background: "var(--violet)",
+            background: "oklch(0.48 0.18 264)",
             color: "#fff",
             fontSize: 13,
             fontWeight: 700,
