@@ -697,7 +697,7 @@ export default function Changelog() {
               letterSpacing: "-0.03em",
             }}
           >
-            Session Builder Updates
+            AlicePoll Updates
           </h1>
           <p
             style={{
@@ -890,7 +890,7 @@ export default function Changelog() {
           }}
         >
           <p style={{ fontSize: 12, color: "var(--muted-foreground)", margin: 0 }}>
-            Session Builder · Changelog
+            AlicePoll · Changelog
           </p>
         </div>
       </div>
