@@ -1242,7 +1242,7 @@ function QuestionCard({
               >
                 {transforming
                   ? <Loader2 size={10} className="animate-spin" />
-                  : <span style={{ color: meta.color, display: "flex", alignItems: "center" }}>{meta.icon}</span>}
+                  : <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, borderRadius: 4, background: `${meta.color}18`, color: meta.color, flexShrink: 0 }}>{meta.icon}</span>}
                 {question.type}
                 {!transforming && question.type !== "File Upload" && question.type !== "Star Rating" && <ChevronDown size={10} style={{ opacity: 0.6 }} />}
               </button>
