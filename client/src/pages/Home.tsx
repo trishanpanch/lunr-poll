@@ -993,7 +993,7 @@ function QBadge({
         <div
           style={{
             position: "absolute",
-            top: "calc(100% + 6px)",
+            bottom: "calc(100% + 6px)",
             left: 0,
             zIndex: 200,
             background: "var(--card)",
@@ -1214,9 +1214,8 @@ function QuestionCard({
 
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Header row: Q-number + type label */}
+        {/* Type label — dropdown to switch type */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-          <QBadge index={index} totalCount={totalCount ?? 1} onReorder={onReorder} />
           {onUpdateType ? (
             <div ref={typeDropdownRef} style={{ position: "relative", marginLeft: iconNudge }}>
               {/* Only Text, Multiple Choice, and True / False can be switched */}
@@ -1548,6 +1547,9 @@ function QuestionCard({
             )}
           </div>
         )}
+        <div style={{ marginTop: 8 }}>
+          <QBadge index={index} totalCount={totalCount ?? 1} onReorder={onReorder} />
+        </div>
       </div>
 
       {/* Remove */}
