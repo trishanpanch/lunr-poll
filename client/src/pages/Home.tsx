@@ -799,11 +799,11 @@ function EmptyState({
           margin: 0,
         }}
       >
-        Add a question from the sidebar, use a preset, or generate questions automatically with AI.
+        Choose a type from the sidebar or use a preset to get started.
       </p>
       <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
         <Button
-          onClick={onMagic}
+          onClick={onManual}
           style={{
             background: "var(--violet)",
             color: "#fff",
@@ -817,24 +817,7 @@ function EmptyState({
           }}
           className="hover:opacity-90 transition-opacity shadow-sm"
         >
-          <Sparkles size={14} />
-          Generate with AI
-        </Button>
-        <Button
-          variant="outline"
-          onClick={onManual}
-          style={{
-            fontSize: 13,
-            fontWeight: 500,
-            fontFamily: "'Geist', system-ui, sans-serif",
-            borderRadius: 10,
-            padding: "9px 20px",
-            height: "auto",
-            background: "var(--card)",
-          }}
-          className="hover:border-[oklch(0.55_0.2_250)] hover:text-[oklch(0.55_0.2_250)] transition-all"
-        >
-          + Add Manually
+          + Add a Question
         </Button>
       </div>
     </div>
