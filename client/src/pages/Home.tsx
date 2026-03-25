@@ -3775,6 +3775,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                     justifyContent: "center",
                     width: 34,
                     height: 34,
+                    borderRadius: 8,
+                    background: "oklch(0.52 0.22 290 / 0.15)",
                     color: "oklch(0.52 0.22 290)",
                     alignSelf: "flex-start",
                   }}
