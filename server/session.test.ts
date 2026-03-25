@@ -376,3 +376,33 @@ describe("session.submitResponse (student, public)", () => {
     ).rejects.toThrow("already answered");
   });
 });
+
+describe("session.save — polling preset question", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("accepts a Multiple Choice question with presetSource='polling' and two empty options", async () => {
+    const pollingQuestion = {
+      id: "q-poll",
+      type: "Multiple Choice" as const,
+      text: "Which topic would you like to explore further?",
+      color: "oklch(0.52 0.22 290)",
+      options: ["", ""],
+      presetSource: "polling" as const,
+    };
+
+    vi.mocked(db.createSession).mockResolvedValue({ id: 11, code: "XYZAB" });
+
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.session.save({
+      name: "Polling Session",
+      questions: [pollingQuestion],
+    });
+
+    expect(db.createSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        questions: [pollingQuestion],
+      })
+    );
+    expect(result).toEqual({ id: 11, code: "XYZAB" });
+  });
+});

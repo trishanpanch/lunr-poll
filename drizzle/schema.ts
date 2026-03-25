@@ -152,4 +152,6 @@ export interface Question {
   correctIndex?: number;
   tfAnswer?: "True" | "False";
   modelAnswer?: string;
+  /** Builder-only metadata: restricts type-change dropdown. "polling" = Text/MC only. */
+  presetSource?: "polling";
 }

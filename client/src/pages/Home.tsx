@@ -74,6 +74,7 @@ interface Question {
   correctIndex?: number; // Index of the correct answer for Multiple Choice
   tfAnswer?: "True" | "False"; // Correct answer for True / False questions
   modelAnswer?: string; // Model answer for Text questions
+  presetSource?: "polling"; // Restricts type-change to Text/MC only
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
@@ -121,7 +122,7 @@ const PRESETS = [
     icon: <ListChecks size={15} />,
     count: 1,
     questions: [
-      { type: "Multiple Choice" as QuestionType, text: "Which topic would you like to explore further?" },
+      { type: "Multiple Choice" as QuestionType, text: "Which topic would you like to explore further?", options: ["", ""], presetSource: "polling" as const },
     ],
   },
 ];
@@ -546,7 +547,7 @@ function Sidebar({
                     }}
                     className="hover:border-[oklch(0.55_0.2_250)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[oklch(0.55_0.2_250)] hover:shadow-sm transition-all"
                   >
-                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 8, background: colorAlpha(meta.color, 0.1), color: meta.color }}>{meta.icon}</span>
+                    <span style={{ color: meta.color }}>{meta.icon}</span>
                     {type}
                   </button>
                 );
@@ -1223,8 +1224,13 @@ function QuestionCard({
             <div ref={typeDropdownRef} style={{ position: "relative", marginLeft: iconNudge }}>
               {/* Only Text, Multiple Choice, and True / False can be switched */}
               {/* File Upload and Star Rating show a static badge with no dropdown */}
+              {/* Polling preset questions can only switch between Text and Multiple Choice */}
               <button
-                onClick={() => !transforming && question.type !== "File Upload" && question.type !== "Star Rating" && setTypeDropdownOpen((v) => !v)}
+                onClick={() => {
+                  if (transforming) return;
+                  if (question.type === "File Upload" || question.type === "Star Rating") return;
+                  setTypeDropdownOpen((v) => !v);
+                }}
                 disabled={transforming}
                 style={{
                   display: "inline-flex",
@@ -1250,6 +1256,7 @@ function QuestionCard({
                   : <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, borderRadius: 4, background: colorAlpha(meta.color, 0.1), color: meta.color, flexShrink: 0 }}>{meta.icon}</span>}
                 {question.type}
                 {!transforming && question.type !== "File Upload" && question.type !== "Star Rating" && <ChevronDown size={10} style={{ opacity: 0.6 }} />}
+
               </button>
               {typeDropdownOpen && (
                 <div
@@ -1266,7 +1273,9 @@ function QuestionCard({
                     overflow: "hidden",
                   }}
                 >
-                  {(["Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t, i, arr) => {
+                  {((question.presetSource === "polling"
+                    ? ["Text", "Multiple Choice"]
+                    : ["Text", "Multiple Choice", "True / False"]) as QuestionType[]).map((t, i, arr) => {
                     const tm = TYPE_META[t];
                     const isCurrent = t === question.type;
                     return (
@@ -2523,7 +2532,7 @@ function AiPanel({
                         padding: "0 12px",
                         borderRadius: 8,
                         border: "none",
-                        background: !urlInput.trim() || loading ? "var(--border)" : "var(--indigo-light)",
+                        background: !urlInput.trim() || loading ? "var(--border)" : "oklch(0.52 0.22 290)",
                         color: !urlInput.trim() || loading ? "var(--muted-foreground)" : "#fff",
                         fontSize: 12,
                         fontWeight: 700,
@@ -3174,7 +3183,7 @@ function AiPanel({
                   border: "none",
                   background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading
                     ? "var(--border)"
-                    : "linear-gradient(135deg, var(--indigo-light) 0%, var(--violet-light) 100%)",
+                    : "linear-gradient(135deg, oklch(0.48 0.22 290) 0%, oklch(0.52 0.22 290) 100%)",
                   color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "var(--muted-foreground)" : "#fff",
                   fontSize: 13,
                   fontWeight: 700,
@@ -3475,6 +3484,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
       icon: TYPE_META[q.type].icon,
       text: q.text,
       color: TYPE_META[q.type].color,
+      ...("options" in q && q.options ? { options: q.options } : {}),
+      ...("presetSource" in q && q.presetSource ? { presetSource: q.presetSource } : {}),
     }));
     setQuestions((prev) => [...prev, ...newQs]);
     toast.success(`"${preset.name}" preset added — ${newQs.length} question${newQs.length > 1 ? "s" : ""}`);
