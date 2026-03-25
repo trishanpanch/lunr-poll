@@ -288,3 +288,6 @@
 
 ## Feature — Persist AI Panel Width
 - [x] Save AI panel width to localStorage on resize; restore on mount (fixed stale closure bug)
+
+## Polish — Toast After Adding Questions
+- [x] Show "N question(s) added to session" toast after clicking Add Questions in the AI panel

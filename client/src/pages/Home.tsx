@@ -2310,6 +2310,12 @@ function AiPanel({
         return base;
       });
     onAddQuestions(toAdd);
+    // Toast confirmation
+    const n = toAdd.length;
+    toast.success(`${n} question${n === 1 ? "" : "s"} added to session`, {
+      description: "Source material kept — ready for another round.",
+      duration: 3000,
+    });
     // Option B: keep source material, clear objectives + generated results
     setGenerated([]);
     setObjectives([]);
