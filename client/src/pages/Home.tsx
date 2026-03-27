@@ -2659,6 +2659,7 @@ function AiPanel({
           alignSelf: "stretch",
           position: "relative",
           borderLeft: "none",
+          backgroundClip: "padding-box",
         }}
       >
         {/* Sticky inner container — pins content to viewport while aside fills full page height */}
@@ -3839,6 +3840,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         alignItems: "stretch",
         alignSelf: "stretch",
         background: "var(--background)",
+        minHeight: "calc(100vh - 64px)",
       }}>
         <Sidebar
           onAddType={openAddType}
