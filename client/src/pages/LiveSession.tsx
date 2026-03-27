@@ -560,10 +560,11 @@ export default function LiveSession() {
                   style={{
                     width: "100%",
                     maxHeight: 260,
-                    objectFit: "cover",
+                    objectFit: "contain",
                     borderRadius: 10,
                     border: `1px solid ${BORDER}`,
                     display: "block",
+                    height: "auto",
                     marginBottom: 16,
                   }}
                 />

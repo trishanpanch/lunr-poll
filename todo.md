@@ -319,3 +319,12 @@
 - [x] Show thumbnail preview with remove (×) button on cards that have a mediaUrl
 - [x] Display image above question text in live session view (professor screen)
 - [x] Display image above question text in student join/answer view
+
+## Polish — Sticky Generate Button in AI Panel
+- [ ] Make Generate Questions button sticky at the bottom of the AI panel so it's always visible regardless of scroll position
+
+## AI Deduplication
+- [ ] Pass existing session questions to AI generation so generated questions avoid duplicating saved ones
+
+## Image Attachment Display
+- [x] Fix question photo display: preserve original aspect ratio (no cropping), apply max-height constraint only

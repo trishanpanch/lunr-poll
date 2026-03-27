@@ -717,9 +717,10 @@ export default function StudentSession() {
                 style={{
                   width: "100%",
                   maxHeight: 240,
-                  objectFit: "cover",
+                  objectFit: "contain",
                   borderRadius: 12,
                   display: "block",
+                  height: "auto",
                   marginBottom: 18,
                 }}
               />

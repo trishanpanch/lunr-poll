@@ -1413,10 +1413,11 @@ function QuestionCard({
               style={{
                 width: "100%",
                 maxHeight: 220,
-                objectFit: "cover",
+                objectFit: "contain",
                 borderRadius: 10,
                 border: "1px solid var(--border)",
                 display: "block",
+                height: "auto",
               }}
             />
             {onUpdateMedia && (
