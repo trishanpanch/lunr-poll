@@ -2653,18 +2653,16 @@ function AiPanel({
         style={{
           width: open ? aiPanelWidth : 0,
           minWidth: open ? aiPanelWidth : 0,
-          overflow: "hidden",
           transition: isResizingPanel ? "none" : "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)",
           background: "var(--card)",
-          display: "flex",
-          flexDirection: "column",
           flexShrink: 0,
           alignSelf: "stretch",
+          position: "relative",
           borderLeft: "none",
         }}
       >
-        {/* Resize zone removed — now handled by sibling div above */}
-        <div style={{ width: aiPanelWidth, display: "flex", flexDirection: "column", height: "calc(100vh - 64px)", overflow: "hidden", background: "transparent", position: "sticky", top: 64 }}>
+        {/* Sticky inner container — pins content to viewport while aside fills full page height */}
+        <div style={{ width: aiPanelWidth, display: "flex", flexDirection: "column", height: "calc(100vh - 64px)", overflowY: "hidden", overflowX: "hidden", background: "transparent", position: "sticky", top: 64 }}>
           {/* Header */}
           <div style={{
             padding: "16px 18px 14px",
@@ -3815,7 +3813,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 64px)", paddingTop: 64, flex: 1 }} className="home-root">
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 64px)", paddingTop: 64, flex: 1 }} className="home-root">
       <Topbar
         sessionName={sessionName}
         onNameChange={setSessionName}
