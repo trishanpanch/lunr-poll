@@ -359,3 +359,12 @@
 
 ## Zoom Icon Restyle
 - [x] Make zoom icon plain black with no background, position in bottom corner of image container
+
+## Zoom Icon Position Sliders
+- [x] Add X/Y sliders to adjust zoom icon position on question images, persisted to localStorage (cancelled — icon removed instead)
+
+## Zoom Icon Removal
+- [x] Remove zoom icon entirely from question image containers in all three views
+
+## Changelog Update
+- [x] Add changelog entries for all recent updates

@@ -32,6 +32,72 @@ interface ChangelogItem {
 const DAYS: ChangelogDay[] = [
   {
     date: "March 27, 2026",
+    title: "Image Attachments, Lightbox, AI Dedup & Card UX",
+    groups: [
+      {
+        category: "Session Builder",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Photo attachments on questions",
+            description:
+              "Questions can now have an image attached. The upload button lives in a three-dot overflow menu on each card (⋯ → Add image), keeping the card surface clean. Images are uploaded to S3 and the URL is stored in the question's mediaUrl field. The attachment is shown below the question text in a padded, rounded container that preserves the original aspect ratio with a max-height of 220 px — no cropping.",
+            tag: "Feature",
+          },
+          {
+            title: "Three-dot overflow menu on question cards",
+            description:
+              "Each question card now has a ⋯ menu in the top-right corner. It contains: Add image (when no photo is attached), Remove image (with a confirm dialog), and Delete question (with a confirm dialog). The inline 'Add image' button that previously appeared in the card footer has been removed.",
+            tag: "Feature",
+          },
+          {
+            title: "Confirm dialogs for destructive card actions",
+            description:
+              "Removing an image and deleting a question both now require confirmation via an AlertDialog before the action is carried out. This prevents accidental data loss — a user reported losing a question with a single misclick.",
+            tag: "Polish",
+          },
+          {
+            title: "Full-screen image lightbox",
+            description:
+              "Tapping a question photo in the session builder, professor live view, or student session expands it to a full-screen overlay with an 85% black backdrop. Clicking the backdrop or the X button in the top-right corner dismisses it. The lightbox is rendered via a React portal so it always sits above all other UI.",
+            tag: "Feature",
+          },
+          {
+            title: "Image shown in session preview modal",
+            description:
+              "The session preview modal (launched from the topbar) now renders question photo attachments below the question text, using the same padded container and aspect-ratio-preserving style as the builder and live views.",
+            tag: "Bug Fix",
+          },
+          {
+            title: "AI generation avoids duplicating existing questions",
+            description:
+              "The current session's question texts are now sent to the AI generation endpoint as an 'existing questions' list. The system prompt instructs the model to avoid producing questions that are semantically similar or identical to those already in the session.",
+            tag: "Improvement",
+          },
+          {
+            title: "Onboarding banner persists dismissed state",
+            description:
+              "Dismissing the onboarding tutorial now writes a flag to localStorage. On subsequent page loads the banner stays hidden. Previously it reappeared on every refresh.",
+            tag: "Bug Fix",
+          },
+          {
+            title: "Session code badge: copy icon removed",
+            description:
+              "The copy icon that appeared to the left of the session code text in the badge has been removed. The badge itself remains clickable (tap to copy), so the icon was redundant visual noise.",
+            tag: "Polish",
+          },
+          {
+            title: "Image remove button: icon replaced with plain X",
+            description:
+              "The ImageOff icon on the remove-photo button was unclear. It has been replaced with a plain X that matches the rest of the app's close/remove affordances.",
+            tag: "Polish",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    date: "March 27, 2026",
     title: "Sessions UX, MC Polish & Media Groundwork",
     groups: [
       {

@@ -731,9 +731,7 @@ export default function StudentSession() {
                       height: "auto",
                     }}
                   />
-<div style={{ position: "absolute", bottom: 8, right: 8, background: "none", display: "flex", alignItems: "center", color: "oklch(0.25 0 0)", pointerEvents: "none", opacity: 0.5 }}>
-                   <ZoomIn size={14} />
-                   </div>
+
                 </div>
               </div>
             )}
