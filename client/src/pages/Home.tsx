@@ -14,8 +14,15 @@ import {
   Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
   ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
   PanelLeftClose, PanelLeftOpen,
-  ImagePlus, ImageOff,
+  ImagePlus, ImageOff, MoreHorizontal, Trash2,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -1086,6 +1093,7 @@ function QuestionCard({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(question.text);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [confirmRemoveMedia, setConfirmRemoveMedia] = useState(false);
 
   // Inline type switching state
   const [transforming, setTransforming] = useState(false);
@@ -1421,7 +1429,7 @@ function QuestionCard({
             />
             {onUpdateMedia && (
               <button
-                onClick={() => onUpdateMedia(undefined)}
+                onClick={() => setConfirmRemoveMedia(true)}
                 title="Remove image"
                 style={{
                   position: "absolute",
@@ -1441,9 +1449,29 @@ function QuestionCard({
                 }}
                 className="hover:bg-[rgba(0,0,0,0.75)]"
               >
-                <ImageOff size={13} />
+                <X size={13} />
               </button>
             )}
+            {/* Confirm remove media dialog */}
+            <AlertDialog open={confirmRemoveMedia} onOpenChange={setConfirmRemoveMedia}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Remove photo?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently remove the attached photo from this question.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => { setConfirmRemoveMedia(false); onUpdateMedia!(undefined); }}
+                    style={{ background: "var(--destructive)", color: "#fff" }}
+                  >
+                    Remove
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         )}
         {/* True / False answer display */}
@@ -1622,66 +1650,78 @@ function QuestionCard({
         )}
         <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <QBadge index={index} totalCount={totalCount ?? 1} onReorder={onReorder} />
-          {onUpdateMedia && !question.mediaUrl && (
-            <>
-              <input
-                ref={mediaInputRef}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleMediaUpload(file);
-                  e.target.value = "";
-                }}
-              />
-              <button
-                onClick={() => mediaInputRef.current?.click()}
-                disabled={uploadingMedia}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 5,
-                  fontSize: 11.5,
-                  fontWeight: 500,
-                  color: "var(--muted-foreground)",
-                  background: "none",
-                  border: "1px dashed var(--border)",
-                  borderRadius: 7,
-                  padding: "3px 9px",
-                  cursor: uploadingMedia ? "wait" : "pointer",
-                  fontFamily: "'Geist', system-ui, sans-serif",
-                  transition: "all 0.15s",
-                }}
-                className="hover:border-[oklch(0.52_0.22_290)] hover:text-[oklch(0.52_0.22_290)] transition-all"
-              >
-                {uploadingMedia ? <Loader2 size={12} className="animate-spin" /> : <ImagePlus size={12} />}
-                {uploadingMedia ? "Uploading…" : "Add image"}
-              </button>
-            </>
+          {/* Hidden file input — triggered from dropdown */}
+          {onUpdateMedia && (
+            <input
+              ref={mediaInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleMediaUpload(file);
+                e.target.value = "";
+              }}
+            />
+          )}
+          {uploadingMedia && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>
+              <Loader2 size={12} className="animate-spin" /> Uploading…
+            </span>
           )}
         </div>
       </div>
 
-      {/* Remove */}
-      <button
-        onClick={onRemove}
-        title="Remove question"
-        style={{
-          background: "none",
-          border: "none",
-          color: "var(--muted-foreground)",
-          borderRadius: 7,
-          padding: "4px 5px",
-          display: "flex",
-          alignItems: "center",
-          transition: "background 0.15s, color 0.15s",
-          flexShrink: 0,
-        }}
-        className="hover:bg-[oklch(0.95_0.01_264)] hover:text-[oklch(0.52_0.22_10)] transition-all"
-      >
-        <X size={15} />
-      </button>
+      {/* Three-dot overflow menu */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            title="More options"
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--muted-foreground)",
+              borderRadius: 7,
+              padding: "4px 5px",
+              display: "flex",
+              alignItems: "center",
+              transition: "background 0.15s, color 0.15s",
+              flexShrink: 0,
+              cursor: "pointer",
+            }}
+            className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-all"
+          >
+            <MoreHorizontal size={16} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-44">
+          {onUpdateMedia && !question.mediaUrl && (
+            <DropdownMenuItem
+              onClick={() => mediaInputRef.current?.click()}
+              disabled={uploadingMedia}
+            >
+              <ImagePlus size={14} className="mr-2" />
+              Add image
+            </DropdownMenuItem>
+          )}
+          {onUpdateMedia && question.mediaUrl && (
+            <DropdownMenuItem
+              onClick={() => setConfirmRemoveMedia(true)}
+            >
+              <ImageOff size={14} className="mr-2" />
+              Remove image
+            </DropdownMenuItem>
+          )}
+          {onUpdateMedia && <DropdownMenuSeparator />}
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={onRemove}
+          >
+            <Trash2 size={14} className="mr-2" />
+            Delete question
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
     </div>
   );
@@ -3461,8 +3501,11 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
     })));
   }, [existingSession]);
 
-  // Always show onboarding on new sessions
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  // Show onboarding unless the user has previously dismissed it
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try { return localStorage.getItem("lunr_onboarding_dismissed") !== "true"; }
+    catch { return true; }
+  });
 
   const contentXOffset = -6;
 
@@ -3732,7 +3775,10 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
               hasQuestions={questions.length > 0}
               hasNamed={hasNamed}
               sessionCode={sessionCode}
-              onDismiss={() => setShowOnboarding(false)}
+              onDismiss={() => {
+                setShowOnboarding(false);
+                try { localStorage.setItem("lunr_onboarding_dismissed", "true"); } catch { /* ignore */ }
+              }}
             />
           )}
 
