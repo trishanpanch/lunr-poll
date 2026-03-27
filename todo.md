@@ -378,3 +378,7 @@
 
 ## File Type Restriction
 - [x] Restrict question media file picker to JPEG/PNG/GIF/WebP; add client-side MIME validation fallback with toast error
+
+## AI Panel Post-Add Behaviour (Option B)
+- [x] Keep AI panel open after adding questions; reset to source material view (clear generated list, scroll to top)
+- [x] Strengthen deduplication: send full question details (type, options, model answer) to the AI prompt instead of just question text

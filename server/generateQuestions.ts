@@ -118,7 +118,7 @@ router.post("/api/generate-questions", async (req: Request, res: Response) => {
     : "";
 
   const deduplicationSection = existingQuestions && existingQuestions.length > 0
-    ? `\n\nEXISTING QUESTIONS (do NOT produce questions that are the same or similar to any of these — choose entirely different knowledge atoms):\n${existingQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`
+    ? `\n\nEXISTING QUESTIONS — STRICT DEDUPLICATION REQUIRED:\nThe session already contains the following questions. You MUST NOT produce any question that:\n- Tests the same fact, concept, or knowledge atom as an existing question\n- Is a rephrasing, synonym, or variation of an existing question\n- Has the same correct answer as an existing question of the same type\n- Overlaps semantically even if the wording is different\n\nExisting questions (with full context):\n${existingQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}\n\nChoose entirely different knowledge atoms from the source material that are NOT covered by any of the above.`
     : "";
 
   const systemPrompt = `You are an expert educator who creates precise, content-specific classroom questions.

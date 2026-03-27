@@ -2269,7 +2269,7 @@ function AiPanel({
   onClose: () => void;
   onOpen: () => void;
   onAddQuestions: (qs: Question[]) => void;
-  existingQuestions?: string[];
+  existingQuestions?: { type: string; text: string; options?: string[]; modelAnswer?: string; tfAnswer?: string }[];
   aiPanelWidth: number;
   isResizingPanel: boolean;
   setIsResizingPanel: (v: boolean) => void;
@@ -2448,7 +2448,15 @@ function AiPanel({
           types: typeList,
           urls: urlChips.length > 0 ? urlChips : undefined,
           objectives: objectives.length > 0 ? objectives : undefined,
-          existingQuestions: existingQuestions && existingQuestions.length > 0 ? existingQuestions : undefined,
+          existingQuestions: existingQuestions && existingQuestions.length > 0
+            ? existingQuestions.map((q) => {
+                const parts: string[] = [`[${q.type}] ${q.text}`];
+                if (q.options && q.options.length > 0) parts.push(`Options: ${q.options.join(" | ")}`);
+                if (q.tfAnswer) parts.push(`Answer: ${q.tfAnswer}`);
+                if (q.modelAnswer) parts.push(`Model answer: ${q.modelAnswer}`);
+                return parts.join(" — ");
+              })
+            : undefined,
         }),
       });
 
@@ -3798,8 +3806,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
 
   const handleAiAddQuestions = (newQs: Question[]) => {
     setQuestions((prev) => [...prev, ...newQs]);
-    setAiPanelOpen(false);
-    toast.success(`✨ ${newQs.length} question${newQs.length !== 1 ? "s" : ""} added from AI`);
+    // Panel stays open (Option B) — AiPanel resets to source material view internally
   };
 
   const removeQuestion = (id: string) => {
@@ -3984,7 +3991,13 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           onClose={() => setAiPanelOpen(false)}
           onOpen={() => setAiPanelOpen(true)}
           onAddQuestions={handleAiAddQuestions}
-          existingQuestions={questions.map((q) => q.text)}
+          existingQuestions={questions.map((q) => ({
+            type: q.type,
+            text: q.text,
+            options: q.options,
+            modelAnswer: q.modelAnswer,
+            tfAnswer: q.tfAnswer,
+          }))}
           aiPanelWidth={aiPanelWidth}
           isResizingPanel={isResizingPanel}
           setIsResizingPanel={setIsResizingPanel}
