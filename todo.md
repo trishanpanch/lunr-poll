@@ -375,3 +375,6 @@
 
 ## Sticky Generate Button
 - [x] Pin Generate Questions button to bottom of AI panel (sticky footer) so it's always visible when the preview list is long
+
+## File Type Restriction
+- [x] Restrict question media file picker to JPEG/PNG/GIF/WebP; add client-side MIME validation fallback with toast error

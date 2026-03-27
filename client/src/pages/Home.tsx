@@ -1151,8 +1151,15 @@ function QuestionCard({
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const mediaInputRef = useRef<HTMLInputElement>(null);
 
+  const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
   const handleMediaUpload = async (file: File) => {
     if (!onUpdateMedia) return;
+    if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
+      const ext = file.name.split(".").pop()?.toUpperCase() ?? "unknown";
+      toast.error(`Unsupported file type (.${ext}). Please use JPEG, PNG, GIF, or WebP.`);
+      return;
+    }
     setUploadingMedia(true);
     try {
       const formData = new FormData();
@@ -1717,7 +1724,7 @@ function QuestionCard({
             <input
               ref={mediaInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/gif,image/webp"
               style={{ display: "none" }}
               onChange={(e) => {
                 const file = e.target.files?.[0];
