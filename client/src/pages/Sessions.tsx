@@ -190,7 +190,7 @@ function SessionCard({
               {codeCopied ? (
                 <><CheckCircle2 size={10} /> Copied!</>
               ) : (
-                <><Copy size={10} /> {session.code}</>
+                <>{session.code}</>
               )}
             </button>
             <StatusBadge status={session.status} />
@@ -415,7 +415,7 @@ function PastSessionRow({
             {codeCopied ? (
               <><CheckCircle2 size={10} /> Copied!</>
             ) : (
-              <><Copy size={10} /> {session.code}</>
+              <>{session.code}</>
             )}
           </button>
           <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>

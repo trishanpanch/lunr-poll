@@ -353,3 +353,6 @@
 
 ## Preview Image Fix
 - [x] Show question photo attachments in the session preview
+
+## Session Code Badge
+- [x] Remove copy icon from the session code badge in the topbar
