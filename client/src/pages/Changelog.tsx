@@ -85,25 +85,13 @@ const DAYS: ChangelogDay[] = [
     ],
   },
   {
-    date: "March 25–26, 2026",
-    title: "Polling Preset, Changelog & Sidebar Cleanup",
+    date: "March 26, 2026",
+    title: "Sidebar Cleanup & Changelog",
     groups: [
       {
         category: "Session Builder",
         color: "oklch(0.52 0.22 290)",
         items: [
-          {
-            title: "Polling / Vote preset creates a Multiple Choice question",
-            description:
-              "The 'Polling / Vote' quick preset in the sidebar now creates a Multiple Choice question with two blank option slots instead of a Short Text question. Professors can fill in the options immediately after the preset is applied. A presetSource field on the question marks it as polling-origin for future use.",
-            tag: "Feature",
-          },
-          {
-            title: "Question type selector in AI panel restricted for polling questions",
-            description:
-              "For questions created from the Polling / Vote preset, the type-switch dropdown in the AI panel is limited to Text and Multiple Choice only, preventing accidental conversion to incompatible types.",
-            tag: "Clarity",
-          },
           {
             title: "Left sidebar question type buttons: boxes removed",
             description:
@@ -121,6 +109,30 @@ const DAYS: ChangelogDay[] = [
             description:
               "A new entry was added to the Changelog page covering the March 24 session: AI panel post-generation flow (Option B), Start fresh button, width persistence bug fix, icon box removal, and purple button color fix.",
             tag: "Documentation",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    date: "March 25, 2026",
+    title: "Polling Preset & Question Type Polish",
+    groups: [
+      {
+        category: "Session Builder",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Polling / Vote preset creates a Multiple Choice question",
+            description:
+              "The 'Polling / Vote' quick preset in the sidebar now creates a Multiple Choice question with two blank option slots instead of a Short Text question. Professors can fill in the options immediately after the preset is applied. A presetSource field on the question marks it as polling-origin for future use.",
+            tag: "Feature",
+          },
+          {
+            title: "Question type selector restricted for polling questions",
+            description:
+              "For questions created from the Polling / Vote preset, the type-switch dropdown is limited to Text and Multiple Choice only, preventing accidental conversion to incompatible types.",
+            tag: "Clarity",
           },
         ],
       },
