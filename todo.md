@@ -10,7 +10,7 @@
 ## Polish
 - [x] Changelog mono font — apply monospace font to the "Changelog" header pill and "N updates" count badges (tag badges already done)
 - [x] Changelog should not visually affect the Design System page — confirm styles are fully scoped and do not bleed across routes (all styles are inline, no shared CSS imports)
-- [ ] Favicon in dashboard view — clarify which dashboard (Manus UI vs. My Sessions vs. browser tab) and fix the wrong icon
+- [x] Favicon in dashboard view — removed from scope
 
 ## Completed
 - [x] Standardise null states — professor-facing null states (session builder + my sessions) use same typography and full-opacity emoji; join session screen also uses full-opacity emoji
@@ -33,7 +33,7 @@
 - [x] Manual Short Text modal — add optional model answer field
 - [x] Session edit flow — Edit button on session card loads saved questions and name into builder
 - [x] Duplicate URL toast — show a warning toast when the same URL is added to the AI panel source chips more than once
-- [ ] AI preview card selection — cards should start selected; clicking deselects (or re-selects) them; currently tapping in feels like it unchecks unexpectedly
+- [x] AI preview card selection — cards start selected; clicking toggles deselection
 
 ## Session 2026-03-21 Improvements
 - [x] Fix sidebar full-height issue — left sidebar and AI panel now use sticky positioning (top: 64px, height: calc(100vh - 64px)) so they stay visible while the canvas scrolls naturally
@@ -321,10 +321,10 @@
 - [x] Display image above question text in student join/answer view
 
 ## Polish — Sticky Generate Button in AI Panel
-- [ ] Make Generate Questions button sticky at the bottom of the AI panel so it's always visible regardless of scroll position
+- [x] Make Generate Questions button sticky at the bottom of the AI panel so it's always visible regardless of scroll position
 
 ## AI Deduplication
-- [ ] Pass existing session questions to AI generation so generated questions avoid duplicating saved ones
+- [x] Pass existing session questions to AI generation so generated questions avoid duplicating saved ones
 
 ## Image Attachment Display
 - [x] Fix question photo display: preserve original aspect ratio (no cropping), apply max-height constraint only

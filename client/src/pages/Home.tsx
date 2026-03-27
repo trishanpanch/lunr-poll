@@ -87,6 +87,13 @@ interface Question {
   mediaUrl?: string; // Optional photo attached to the question
 }
 
+// Normalise legacy type names stored in DB before the rename
+function normaliseType(raw: string): QuestionType {
+  if (raw === "Short Text") return "Text";
+  const valid: QuestionType[] = ["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"];
+  return valid.includes(raw as QuestionType) ? (raw as QuestionType) : "Text";
+}
+
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
   "Text":      { icon: <Type size={18} />,        color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
   "Multiple Choice": { icon: <ListChecks size={18} />,  color: "oklch(0.52 0.22 290)", desc: "Select from options" },
@@ -1076,7 +1083,7 @@ function QuestionCard({
   onReorder?: (toIndex: number) => void;
   totalCount?: number;
 }) {
-  const meta = TYPE_META[question.type];
+  const meta = TYPE_META[question.type] ?? TYPE_META["Text"];
   const {
     attributes,
     listeners,
@@ -2546,9 +2553,9 @@ function AiPanel({
         const base: Question = {
           id: uid(),
           type: q.type,
-          icon: TYPE_META[q.type].icon,
+          icon: (TYPE_META[q.type] ?? TYPE_META["Text"]).icon,
           text: q.text,
-          color: TYPE_META[q.type].color,
+          color: (TYPE_META[q.type] ?? TYPE_META["Text"]).color,
         };
         // Carry over Multiple Choice options and correct answer
         if (q.type === "Multiple Choice" && q.options && q.options.length >= 2) {
@@ -3595,10 +3602,16 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
     setSavedName(existingSession.name);
     setSessionCode(existingSession.code);
     const qs = (existingSession.questions as Omit<Question, "icon">[]) ?? [];
-    setQuestions(qs.map((q) => ({
-      ...q,
-      icon: TYPE_META[q.type as QuestionType]?.icon ?? null,
-    })));
+    setQuestions(qs.map((q) => {
+      const normType = normaliseType(q.type as string);
+      const meta = TYPE_META[normType];
+      return {
+        ...q,
+        type: normType,
+        icon: meta.icon,
+        color: meta.color,
+      };
+    }));
   }, [existingSession]);
 
   // Show onboarding unless the user has previously dismissed it
@@ -3793,9 +3806,9 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
     const newQs: Question[] = preset.questions.map((q) => ({
       id: uid(),
       type: q.type,
-      icon: TYPE_META[q.type].icon,
+      icon: (TYPE_META[q.type] ?? TYPE_META["Text"]).icon,
       text: q.text,
-      color: TYPE_META[q.type].color,
+      color: (TYPE_META[q.type] ?? TYPE_META["Text"]).color,
       ...("options" in q && q.options ? { options: q.options } : {}),
       ...("presetSource" in q && q.presetSource ? { presetSource: q.presetSource } : {}),
     }));
