@@ -709,6 +709,21 @@ export default function StudentSession() {
               </span>
             </div>
 
+            {/* Question media image — shown above question text */}
+            {currentQ.mediaUrl && (
+              <img
+                src={currentQ.mediaUrl}
+                alt="Question media"
+                style={{
+                  width: "100%",
+                  maxHeight: 240,
+                  objectFit: "cover",
+                  borderRadius: 12,
+                  display: "block",
+                  marginBottom: 18,
+                }}
+              />
+            )}
             {/* Question text */}
             <h2 style={{
               margin: "0 0 28px",

@@ -304,11 +304,18 @@
 - [x] Apply tap-to-copy treatment to list view code badge (past sessions tab)
 
 ## Feature — Question Media Attachments (Photos)
-- [ ] Add optional mediaUrl field to Question type in drizzle/schema.ts and session router Zod schema
-- [ ] Add tRPC mutation for uploading a question photo to S3 and returning the URL
-- [ ] Add photo upload/remove UI to question cards in the session builder (above question text area)
-- [ ] Display photo above question text in the live session professor view
-- [ ] Display photo above question text in the student join/answer view
+- [x] Add optional mediaUrl field to Question type in drizzle/schema.ts and session router Zod schema
+- [x] Add tRPC mutation for uploading a question photo to S3 and returning the URL
+- [x] Add photo upload/remove UI to question cards in the session builder (above question text area)
+- [x] Display photo above question text in the live session professor view
+- [x] Display photo above question text in the student join/answer view
 
 ## Polish — MC Option Letter Prefixes
 - [x] Strip "A) ", "B) " etc. prefixes from MC option text in the editor and AI-generated questions
+
+## Feature — Question Photo Attachments
+- [x] Add server-side /api/upload-question-media endpoint (multipart, S3 upload, returns URL)
+- [x] Add "Add image" button to each question card in the session builder
+- [x] Show thumbnail preview with remove (×) button on cards that have a mediaUrl
+- [x] Display image above question text in live session view (professor screen)
+- [x] Display image above question text in student join/answer view

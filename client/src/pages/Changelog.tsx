@@ -999,7 +999,7 @@ export default function Changelog() {
                             style={{
                               flexShrink: 0,
                               fontSize: 10,
-                              fontWeight: 700,
+                              fontWeight: 400,
                               letterSpacing: "0.05em",
                               fontFamily: "'Geist Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace",
                               background: tagStyle.bg,

@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import generateQuestionsRouter from "../generateQuestions";
+import uploadMediaRouter from "../uploadMedia";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -38,6 +39,8 @@ async function startServer() {
   registerOAuthRoutes(app);
   // AI question generation proxy
   app.use(generateQuestionsRouter);
+  // Question media upload
+  app.use(uploadMediaRouter);
   // tRPC API
   app.use(
     "/api/trpc",

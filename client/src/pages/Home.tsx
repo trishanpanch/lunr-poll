@@ -14,6 +14,7 @@ import {
   Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
   ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
   PanelLeftClose, PanelLeftOpen,
+  ImagePlus, ImageOff,
 } from "lucide-react";
 import {
   Dialog,
@@ -75,6 +76,7 @@ interface Question {
   tfAnswer?: "True" | "False"; // Correct answer for True / False questions
   modelAnswer?: string; // Model answer for Text questions
   presetSource?: "polling"; // Restricts type-change to Text/MC only
+  mediaUrl?: string; // Optional photo attached to the question
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
@@ -1049,6 +1051,7 @@ function QuestionCard({
   onUpdateModelAnswer,
   onUpdateOptions,
   onUpdateType,
+  onUpdateMedia,
   iconNudge = 1,
   onReorder,
   totalCount = 1,
@@ -1060,6 +1063,7 @@ function QuestionCard({
   onUpdateModelAnswer?: (answer: string) => void;
   onUpdateOptions?: (options: string[], correctIndex: number | undefined) => void;
   onUpdateType?: (newType: QuestionType, newQuestion: Partial<Question>) => void;
+  onUpdateMedia?: (mediaUrl: string | undefined) => void;
   iconNudge?: number;
   onReorder?: (toIndex: number) => void;
   totalCount?: number;
@@ -1129,6 +1133,28 @@ function QuestionCard({
       toast.error("Type switch failed — try again.");
     } finally {
       setTransforming(false);
+    }
+  };
+
+  // Media upload state
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const mediaInputRef = useRef<HTMLInputElement>(null);
+
+  const handleMediaUpload = async (file: File) => {
+    if (!onUpdateMedia) return;
+    setUploadingMedia(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload-question-media", { method: "POST", body: formData });
+      if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+      const { url } = await res.json();
+      onUpdateMedia(url);
+    } catch (err) {
+      console.error("[media-upload]", err);
+      toast.error("Image upload failed — please try again.");
+    } finally {
+      setUploadingMedia(false);
     }
   };
 
@@ -1378,6 +1404,48 @@ function QuestionCard({
             {question.text}
           </p>
         )}
+        {/* Media image — displayed above question text */}
+        {question.mediaUrl && (
+          <div style={{ position: "relative", marginBottom: 10 }}>
+            <img
+              src={question.mediaUrl}
+              alt="Question media"
+              style={{
+                width: "100%",
+                maxHeight: 220,
+                objectFit: "cover",
+                borderRadius: 10,
+                border: "1px solid var(--border)",
+                display: "block",
+              }}
+            />
+            {onUpdateMedia && (
+              <button
+                onClick={() => onUpdateMedia(undefined)}
+                title="Remove image"
+                style={{
+                  position: "absolute",
+                  top: 6,
+                  right: 6,
+                  background: "rgba(0,0,0,0.55)",
+                  border: "none",
+                  borderRadius: 6,
+                  color: "#fff",
+                  width: 26,
+                  height: 26,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  transition: "background 0.15s",
+                }}
+                className="hover:bg-[rgba(0,0,0,0.75)]"
+              >
+                <ImageOff size={13} />
+              </button>
+            )}
+          </div>
+        )}
         {/* True / False answer display */}
         {question.type === "True / False" && question.tfAnswer && (
           <div style={{ marginTop: 8 }}>
@@ -1552,8 +1620,46 @@ function QuestionCard({
             )}
           </div>
         )}
-        <div style={{ marginTop: 8 }}>
+        <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <QBadge index={index} totalCount={totalCount ?? 1} onReorder={onReorder} />
+          {onUpdateMedia && !question.mediaUrl && (
+            <>
+              <input
+                ref={mediaInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleMediaUpload(file);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                onClick={() => mediaInputRef.current?.click()}
+                disabled={uploadingMedia}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  fontSize: 11.5,
+                  fontWeight: 500,
+                  color: "var(--muted-foreground)",
+                  background: "none",
+                  border: "1px dashed var(--border)",
+                  borderRadius: 7,
+                  padding: "3px 9px",
+                  cursor: uploadingMedia ? "wait" : "pointer",
+                  fontFamily: "'Geist', system-ui, sans-serif",
+                  transition: "all 0.15s",
+                }}
+                className="hover:border-[oklch(0.52_0.22_290)] hover:text-[oklch(0.52_0.22_290)] transition-all"
+              >
+                {uploadingMedia ? <Loader2 size={12} className="animate-spin" /> : <ImagePlus size={12} />}
+                {uploadingMedia ? "Uploading…" : "Add image"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -3654,6 +3760,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       onUpdateModelAnswer={(answer) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, modelAnswer: answer || undefined } : item))}
                       onUpdateOptions={(options, correctIndex) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, options, correctIndex } : item))}
                       onUpdateType={(_newType, update) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, ...update } : item))}
+                      onUpdateMedia={(mediaUrl) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, mediaUrl } : item))}
                       iconNudge={contentXOffset}
                       totalCount={questions.length}
                       onReorder={(toIndex) => {

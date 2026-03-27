@@ -553,6 +553,21 @@ export default function LiveSession() {
                   {currentQ.type}
                 </span>
               </div>
+              {currentQ.mediaUrl && (
+                <img
+                  src={currentQ.mediaUrl}
+                  alt="Question media"
+                  style={{
+                    width: "100%",
+                    maxHeight: 260,
+                    objectFit: "cover",
+                    borderRadius: 10,
+                    border: `1px solid ${BORDER}`,
+                    display: "block",
+                    marginBottom: 16,
+                  }}
+                />
+              )}
               <h2 style={{ margin: "0 0 24px", fontWeight: 700, fontSize: 20, color: TEXT_DARK, lineHeight: 1.4 }}>
                 {currentQ.text}
               </h2>
