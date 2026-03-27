@@ -31,6 +31,102 @@ interface ChangelogItem {
 
 const DAYS: ChangelogDay[] = [
   {
+    date: "March 27, 2026",
+    title: "Sessions UX, MC Polish & Media Groundwork",
+    groups: [
+      {
+        category: "Sessions Dashboard",
+        color: "oklch(0.48 0.18 160)",
+        items: [
+          {
+            title: "Tap-to-copy session codes",
+            description:
+              "Session code badges on both the active grid cards and past session list rows are now clickable. Tapping a code copies it to the clipboard and flashes the badge green with a 'Copied!' label for 1.8 seconds before returning to its normal state. No tooltip or extra button needed — the code itself is the copy target.",
+            tag: "Feature",
+          },
+          {
+            title: "Move to Draft — reactivate past sessions",
+            description:
+              "Past session rows now include a 'Move to Draft' button. Clicking it resets the session status back to draft, clears the launched and closed timestamps, and resets the current question index to 0. The session immediately reappears in the Active tab, ready to edit and re-launch. A dedicated tRPC reactivate procedure handles the server-side update and is covered by three Vitest tests.",
+            tag: "Feature",
+          },
+          {
+            title: "Edit Session menu icon changed to pencil",
+            description:
+              "The 'Edit Session' item in the per-card overflow menu was using a BookOpen icon, which didn't clearly communicate editing. It has been replaced with a Pencil icon, consistent with the edit affordance used elsewhere in the app.",
+            tag: "Polish",
+          },
+        ],
+      },
+      {
+        category: "Session Builder",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Toast confirmation after adding AI-generated questions",
+            description:
+              "After clicking 'Add Questions to Session' in the AI panel, a green success toast now appears: 'N question(s) added to session' with the subtitle 'Source material kept — ready for another round.' It auto-dismisses after 3 seconds and correctly pluralizes for 1 vs. multiple questions.",
+            tag: "Polish",
+          },
+          {
+            title: "A) B) C) D) prefixes stripped from Multiple Choice options",
+            description:
+              "AI-generated Multiple Choice options frequently included letter prefixes like 'A) ', 'B) ', 'A. ', or '(A) ' baked into the option text, duplicating the letter badge already shown in the UI. Prefixes are now stripped at three layers: when AI responses are parsed into the preview panel, when questions are added to the session, and in the MCOptionRow component on render — so existing saved questions are also cleaned up immediately without requiring a re-save.",
+            tag: "Bug Fix",
+          },
+          {
+            title: "mediaUrl field added to Question schema",
+            description:
+              "An optional mediaUrl field has been added to the Question interface and Zod validator in preparation for photo attachments on questions. No upload UI is shipped yet — this is groundwork for the upcoming media attachment feature.",
+            tag: "Infrastructure",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    date: "March 25–26, 2026",
+    title: "Polling Preset, Changelog & Sidebar Cleanup",
+    groups: [
+      {
+        category: "Session Builder",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Polling / Vote preset creates a Multiple Choice question",
+            description:
+              "The 'Polling / Vote' quick preset in the sidebar now creates a Multiple Choice question with two blank option slots instead of a Short Text question. Professors can fill in the options immediately after the preset is applied. A presetSource field on the question marks it as polling-origin for future use.",
+            tag: "Feature",
+          },
+          {
+            title: "Question type selector in AI panel restricted for polling questions",
+            description:
+              "For questions created from the Polling / Vote preset, the type-switch dropdown in the AI panel is limited to Text and Multiple Choice only, preventing accidental conversion to incompatible types.",
+            tag: "Clarity",
+          },
+          {
+            title: "Left sidebar question type buttons: boxes removed",
+            description:
+              "The rounded-square tinted background boxes behind question type icons in the left sidebar were removed. The sidebar now shows plain icon + label buttons without any box treatment, reducing visual noise and matching the cleaner style used elsewhere in the app after the March 24 icon cleanup.",
+            tag: "Polish",
+          },
+        ],
+      },
+      {
+        category: "Changelog",
+        color: "oklch(0.52 0.18 200)",
+        items: [
+          {
+            title: "March 24 changelog entry added",
+            description:
+              "A new entry was added to the Changelog page covering the March 24 session: AI panel post-generation flow (Option B), Start fresh button, width persistence bug fix, icon box removal, and purple button color fix.",
+            tag: "Documentation",
+          },
+        ],
+      },
+    ],
+  },
+  {
     date: "March 24, 2026",
     title: "AI Panel Flow, Button Polish & Icon Cleanup",
     groups: [
