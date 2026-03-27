@@ -328,3 +328,9 @@
 
 ## Image Attachment Display
 - [x] Fix question photo display: preserve original aspect ratio (no cropping), apply max-height constraint only
+
+## Onboarding Persistence
+- [ ] Persist onboarding dismissed state to localStorage so it does not reappear after page refresh
+
+## Image Attachment Polish
+- [x] Add spacing between question text and image, and internal padding inside the image container

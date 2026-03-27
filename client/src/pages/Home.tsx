@@ -1404,9 +1404,9 @@ function QuestionCard({
             {question.text}
           </p>
         )}
-        {/* Media image — displayed above question text */}
+        {/* Media image — displayed below question text */}
         {question.mediaUrl && (
-          <div style={{ position: "relative", marginBottom: 10 }}>
+          <div style={{ position: "relative", marginTop: 12, marginBottom: 4, background: "var(--muted)", borderRadius: 12, border: "1px solid var(--border)", padding: 10 }}>
             <img
               src={question.mediaUrl}
               alt="Question media"
@@ -1414,8 +1414,7 @@ function QuestionCard({
                 width: "100%",
                 maxHeight: 220,
                 objectFit: "contain",
-                borderRadius: 10,
-                border: "1px solid var(--border)",
+                borderRadius: 8,
                 display: "block",
                 height: "auto",
               }}

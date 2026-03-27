@@ -711,19 +711,20 @@ export default function StudentSession() {
 
             {/* Question media image — shown above question text */}
             {currentQ.mediaUrl && (
-              <img
-                src={currentQ.mediaUrl}
-                alt="Question media"
-                style={{
-                  width: "100%",
-                  maxHeight: 240,
-                  objectFit: "contain",
-                  borderRadius: 12,
-                  display: "block",
-                  height: "auto",
-                  marginBottom: 18,
-                }}
-              />
+              <div style={{ marginBottom: 20, background: "var(--muted)", borderRadius: 14, border: "1px solid var(--border)", padding: 10 }}>
+                <img
+                  src={currentQ.mediaUrl}
+                  alt="Question media"
+                  style={{
+                    width: "100%",
+                    maxHeight: 240,
+                    objectFit: "contain",
+                    borderRadius: 10,
+                    display: "block",
+                    height: "auto",
+                  }}
+                />
+              </div>
             )}
             {/* Question text */}
             <h2 style={{
