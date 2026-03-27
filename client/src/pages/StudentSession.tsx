@@ -715,7 +715,7 @@ export default function StudentSession() {
             {currentQ.mediaUrl && (
               <div style={{ marginBottom: 20, background: "var(--muted)", borderRadius: 14, border: "1px solid var(--border)", padding: 10 }}>
                 <div
-                  style={{ position: "relative", cursor: "zoom-in", display: "inline-block", width: "100%" }}
+                  style={{ position: "relative", cursor: "zoom-in", display: "block", width: "100%" }}
                   onClick={() => setLightboxUrl(currentQ.mediaUrl!)}
                   title="Tap to expand"
                 >

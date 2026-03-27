@@ -559,7 +559,7 @@ export default function LiveSession() {
               {currentQ.mediaUrl && (
                 <div style={{ marginTop: 4, marginBottom: 20, background: "var(--muted)", borderRadius: 12, border: `1px solid ${BORDER}`, padding: 10 }}>
                   <div
-                    style={{ position: "relative", cursor: "zoom-in", display: "inline-block", width: "100%" }}
+                    style={{ position: "relative", cursor: "zoom-in", display: "block", width: "100%" }}
                     onClick={() => setLightboxUrl(currentQ.mediaUrl!)}
                     title="Click to expand"
                   >

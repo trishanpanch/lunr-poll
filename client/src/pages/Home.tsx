@@ -1426,7 +1426,7 @@ function QuestionCard({
         {question.mediaUrl && (
           <div style={{ position: "relative", marginTop: 12, marginBottom: 4, background: "var(--muted)", borderRadius: 12, border: "1px solid var(--border)", padding: 10 }}>
             <div
-              style={{ position: "relative", cursor: "zoom-in", display: "inline-block", width: "100%" }}
+              style={{ position: "relative", cursor: "zoom-in", display: "block", width: "100%" }}
               onClick={() => setLightboxOpen(true)}
               title="Click to expand"
             >
