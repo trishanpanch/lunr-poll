@@ -28,6 +28,7 @@ const QuestionSchema = z.object({
   tfAnswer: z.enum(["True", "False"]).optional(),
   modelAnswer: z.string().optional(),
   presetSource: z.enum(["polling"]).optional(),
+  mediaUrl: z.string().url().optional(),
 });
 
 export const sessionRouter = router({

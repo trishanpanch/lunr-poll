@@ -154,4 +154,6 @@ export interface Question {
   modelAnswer?: string;
   /** Builder-only metadata: restricts type-change dropdown. "polling" = Text/MC only. */
   presetSource?: "polling";
+  /** Optional S3 URL of a photo attached to this question, displayed above the question text. */
+  mediaUrl?: string;
 }

@@ -844,18 +844,23 @@ function MCOptionRow({
   onChangeText: (val: string) => void;
   onRemove: () => void;
 }) {
+  // Strip leading letter prefixes like "A) ", "B) ", "A. ", "(A) " from option text
+  const stripPrefix = (s: string) => s.replace(/^\(?[A-Za-z]\)?[.)\s]+/, "").trim();
+  const cleanValue = stripPrefix(value);
+
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(value);
+  const [draft, setDraft] = useState(cleanValue);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const commit = () => {
     setEditing(false);
-    const trimmed = draft.trim();
-    if (trimmed !== value) onChangeText(trimmed || value);
+    const trimmed = stripPrefix(draft.trim());
+    // If the stored value had a prefix, persist the cleaned version
+    if (trimmed !== value) onChangeText(trimmed || cleanValue);
   };
 
-  // Keep draft in sync if parent updates the value
-  useEffect(() => { if (!editing) setDraft(value); }, [value, editing]);
+  // Keep draft in sync if parent updates the value (strip prefix on sync)
+  useEffect(() => { if (!editing) setDraft(cleanValue); }, [cleanValue, editing]);
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -911,7 +916,7 @@ function MCOptionRow({
           }}
           className="hover:bg-[oklch(0.97_0.02_264_/_0.4)]"
         >
-          {value || <span style={{ color: "var(--muted-foreground)" }}>Option {String.fromCharCode(65 + index)}</span>}
+          {cleanValue || <span style={{ color: "var(--muted-foreground)" }}>Option {String.fromCharCode(65 + index)}</span>}
         </span>
       )}
 
@@ -2215,16 +2220,23 @@ function AiPanel({
 
       const data = await res.json() as { questions: Array<{ type: string; text: string; options?: string[]; correctAnswer?: string; modelAnswer?: string }> };
 
+      // Strip leading letter prefixes like "A) ", "B) ", "A. ", "(A) " from MC options
+      const stripMcPrefix = (s: string) => s.replace(/^\(?[A-Za-z]\)?[.)\s]+/, "").trim();
+
       const pool: AiGenQuestion[] = data.questions
         .filter((q) => q.text && q.type)
-        .map((q) => ({
-          type: q.type as QuestionType,
-          text: q.text,
-          selected: true,
-          options: q.options,
-          correctAnswer: q.correctAnswer,
-          modelAnswer: q.modelAnswer,
-        }));
+        .map((q) => {
+          const cleanOptions = q.options?.map(stripMcPrefix);
+          const cleanCorrect = q.correctAnswer ? stripMcPrefix(q.correctAnswer) : undefined;
+          return {
+            type: q.type as QuestionType,
+            text: q.text,
+            selected: true,
+            options: cleanOptions,
+            correctAnswer: cleanCorrect,
+            modelAnswer: q.modelAnswer,
+          };
+        });
 
       if (pool.length === 0) throw new Error("No questions returned");
       setGenerated(pool);
@@ -2293,9 +2305,14 @@ function AiPanel({
         };
         // Carry over Multiple Choice options and correct answer
         if (q.type === "Multiple Choice" && q.options && q.options.length >= 2) {
-          base.options = q.options;
+          // Strip leading letter prefixes like "A) ", "B) ", "A. ", "(A) " etc.
+          const stripPrefix = (s: string) => s.replace(/^\(?[A-Za-z]\)?[.)\s]+/, "").trim();
+          const cleanOptions = q.options.map(stripPrefix);
+          base.options = cleanOptions;
           if (q.correctAnswer) {
-            const idx = q.options.findIndex((o) => o === q.correctAnswer);
+            // Match against both original and stripped versions
+            const stripped = stripPrefix(q.correctAnswer);
+            const idx = cleanOptions.findIndex((o) => o === stripped || o === q.correctAnswer);
             if (idx !== -1) base.correctIndex = idx;
           }
         }
