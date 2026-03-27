@@ -1437,17 +1437,16 @@ function QuestionCard({
               />
               <div style={{
                 position: "absolute",
-                bottom: 6,
-                right: 6,
-                background: "rgba(0,0,0,0.35)",
-                borderRadius: 5,
-                padding: "3px 5px",
+                bottom: 8,
+                right: 8,
+                background: "none",
                 display: "flex",
                 alignItems: "center",
-                color: "#fff",
+                color: "oklch(0.25 0 0)",
                 pointerEvents: "none",
+                opacity: 0.5,
               }}>
-                <ZoomIn size={12} />
+                <ZoomIn size={14} />
               </div>
             </div>
             {/* Lightbox portal */}

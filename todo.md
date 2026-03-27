@@ -356,3 +356,6 @@
 
 ## Session Code Badge
 - [x] Remove copy icon from the session code badge in the topbar
+
+## Zoom Icon Restyle
+- [x] Make zoom icon plain black with no background, position in bottom corner of image container
