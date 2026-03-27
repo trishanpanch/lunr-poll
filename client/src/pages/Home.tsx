@@ -2664,7 +2664,7 @@ function AiPanel({
         }}
       >
         {/* Resize zone removed — now handled by sibling div above */}
-        <div style={{ width: aiPanelWidth, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden", background: "transparent" }}>
+        <div style={{ width: aiPanelWidth, display: "flex", flexDirection: "column", height: "calc(100vh - 64px)", overflow: "hidden", background: "transparent", position: "sticky", top: 64 }}>
           {/* Header */}
           <div style={{
             padding: "16px 18px 14px",
