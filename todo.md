@@ -330,20 +330,23 @@
 - [x] Fix question photo display: preserve original aspect ratio (no cropping), apply max-height constraint only
 
 ## Onboarding Persistence
-- [ ] Persist onboarding dismissed state to localStorage so it does not reappear after page refresh
+- [x] Persist onboarding dismissed state to localStorage so it does not reappear after page refresh
 
 ## Image Attachment Polish
 - [x] Add spacing between question text and image, and internal padding inside the image container
 
 ## Image Lightbox
-- [ ] Tap question photo to expand full-screen lightbox; tap backdrop or press Escape to close (all three views)
+- [x] Tap question photo to expand full-screen lightbox; tap backdrop or press Escape to close (all three views)
 
 ## Photo Remove Button
 - [x] Replace ImageOff icon with plain X; add confirm dialog before removing photo attachment
 
 ## Sprint — AI Deduplication + Onboarding Persistence
-- [ ] Persist onboarding dismissed state to localStorage so it does not reappear after page refresh
-- [ ] Pass existing session question texts to AI generation prompt so AI avoids near-duplicate questions
+- [x] Persist onboarding dismissed state to localStorage so it does not reappear after page refresh
+- [x] Pass existing session question texts to AI generation prompt so AI avoids near-duplicate questions
 
 ## Question Card Three-Dot Menu
 - [x] Move Add image / Remove image into a three-dot overflow menu in the top-right of each question card; remove inline Add image button from card footer
+
+## Confirm Delete Question
+- [x] Add confirm dialog to Delete question in the three-dot menu

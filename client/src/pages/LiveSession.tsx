@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ import {
   Loader2,
   Download,
   Cloud,
+  ZoomIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -285,6 +287,7 @@ export default function LiveSession() {
   const [, navigate] = useLocation();
   const [showQR, setShowQR] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
 
   const utils = trpc.useUtils();
@@ -555,19 +558,37 @@ export default function LiveSession() {
               </div>
               {currentQ.mediaUrl && (
                 <div style={{ marginTop: 4, marginBottom: 20, background: "var(--muted)", borderRadius: 12, border: `1px solid ${BORDER}`, padding: 10 }}>
-                  <img
-                    src={currentQ.mediaUrl}
-                    alt="Question media"
-                    style={{
-                      width: "100%",
-                      maxHeight: 260,
-                      objectFit: "contain",
-                      borderRadius: 8,
-                      display: "block",
-                      height: "auto",
-                    }}
-                  />
+                  <div
+                    style={{ position: "relative", cursor: "zoom-in", display: "inline-block", width: "100%" }}
+                    onClick={() => setLightboxUrl(currentQ.mediaUrl!)}
+                    title="Click to expand"
+                  >
+                    <img
+                      src={currentQ.mediaUrl}
+                      alt="Question media"
+                      style={{
+                        width: "100%",
+                        maxHeight: 260,
+                        objectFit: "contain",
+                        borderRadius: 8,
+                        display: "block",
+                        height: "auto",
+                      }}
+                    />
+                    <div style={{ position: "absolute", bottom: 6, right: 6, background: "rgba(0,0,0,0.35)", borderRadius: 5, padding: "3px 5px", display: "flex", alignItems: "center", color: "#fff", pointerEvents: "none" }}>
+                      <ZoomIn size={12} />
+                    </div>
+                  </div>
                 </div>
+              )}
+              {lightboxUrl && createPortal(
+                <div onClick={() => setLightboxUrl(null)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, cursor: "zoom-out" }}>
+                  <button onClick={(e) => { e.stopPropagation(); setLightboxUrl(null); }} style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8, color: "#fff", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                    <X size={18} />
+                  </button>
+                  <img src={lightboxUrl} alt="Expanded" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "90vw", maxHeight: "88vh", objectFit: "contain", borderRadius: 10, boxShadow: "0 8px 40px rgba(0,0,0,0.5)", cursor: "default" }} />
+                </div>,
+                document.body
               )}
               <h2 style={{ margin: "0 0 24px", fontWeight: 700, fontSize: 20, color: TEXT_DARK, lineHeight: 1.4 }}>
                 {currentQ.text}

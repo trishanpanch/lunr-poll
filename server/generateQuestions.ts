@@ -53,6 +53,7 @@ interface GenerateRequest {
   types: QuestionType[];
   urls?: string[];
   objectives?: string[];
+  existingQuestions?: string[]; // texts of questions already in the session
 }
 
 interface GeneratedQuestion {
@@ -64,7 +65,7 @@ interface GeneratedQuestion {
 }
 
 router.post("/api/generate-questions", async (req: Request, res: Response) => {
-  const { content, count, types, urls, objectives } = req.body as GenerateRequest;
+  const { content, count, types, urls, objectives, existingQuestions } = req.body as GenerateRequest;
 
   if ((!content || content.trim().length === 0) && (!urls || urls.length === 0)) {
     return res.status(400).json({ error: "content or at least one URL is required" });
@@ -116,8 +117,12 @@ router.post("/api/generate-questions", async (req: Request, res: Response) => {
     ? `\n\nLEARNING OBJECTIVES (prioritise these — every question should help assess whether a student has met at least one objective):\n${objectives.map((o, i) => `${i + 1}. ${o}`).join("\n")}`
     : "";
 
+  const deduplicationSection = existingQuestions && existingQuestions.length > 0
+    ? `\n\nEXISTING QUESTIONS (do NOT produce questions that are the same or similar to any of these — choose entirely different knowledge atoms):\n${existingQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}`
+    : "";
+
   const systemPrompt = `You are an expert educator who creates precise, content-specific classroom questions.
-Your job: read the provided source material${objectives && objectives.length > 0 ? " and the learning objectives" : ""} and extract ${count} specific knowledge atoms — concrete facts, definitions, relationships, or claims — then turn each into a question.${objectivesSection}
+Your job: read the provided source material${objectives && objectives.length > 0 ? " and the learning objectives" : ""} and extract ${count} specific knowledge atoms — concrete facts, definitions, relationships, or claims — then turn each into a question.${objectivesSection}${deduplicationSection}
 
 CRITICAL RULES:
 - Every question MUST reference specific names, numbers, terms, or claims from the source material. Never write generic questions like "What was the main takeaway?" or "Summarize today's content."

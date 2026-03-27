@@ -5,6 +5,7 @@
 */
 
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
@@ -14,7 +15,7 @@ import {
   Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
   ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
   PanelLeftClose, PanelLeftOpen,
-  ImagePlus, ImageOff, MoreHorizontal, Trash2,
+  ImagePlus, ImageOff, MoreHorizontal, Trash2, ZoomIn,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -1094,6 +1095,8 @@ function QuestionCard({
   const [draft, setDraft] = useState(question.text);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [confirmRemoveMedia, setConfirmRemoveMedia] = useState(false);
+  const [confirmRemoveQuestion, setConfirmRemoveQuestion] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   // Inline type switching state
   const [transforming, setTransforming] = useState(false);
@@ -1415,18 +1418,91 @@ function QuestionCard({
         {/* Media image — displayed below question text */}
         {question.mediaUrl && (
           <div style={{ position: "relative", marginTop: 12, marginBottom: 4, background: "var(--muted)", borderRadius: 12, border: "1px solid var(--border)", padding: 10 }}>
-            <img
-              src={question.mediaUrl}
-              alt="Question media"
-              style={{
-                width: "100%",
-                maxHeight: 220,
-                objectFit: "contain",
-                borderRadius: 8,
-                display: "block",
-                height: "auto",
-              }}
-            />
+            <div
+              style={{ position: "relative", cursor: "zoom-in", display: "inline-block", width: "100%" }}
+              onClick={() => setLightboxOpen(true)}
+              title="Click to expand"
+            >
+              <img
+                src={question.mediaUrl}
+                alt="Question media"
+                style={{
+                  width: "100%",
+                  maxHeight: 220,
+                  objectFit: "contain",
+                  borderRadius: 8,
+                  display: "block",
+                  height: "auto",
+                }}
+              />
+              <div style={{
+                position: "absolute",
+                bottom: 6,
+                right: 6,
+                background: "rgba(0,0,0,0.35)",
+                borderRadius: 5,
+                padding: "3px 5px",
+                display: "flex",
+                alignItems: "center",
+                color: "#fff",
+                pointerEvents: "none",
+              }}>
+                <ZoomIn size={12} />
+              </div>
+            </div>
+            {/* Lightbox portal */}
+            {lightboxOpen && createPortal(
+              <div
+                onClick={() => setLightboxOpen(false)}
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  zIndex: 9999,
+                  background: "rgba(0,0,0,0.85)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 24,
+                  cursor: "zoom-out",
+                }}
+              >
+                <button
+                  onClick={(e) => { e.stopPropagation(); setLightboxOpen(false); }}
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    right: 16,
+                    background: "rgba(255,255,255,0.12)",
+                    border: "none",
+                    borderRadius: 8,
+                    color: "#fff",
+                    width: 36,
+                    height: 36,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: 20,
+                  }}
+                >
+                  <X size={18} />
+                </button>
+                <img
+                  src={question.mediaUrl}
+                  alt="Question media"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    maxWidth: "90vw",
+                    maxHeight: "88vh",
+                    objectFit: "contain",
+                    borderRadius: 10,
+                    boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
+                    cursor: "default",
+                  }}
+                />
+              </div>,
+              document.body
+            )}
             {onUpdateMedia && (
               <button
                 onClick={() => setConfirmRemoveMedia(true)}
@@ -1715,13 +1791,34 @@ function QuestionCard({
           {onUpdateMedia && <DropdownMenuSeparator />}
           <DropdownMenuItem
             variant="destructive"
-            onClick={onRemove}
+            onClick={() => setConfirmRemoveQuestion(true)}
           >
             <Trash2 size={14} className="mr-2" />
             Delete question
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Confirm delete question dialog */}
+      <AlertDialog open={confirmRemoveQuestion} onOpenChange={setConfirmRemoveQuestion}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this question?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove the question and any attached image. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => { setConfirmRemoveQuestion(false); onRemove(); }}
+              style={{ background: "var(--destructive)", color: "#fff" }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
     </div>
   );
@@ -2168,6 +2265,7 @@ function AiPanel({
   onClose,
   onOpen,
   onAddQuestions,
+  existingQuestions,
   aiPanelWidth,
   isResizingPanel,
   setIsResizingPanel,
@@ -2178,6 +2276,7 @@ function AiPanel({
   onClose: () => void;
   onOpen: () => void;
   onAddQuestions: (qs: Question[]) => void;
+  existingQuestions?: string[];
   aiPanelWidth: number;
   isResizingPanel: boolean;
   setIsResizingPanel: (v: boolean) => void;
@@ -2356,6 +2455,7 @@ function AiPanel({
           types: typeList,
           urls: urlChips.length > 0 ? urlChips : undefined,
           objectives: objectives.length > 0 ? objectives : undefined,
+          existingQuestions: existingQuestions && existingQuestions.length > 0 ? existingQuestions : undefined,
         }),
       });
 
@@ -3891,6 +3991,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           onClose={() => setAiPanelOpen(false)}
           onOpen={() => setAiPanelOpen(true)}
           onAddQuestions={handleAiAddQuestions}
+          existingQuestions={questions.map((q) => q.text)}
           aiPanelWidth={aiPanelWidth}
           isResizingPanel={isResizingPanel}
           setIsResizingPanel={setIsResizingPanel}
