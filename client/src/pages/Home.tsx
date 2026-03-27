@@ -2698,7 +2698,7 @@ function AiPanel({
           </div>
 
           {/* Scrollable body */}
-          <div ref={scrollBodyRef} style={{ flex: 1, overflowY: "auto", padding: "18px 18px 0" }}>
+          <div ref={scrollBodyRef} style={{ flex: 1, overflowY: "auto", padding: "18px 18px 24px" }}>
 
             {/* Upload / Paste area */}
             {generated.length === 0 && (

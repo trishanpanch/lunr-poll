@@ -372,3 +372,6 @@
 ## Duplicate Session
 - [x] Add server-side duplicate tRPC procedure (copies session + questions as new draft)
 - [x] Add Duplicate option to session card overflow menu on Sessions page
+
+## Sticky Generate Button
+- [x] Pin Generate Questions button to bottom of AI panel (sticky footer) so it's always visible when the preview list is long
