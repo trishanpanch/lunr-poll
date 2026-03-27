@@ -4209,6 +4209,24 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       {q.text}
                     </p>
 
+                    {/* Question media image */}
+                    {q.mediaUrl && (
+                      <div style={{ background: "var(--muted)", borderRadius: 12, border: "1px solid var(--border)", padding: 10 }}>
+                        <img
+                          src={q.mediaUrl}
+                          alt="Question media"
+                          style={{
+                            width: "100%",
+                            maxHeight: 240,
+                            objectFit: "contain",
+                            borderRadius: 8,
+                            display: "block",
+                            height: "auto",
+                          }}
+                        />
+                      </div>
+                    )}
+
                     {/* Response area by type */}
                     {q.type === "Text" && (
                       <textarea

@@ -350,3 +350,6 @@
 
 ## Confirm Delete Question
 - [x] Add confirm dialog to Delete question in the three-dot menu
+
+## Preview Image Fix
+- [x] Show question photo attachments in the session preview
