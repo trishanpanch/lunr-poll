@@ -406,3 +406,42 @@ describe("session.save — polling preset question", () => {
     expect(result).toEqual({ id: 11, code: "XYZAB" });
   });
 });
+
+describe("session.reactivate", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("resets a closed session back to draft status", async () => {
+    const closedSession = {
+      ...sampleSession,
+      status: "closed" as const,
+      closedAt: new Date("2026-03-01T10:00:00Z"),
+      launchedAt: new Date("2026-02-28T09:00:00Z"),
+    };
+    vi.mocked(db.getSessionById).mockResolvedValue(closedSession);
+    vi.mocked(db.updateSession).mockResolvedValue({ ...closedSession, status: "draft", closedAt: null, launchedAt: null, currentQuestionIndex: 0 });
+
+    const caller = appRouter.createCaller(makeCtx());
+    await caller.session.reactivate({ id: 10 });
+
+    expect(db.updateSession).toHaveBeenCalledWith(10, {
+      status: "draft",
+      closedAt: null,
+      launchedAt: null,
+      currentQuestionIndex: 0,
+    });
+  });
+
+  it("throws when session is not found", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(null);
+
+    const caller = appRouter.createCaller(makeCtx());
+    await expect(caller.session.reactivate({ id: 99 })).rejects.toThrow("Session not found");
+  });
+
+  it("throws when session is not closed", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({ ...sampleSession, status: "draft" });
+
+    const caller = appRouter.createCaller(makeCtx());
+    await expect(caller.session.reactivate({ id: 10 })).rejects.toThrow("Only closed sessions");
+  });
+});

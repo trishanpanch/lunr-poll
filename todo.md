@@ -291,3 +291,14 @@
 
 ## Polish — Toast After Adding Questions
 - [x] Show "N question(s) added to session" toast after clicking Add Questions in the AI panel
+
+## Feature — Tap to Copy Session Code
+- [x] Make session code tappable/clickable to copy on the sessions page, with visual feedback (brief "Copied!" state)
+
+## Feature — Move to Draft (Reactivate Past Session)
+- [x] Add tRPC procedure to reset a closed session's status back to draft
+- [x] Add "Move to Draft" action to past session cards (direct button in row actions)
+- [x] After moving to draft, session appears in Active tab and is editable/re-launchable
+
+## Feature — Tap to Copy Session Code (continued)
+- [x] Apply tap-to-copy treatment to list view code badge (past sessions tab)

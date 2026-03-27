@@ -155,6 +155,21 @@ export const sessionRouter = router({
       });
     }),
 
+  /** Reactivate a closed session back to draft so it can be edited and re-launched */
+  reactivate: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const session = await getSessionById(input.id);
+      if (!session) throw new Error("Session not found");
+      if (session.status !== "closed") throw new Error("Only closed sessions can be reactivated");
+      return updateSession(input.id, {
+        status: "draft",
+        closedAt: null,
+        launchedAt: null,
+        currentQuestionIndex: 0,
+      });
+    }),
+
   /** Advance to the next question in live mode */
   nextQuestion: publicProcedure
     .input(z.object({ id: z.number() }))

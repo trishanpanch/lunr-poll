@@ -8,8 +8,8 @@ import { useLocation } from "wouter";
 import {
   Plus, Rocket, ListChecks, Type, Paperclip, Star,
   Clock, CheckCircle2, XCircle, ChevronRight, Search,
-  BarChart2, BookOpen, Trash2, MoreHorizontal, Loader2,
-  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid, Settings,
+  BarChart2, Pencil, Trash2, MoreHorizontal, Loader2,
+  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid, Settings, RotateCcw,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -146,6 +146,13 @@ function SessionCard({
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(session.code);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 1800);
+  };
 
   const handleCopyLink = () => {
     const joinUrl = `${window.location.origin}/join?code=${session.code}`;
@@ -166,14 +173,26 @@ function SessionCard({
         {/* Top row */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
-              fontFamily: "'Geist Mono', monospace", color: "var(--primary)",
-              background: "var(--indigo-light)", border: "1px solid var(--border)",
-              padding: "2px 8px", borderRadius: 6,
-            }}>
-              {session.code}
-            </span>
+            <button
+              onClick={handleCopyCode}
+              title="Click to copy code"
+              style={{
+                fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
+                fontFamily: "'Geist Mono', monospace",
+                color: codeCopied ? "oklch(0.45 0.18 160)" : "var(--primary)",
+                background: codeCopied ? "oklch(0.95 0.06 160)" : "var(--indigo-light)",
+                border: `1px solid ${codeCopied ? "oklch(0.75 0.12 160)" : "var(--border)"}`,
+                padding: "2px 8px", borderRadius: 6,
+                cursor: "pointer", transition: "all 0.2s",
+                display: "flex", alignItems: "center", gap: 4,
+              }}
+            >
+              {codeCopied ? (
+                <><CheckCircle2 size={10} /> Copied!</>
+              ) : (
+                <><Copy size={10} /> {session.code}</>
+              )}
+            </button>
             <StatusBadge status={session.status} />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -211,7 +230,7 @@ function SessionCard({
                     fontFamily: "'Geist', system-ui, sans-serif",
                   }}>
                     <button onClick={() => { onEdit(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--foreground)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors">
-                      <BookOpen size={13} /> Edit Session
+                      <Pencil size={13} /> Edit Session
                     </button>
                     <div style={{ height: 1, background: "var(--muted)", margin: "2px 0" }} />
                     <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--destructive)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[var(--destructive-light)] transition-colors">
@@ -330,6 +349,7 @@ function PastSessionRow({
   session,
   onViewResults,
   onDelete,
+  onReactivate,
 }: {
   session: {
     id: number;
@@ -343,8 +363,16 @@ function PastSessionRow({
   };
   onViewResults: () => void;
   onDelete: () => void;
+  onReactivate: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(session.code);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 1800);
+  };
 
   const handleCopyLink = () => {
     const joinUrl = `${window.location.origin}/join?code=${session.code}`;
@@ -370,12 +398,26 @@ function PastSessionRow({
           {session.name}
         </p>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
-            fontFamily: "'Geist Mono', monospace", color: "var(--muted-foreground)",
-          }}>
-            {session.code}
-          </span>
+          <button
+            onClick={handleCopyCode}
+            title="Click to copy code"
+            style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: "0.08em",
+              fontFamily: "'Geist Mono', monospace",
+              color: codeCopied ? "oklch(0.45 0.18 160)" : "var(--muted-foreground)",
+              background: codeCopied ? "oklch(0.95 0.06 160)" : "transparent",
+              border: codeCopied ? "1px solid oklch(0.75 0.12 160)" : "1px solid transparent",
+              padding: "1px 5px", borderRadius: 5,
+              cursor: "pointer", transition: "all 0.2s",
+              display: "flex", alignItems: "center", gap: 4,
+            }}
+          >
+            {codeCopied ? (
+              <><CheckCircle2 size={10} /> Copied!</>
+            ) : (
+              <><Copy size={10} /> {session.code}</>
+            )}
+          </button>
           <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>
           <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
             {session.questions.length} {session.questions.length === 1 ? "question" : "questions"}
@@ -409,7 +451,22 @@ function PastSessionRow({
           style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", padding: "5px 6px", borderRadius: 7, display: "flex", alignItems: "center" }}
           className="hover:bg-[var(--muted)] hover:text-[var(--primary)] transition-colors"
         >
-          <Copy size={14} />
+          <Link2 size={14} />
+        </button>
+        <button
+          onClick={onReactivate}
+          title="Move back to drafts for editing"
+          style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "7px 12px", borderRadius: 9,
+            background: "var(--card)", border: "1.5px solid var(--border)",
+            color: "var(--muted-foreground)", fontSize: 13, fontWeight: 600,
+            fontFamily: "'Geist', system-ui, sans-serif", cursor: "pointer",
+            transition: "all 0.15s",
+          }}
+          className="hover:border-[var(--primary)] hover:text-[var(--primary)] hover:bg-[var(--indigo-light)] transition-all"
+        >
+          <RotateCcw size={13} /> Move to Draft
         </button>
         <button
           onClick={onViewResults}
@@ -571,6 +628,14 @@ export default function Sessions() {
     onSuccess: (data) => {
       utils.session.list.invalidate();
       if (data) navigate(`/live/${data.id}`);
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const reactivateMut = trpc.session.reactivate.useMutation({
+    onSuccess: () => {
+      utils.session.list.invalidate();
+      toast.success("Session moved to drafts", { description: "You can now edit and re-launch it." });
     },
     onError: (err) => toast.error(err.message),
   });
@@ -783,6 +848,7 @@ export default function Sessions() {
                     session={session}
                     onViewResults={() => navigate(`/results/${session.id}`)}
                     onDelete={() => deleteMut.mutate({ id: session.id })}
+                    onReactivate={() => reactivateMut.mutate({ id: session.id })}
                   />
                 ))}
               </div>
