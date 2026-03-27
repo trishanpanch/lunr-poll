@@ -1435,21 +1435,21 @@ function QuestionCard({
                   position: "absolute",
                   top: 6,
                   right: 6,
-                  background: "rgba(0,0,0,0.55)",
+                  background: "transparent",
                   border: "none",
                   borderRadius: 6,
-                  color: "#fff",
-                  width: 26,
-                  height: 26,
+                  color: "var(--muted-foreground)",
+                  width: 24,
+                  height: 24,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  transition: "background 0.15s",
+                  transition: "color 0.15s",
                 }}
-                className="hover:bg-[rgba(0,0,0,0.75)]"
+                className="hover:text-[var(--foreground)]"
               >
-                <X size={13} />
+                <X size={14} />
               </button>
             )}
             {/* Confirm remove media dialog */}
