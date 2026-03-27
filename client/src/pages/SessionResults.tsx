@@ -26,6 +26,9 @@ import {
   Paperclip,
   Cloud,
   BarChart2,
+  Link2,
+  X,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WordCloud from "@/components/WordCloud";
@@ -227,10 +230,178 @@ function ResponseChart({
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
+// ── Sync to LMS Modal ────────────────────────────────────────────────────────
+function SyncLmsModal({
+  sessionId,
+  sessionName,
+  onClose,
+}: {
+  sessionId: number;
+  sessionName: string;
+  onClose: () => void;
+}) {
+  const [selectedConnectionId, setSelectedConnectionId] = useState<number | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  const [assignmentName, setAssignmentName] = useState(`AlicePoll — ${sessionName}`);
+  const [synced, setSynced] = useState(false);
+
+  const { data: connections, isLoading: loadingConns } = trpc.lms.listConnections.useQuery();
+  const { data: courses, isLoading: loadingCourses } = trpc.lms.listCourses.useQuery(
+    { connectionId: selectedConnectionId! },
+    { enabled: !!selectedConnectionId }
+  );
+
+  const syncMutation = trpc.lms.syncToCanvas.useMutation({
+    onSuccess: (result) => {
+      if (result.success) {
+        toast.success(`Synced ${result.synced} student${result.synced !== 1 ? "s" : ""} to Canvas`);
+        setSynced(true);
+      } else {
+        toast.error(`Sync partially failed: ${result.errorMessage}`);
+      }
+    },
+    onError: (err) => toast.error(`Sync failed: ${err.message}`),
+  });
+
+  const canvasConnections = (connections ?? []).filter((c) => c.provider === "canvas");
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 1000,
+        background: "rgba(0,0,0,0.4)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 24,
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        style={{
+          background: "var(--card)",
+          borderRadius: 16,
+          padding: "24px 24px 20px",
+          width: "100%",
+          maxWidth: 480,
+          boxShadow: "0 8px 40px rgba(0,0,0,0.18)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <GraduationCap size={18} style={{ color: INDIGO }} />
+            <span style={{ fontWeight: 700, fontSize: 16, color: TEXT_DARK }}>Sync to Canvas</span>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {synced ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "16px 0" }}>
+            <CheckCircle2 size={40} style={{ color: GREEN }} />
+            <p style={{ margin: 0, fontWeight: 600, fontSize: 15, color: TEXT_DARK }}>Grades synced successfully</p>
+            <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED, textAlign: "center" }}>Participation scores have been pushed to your Canvas gradebook.</p>
+            <Button onClick={onClose} style={{ background: INDIGO, color: "#fff", marginTop: 4 }}>Done</Button>
+          </div>
+        ) : (
+          <>
+            {loadingConns ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: TEXT_MUTED, fontSize: 13 }}>
+                <Loader2 size={14} className="animate-spin" /> Loading connections…
+              </div>
+            ) : canvasConnections.length === 0 ? (
+              <div style={{ fontSize: 13, color: TEXT_MUTED, lineHeight: 1.6 }}>
+                No Canvas connections found.{" "}
+                <a href="/integrations" style={{ color: INDIGO, fontWeight: 600 }}>Set up an integration</a>{" "}
+                in Settings → LMS Integrations.
+              </div>
+            ) : (
+              <>
+                {/* Connection picker */}
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: TEXT_MID, display: "block", marginBottom: 6 }}>Canvas Connection</label>
+                  <select
+                    value={selectedConnectionId ?? ""}
+                    onChange={(e) => { setSelectedConnectionId(Number(e.target.value)); setSelectedCourseId(null); }}
+                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid var(--border)", fontSize: 13, background: "var(--background)", color: TEXT_DARK }}
+                  >
+                    <option value="">Select connection…</option>
+                    {canvasConnections.map((c) => (
+                      <option key={c.id} value={c.id}>{c.label ?? c.instanceUrl}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Course picker */}
+                {selectedConnectionId && (
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: TEXT_MID, display: "block", marginBottom: 6 }}>Course</label>
+                    {loadingCourses ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: TEXT_MUTED }}>
+                        <Loader2 size={13} className="animate-spin" /> Loading courses…
+                      </div>
+                    ) : (
+                      <select
+                        value={selectedCourseId ?? ""}
+                        onChange={(e) => setSelectedCourseId(Number(e.target.value))}
+                        style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid var(--border)", fontSize: 13, background: "var(--background)", color: TEXT_DARK }}
+                      >
+                        <option value="">Select course…</option>
+                        {(courses ?? []).map((c) => (
+                          <option key={c.id} value={c.id}>{c.name} ({c.courseCode})</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                )}
+
+                {/* Assignment name */}
+                {selectedCourseId && (
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: TEXT_MID, display: "block", marginBottom: 6 }}>Assignment Name in Canvas</label>
+                    <input
+                      value={assignmentName}
+                      onChange={(e) => setAssignmentName(e.target.value)}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid var(--border)", fontSize: 13, background: "var(--background)", color: TEXT_DARK, boxSizing: "border-box" }}
+                    />
+                    <p style={{ margin: "4px 0 0", fontSize: 11, color: TEXT_MUTED }}>This will be the column name in your Canvas gradebook.</p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
+                  <Button variant="outline" onClick={onClose} style={{ fontSize: 13 }}>Cancel</Button>
+                  <Button
+                    onClick={() => syncMutation.mutate({
+                      sessionId,
+                      connectionId: selectedConnectionId!,
+                      lmsCourseId: selectedCourseId!,
+                      assignmentName,
+                    })}
+                    disabled={!selectedConnectionId || !selectedCourseId || !assignmentName || syncMutation.isPending}
+                    style={{ background: INDIGO, color: "#fff", fontSize: 13 }}
+                  >
+                    {syncMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />}
+                    {syncMutation.isPending ? "Syncing…" : "Sync Grades"}
+                  </Button>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SessionResults() {
   const params = useParams<{ id: string }>();
   const sessionId = parseInt(params.id ?? "0");
   const [, navigate] = useLocation();
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
   const { data, isLoading, error } = trpc.session.results.useQuery(
     { id: sessionId },
@@ -328,6 +499,15 @@ export default function SessionResults() {
         </div>
 
         <Button
+          variant="outline"
+          onClick={() => setShowSyncModal(true)}
+          style={{ fontWeight: 600, fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}
+        >
+          <Link2 size={14} />
+          Sync to LMS
+        </Button>
+
+        <Button
           onClick={handleDownloadCsv}
           disabled={csvExport.isFetching}
           style={{ background: INDIGO, color: "#fff", fontWeight: 600, fontSize: 13 }}
@@ -336,6 +516,14 @@ export default function SessionResults() {
           Export CSV
         </Button>
       </header>
+
+      {showSyncModal && (
+        <SyncLmsModal
+          sessionId={sessionId}
+          sessionName={data?.session?.name ?? "Session"}
+          onClose={() => setShowSyncModal(false)}
+        />
+      )}
 
       {/* Main content */}
       <main style={{ maxWidth: 860, margin: "0 auto", padding: "28px 24px 80px" }}>

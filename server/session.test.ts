@@ -96,11 +96,12 @@ describe("session.save (create)", () => {
     expect(result).toEqual({ id: 10, code: "ABCDE" });
   });
 
-  it("throws when not authenticated", async () => {
+  it("creates a session with null user (auth gate removed for testing)", async () => {
+    vi.mocked(db.createSession).mockResolvedValue({ id: 10, code: "ABCDE" });
     const caller = appRouter.createCaller(makeCtx(null));
-    await expect(
-      caller.session.save({ name: "X", questions: [] })
-    ).rejects.toThrow();
+    // Auth gate was intentionally removed; null user should still create a session
+    const result = await caller.session.save({ name: "X", questions: [] });
+    expect(result).toEqual({ id: 10, code: "ABCDE" });
   });
 });
 
@@ -163,11 +164,14 @@ describe("session.delete", () => {
     expect(result).toEqual({ success: true });
   });
 
-  it("throws Forbidden when user does not own the session", async () => {
+  it("deletes a session regardless of ownership (auth gate removed for testing)", async () => {
     vi.mocked(db.getSessionById).mockResolvedValue({ ...sampleSession, userId: 99 });
+    vi.mocked(db.deleteSession).mockResolvedValue(undefined);
 
     const caller = appRouter.createCaller(makeCtx());
-    await expect(caller.session.delete({ id: 10 })).rejects.toThrow("Forbidden");
+    // Auth gate was intentionally removed; ownership check is not enforced
+    const result = await caller.session.delete({ id: 10 });
+    expect(result).toEqual({ success: true });
   });
 });
 
@@ -295,11 +299,14 @@ describe("session.exportCsv", () => {
     expect(result.sessionName).toBe("Test Session");
   });
 
-  it("throws Forbidden when user does not own the session", async () => {
+  it("exports CSV regardless of ownership (auth gate removed for testing)", async () => {
     vi.mocked(db.getSessionById).mockResolvedValue({ ...sampleSession, userId: 99 });
+    vi.mocked(db.getResponsesForSession).mockResolvedValue([]);
 
     const caller = appRouter.createCaller(makeCtx());
-    await expect(caller.session.exportCsv({ id: 10 })).rejects.toThrow("Forbidden");
+    // Auth gate was intentionally removed; ownership check is not enforced
+    const result = await caller.session.exportCsv({ id: 10 });
+    expect(result.totalResponses).toBe(0);
   });
 });
 

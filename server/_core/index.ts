@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import generateQuestionsRouter from "../generateQuestions";
 import uploadMediaRouter from "../uploadMedia";
+import exportCsvRouter from "../exportCsv";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -41,6 +42,8 @@ async function startServer() {
   app.use(generateQuestionsRouter);
   // Question media upload
   app.use(uploadMediaRouter);
+  // CSV export
+  app.use(exportCsvRouter);
   // tRPC API
   app.use(
     "/api/trpc",

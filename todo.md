@@ -382,3 +382,20 @@
 ## AI Panel Post-Add Behaviour (Option B)
 - [x] Keep AI panel open after adding questions; reset to source material view (clear generated list, scroll to top)
 - [x] Strengthen deduplication: send full question details (type, options, model answer) to the AI prompt instead of just question text
+
+## Feature — LMS Integrations
+- [x] Add lmsConnections table to schema (userId, provider, instanceUrl, apiToken, createdAt)
+- [x] Add lmsSyncLog table to schema (sessionId, provider, courseId, columnId, syncedAt, status, error)
+- [x] Run pnpm db:push to migrate schema
+- [x] Add Canvas API helper (server/lms/canvas.ts): fetchCourses, createGradeColumn, pushGrades
+- [x] Add tRPC lms router: connect, disconnect, listConnections, listCourses, syncSession, listSyncLogs
+- [x] Add CSV export endpoint: GET /api/export/session/:id/csv (Canvas format + generic format)
+- [x] Build LMS Integrations settings page (client/src/pages/LmsIntegrations.tsx)
+- [x] Add Canvas connection form (instance URL + API token, test connection button)
+- [x] Add connected Canvas accounts list with disconnect button
+- [x] Add "Sync to LMS" button on session results page with course picker modal
+- [x] Add CSV export button on session results page
+- [x] Add LTI 1.3 scaffolding section (UI placeholder with "Contact your LMS admin" instructions)
+- [x] Register /integrations route in App.tsx
+- [x] Add Integrations nav item to Settings or sidebar
+- [x] Write vitest tests for Canvas API helper and sync procedure

@@ -15,7 +15,9 @@ import {
   Radio,
   Download,
   Shield,
+  Link2,
 } from "lucide-react";
+import { Link } from "wouter";
 import { SavedButton } from "@/components/SavedButton";
 import { DiscardButton } from "@/components/DiscardButton";
 
@@ -1114,6 +1116,30 @@ export default function Settings() {
                 </button>
               );
             })}
+            {/* LMS Integrations — external link */}
+            <Link
+              href="/integrations"
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "11px 16px",
+                borderBottom: "none",
+                background: "var(--card)",
+                color: "var(--muted-foreground)",
+                fontSize: 13,
+                fontWeight: 400,
+                fontFamily: "'Geist', system-ui, sans-serif",
+                cursor: "pointer",
+                textDecoration: "none",
+                transition: "all 0.15s",
+              }}
+              className="hover:bg-[var(--background)] hover:text-[var(--primary)] transition-all"
+            >
+              <Link2 size={15} />
+              LMS Integrations
+            </Link>
           </div>
         </nav>
 

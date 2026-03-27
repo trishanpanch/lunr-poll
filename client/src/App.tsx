@@ -14,6 +14,7 @@ import SessionResults from "./pages/SessionResults";
 import DesignSystemPage from "./pages/DesignSystem";
 import Changelog from "./pages/Changelog";
 import Settings from "./pages/Settings";
+import LmsIntegrations from "./pages/LmsIntegrations";
 import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, Settings as SettingsIcon, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "./contexts/ThemeContext";
@@ -194,6 +195,7 @@ function Router() {
           <Route path="/design-system" component={DesignSystemPage} />
           <Route path="/changelog" component={Changelog} />
           <Route path="/settings" component={Settings} />
+          <Route path="/integrations" component={LmsIntegrations} />
           <Route path="/404" component={NotFound} />
           <Route component={NotFound} />
         </Switch>

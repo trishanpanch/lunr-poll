@@ -134,6 +134,52 @@ export const professorSettings = mysqlTable("professorSettings", {
 export type ProfessorSettings = typeof professorSettings.$inferSelect;
 export type InsertProfessorSettings = typeof professorSettings.$inferInsert;
 
+// ── LMS Integrations ────────────────────────────────────────────────────────
+
+/**
+ * Stores a professor's connection to an external LMS (Canvas, Blackboard, etc.).
+ * apiToken is stored encrypted-at-rest via the platform secret; treat as sensitive.
+ */
+export const lmsConnections = mysqlTable("lmsConnections", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** e.g. 'canvas' | 'blackboard' */
+  provider: varchar("provider", { length: 32 }).notNull(),
+  /** Base URL of the institution's LMS instance, e.g. https://canvas.harvard.edu */
+  instanceUrl: varchar("instanceUrl", { length: 512 }).notNull(),
+  /** Personal API token (Canvas) or OAuth access token (Blackboard) */
+  apiToken: text("apiToken").notNull(),
+  /** Human-readable label set by the professor, e.g. "Harvard Canvas" */
+  label: varchar("label", { length: 128 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type LmsConnection = typeof lmsConnections.$inferSelect;
+export type InsertLmsConnection = typeof lmsConnections.$inferInsert;
+
+/**
+ * Audit log of every grade sync attempt for a session.
+ */
+export const lmsSyncLogs = mysqlTable("lmsSyncLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: int("sessionId").notNull(),
+  connectionId: int("connectionId").notNull(),
+  /** LMS course ID the grades were pushed to */
+  lmsCourseId: varchar("lmsCourseId", { length: 128 }),
+  /** LMS assignment/column ID created or updated */
+  lmsColumnId: varchar("lmsColumnId", { length: 128 }),
+  /** 'success' | 'error' | 'partial' */
+  status: varchar("status", { length: 16 }).notNull().default("pending"),
+  /** Number of student scores successfully pushed */
+  studentsSync: int("studentsSync").default(0).notNull(),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LmsSyncLog = typeof lmsSyncLogs.$inferSelect;
+export type InsertLmsSyncLog = typeof lmsSyncLogs.$inferInsert;
+
 // ── Shared Question type (mirrors client-side type) ───────────────────────────
 
 export type QuestionType =

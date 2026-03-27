@@ -29,6 +29,13 @@
       "when": 1774390994570,
       "tag": "0003_dapper_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1774647015565,
+      "tag": "0004_tidy_giant_man",
+      "breakpoints": true
     }
   ]
 }
