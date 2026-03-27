@@ -931,8 +931,8 @@ export default function Changelog() {
 
       {/* Days */}
       <div style={{ maxWidth: 760, margin: "0 auto", padding: "40px 28px 80px" }}>
-        {DAYS.map((day) => (
-          <div key={day.date} style={{ marginBottom: 64 }}>
+        {DAYS.map((day, dayIdx) => (
+          <div key={`${day.date}-${dayIdx}`} style={{ marginBottom: 64 }}>
             {/* Day header */}
             <div
               style={{

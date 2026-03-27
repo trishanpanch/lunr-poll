@@ -338,6 +338,30 @@ export const sessionRouter = router({
       };
     }),
 
+  // ── Duplicate Session ──────────────────────────────────────────────────────
+
+  /** Duplicate a session as a new draft, copying all questions */
+  duplicate: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const source = await getSessionById(input.id);
+      if (!source) throw new Error("Session not found");
+      const userId = (ctx as { user?: { id: number } }).user?.id ?? null;
+      const questions = (source.questions as Question[]) ?? [];
+      // Give each question a fresh id so there are no collisions
+      const newQuestions = questions.map((q) => ({
+        ...q,
+        id: Math.random().toString(36).slice(2, 9),
+      }));
+      const result = await createSession({
+        userId,
+        name: `${source.name} (Copy)`,
+        questions: newQuestions as Question[],
+      });
+      if (!result) throw new Error("Failed to duplicate session");
+      return result;
+    }),
+
   // ── Participant Count ─────────────────────────────────────────────────────
 
   participantCount: publicProcedure

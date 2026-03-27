@@ -9,7 +9,7 @@ import {
   Plus, Rocket, ListChecks, Type, Paperclip, Star,
   Clock, CheckCircle2, XCircle, ChevronRight, Search,
   BarChart2, Pencil, Trash2, MoreHorizontal, Loader2,
-  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid, Settings, RotateCcw,
+  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid, Settings, RotateCcw, CopyPlus,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -130,6 +130,7 @@ function SessionCard({
   onDelete,
   onGoLive,
   onViewLive,
+  onDuplicate,
 }: {
   session: {
     id: number;
@@ -143,6 +144,7 @@ function SessionCard({
   onDelete: () => void;
   onGoLive: () => void;
   onViewLive: () => void;
+  onDuplicate: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -231,6 +233,9 @@ function SessionCard({
                   }}>
                     <button onClick={() => { onEdit(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--foreground)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors">
                       <Pencil size={13} /> Edit Session
+                    </button>
+                    <button onClick={() => { onDuplicate(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--foreground)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors">
+                      <CopyPlus size={13} /> Duplicate
                     </button>
                     <div style={{ height: 1, background: "var(--muted)", margin: "2px 0" }} />
                     <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--destructive)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[var(--destructive-light)] transition-colors">
@@ -350,6 +355,7 @@ function PastSessionRow({
   onViewResults,
   onDelete,
   onReactivate,
+  onDuplicate,
 }: {
   session: {
     id: number;
@@ -364,6 +370,7 @@ function PastSessionRow({
   onViewResults: () => void;
   onDelete: () => void;
   onReactivate: () => void;
+  onDuplicate: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
@@ -499,6 +506,10 @@ function PastSessionRow({
                 boxShadow: "0 4px 20px rgba(0,0,0,0.1)", zIndex: 20, minWidth: 140, overflow: "hidden",
                 fontFamily: "'Geist', system-ui, sans-serif",
               }}>
+                <button onClick={() => { onDuplicate(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--foreground)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[oklch(0.982_0.0107_271.3)] transition-colors">
+                  <CopyPlus size={13} /> Duplicate
+                </button>
+                <div style={{ height: 1, background: "var(--muted)", margin: "2px 0" }} />
                 <button onClick={() => { onDelete(); setMenuOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "9px 12px", background: "none", border: "none", fontSize: 13, fontWeight: 500, color: "var(--destructive)", cursor: "pointer", textAlign: "left" }} className="hover:bg-[var(--destructive-light)] transition-colors">
                   <Trash2 size={13} /> Delete
                 </button>
@@ -620,6 +631,14 @@ export default function Sessions() {
     onSuccess: () => {
       utils.session.list.invalidate();
       toast.success("Session deleted");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const duplicateMut = trpc.session.duplicate.useMutation({
+    onSuccess: () => {
+      utils.session.list.invalidate();
+      toast.success("Session duplicated", { description: "A copy has been added to your drafts." });
     },
     onError: (err) => toast.error(err.message),
   });
@@ -816,6 +835,7 @@ export default function Sessions() {
                     onDelete={() => deleteMut.mutate({ id: session.id })}
                     onGoLive={() => launchMut.mutate({ id: session.id })}
                     onViewLive={() => navigate(`/live/${session.id}`)}
+                    onDuplicate={() => duplicateMut.mutate({ id: session.id })}
                   />
                 ))}
               </div>
@@ -849,6 +869,7 @@ export default function Sessions() {
                     onViewResults={() => navigate(`/results/${session.id}`)}
                     onDelete={() => deleteMut.mutate({ id: session.id })}
                     onReactivate={() => reactivateMut.mutate({ id: session.id })}
+                    onDuplicate={() => duplicateMut.mutate({ id: session.id })}
                   />
                 ))}
               </div>

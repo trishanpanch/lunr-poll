@@ -368,3 +368,7 @@
 
 ## Changelog Update
 - [x] Add changelog entries for all recent updates
+
+## Duplicate Session
+- [x] Add server-side duplicate tRPC procedure (copies session + questions as new draft)
+- [x] Add Duplicate option to session card overflow menu on Sessions page
