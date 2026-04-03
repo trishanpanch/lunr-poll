@@ -276,18 +276,29 @@ router.post("/api/suggest-objectives", async (req: Request, res: Response) => {
     return res.status(400).json({ error: "Could not extract any content from the provided sources" });
   }
 
+  // ── Tier 1: Strengthened system prompt ────────────────────────────────────
   const systemPrompt = `You are an expert instructional designer. Given source material from a lecture, article, or lesson, extract 3–5 concise learning objectives that a student should be able to demonstrate after engaging with this content.
 
-Rules:
-- Each objective must start with an action verb (e.g. Explain, Identify, Compare, Apply, Analyse, Evaluate).
+CRITICAL EXCLUSIONS — you MUST ignore and never generate objectives about:
+- Instructor or speaker biography, credentials, background, or contact information
+- Course logistics: schedules, deadlines, office hours, attendance policies, grading rubrics
+- Administrative procedures: how to submit assignments, where to find resources, course policies
+- Introductory or meta-content: "understand the course structure", "know the syllabus"
+- Any content about the course itself rather than the subject matter being taught
+
+Rules for valid objectives:
+- Each objective must start with an action verb (e.g. Explain, Identify, Compare, Apply, Analyse, Evaluate, Distinguish, Demonstrate).
+- Objectives must be about the academic subject matter — concepts, theories, methods, or skills a student learns from the content.
 - Objectives must be specific and directly grounded in the source material — never generic.
 - Write at the appropriate Bloom's taxonomy level for the content (favour Understand/Apply/Analyse over Remember).
 - Keep each objective to one sentence, maximum 20 words.
+- If fewer than 3 valid academic objectives can be found, return only the valid ones — do not pad with administrative content.
 - Return ONLY a valid JSON array of strings. No markdown, no explanation, no code fences.
 
-Example output: ["Explain the three causes of X described in the text", "Compare Y and Z using the criteria discussed"]`;
+Example of GOOD objectives: ["Explain the three causes of X described in the text", "Compare Y and Z using the criteria discussed"]
+Example of BAD objectives (never return these): ["Understand the course grading policy", "Know the professor's research background", "Be aware of office hours"]`;
 
-  const userPrompt = `Source material:\n---\n${combinedContent.slice(0, 8000)}\n---\n\nReturn ONLY the JSON array of 3–5 learning objective strings.`;
+  const userPrompt = `Source material:\n---\n${combinedContent.slice(0, 8000)}\n---\n\nReturn ONLY the JSON array of 3–5 academic learning objective strings. Remember: exclude anything about course logistics, instructor biography, or administrative procedures.`;
 
   try {
     const result = await invokeLLM({
@@ -305,12 +316,50 @@ Example output: ["Explain the three causes of X described in the text", "Compare
     if (arrStart !== -1 && arrEnd !== -1) cleaned = cleaned.slice(arrStart, arrEnd + 1);
     cleaned = cleaned.replace(/,\s*([\]\}])/g, "$1");
 
-    const objectives = JSON.parse(cleaned) as string[];
-    if (!Array.isArray(objectives) || objectives.length === 0) {
+    const rawObjectives = JSON.parse(cleaned) as string[];
+    if (!Array.isArray(rawObjectives) || rawObjectives.length === 0) {
       return res.status(500).json({ error: "No objectives returned from model" });
     }
 
-    return res.json({ objectives: objectives.slice(0, 5) });
+    // ── Tier 2: Post-generation classification filter ──────────────────────
+    // Ask the model to classify each objective as academic or administrative
+    // and return only the academic ones.
+    const filterSystemPrompt = `You are a strict classifier. For each learning objective, determine if it is:
+- "academic": about subject matter, concepts, skills, or knowledge a student gains from the content
+- "administrative": about course logistics, instructor biography, schedules, policies, or meta-information about the course
+
+Return ONLY a valid JSON array containing the objectives classified as "academic". Omit all administrative ones.
+Return the array with the same strings, unchanged. No markdown, no explanation.`;
+
+    const filterUserPrompt = `Classify these objectives and return only the academic ones as a JSON array:\n${JSON.stringify(rawObjectives)}`;
+
+    let filteredObjectives = rawObjectives; // fallback: use all if filter fails
+    try {
+      const filterResult = await invokeLLM({
+        messages: [
+          { role: "system", content: filterSystemPrompt },
+          { role: "user", content: filterUserPrompt },
+        ],
+        maxTokens: 400,
+      });
+
+      const filterRaw: string = extractTextContent(filterResult.choices?.[0]?.message?.content);
+      let filterCleaned = filterRaw.replace(/^```[\w]*\n?/gm, "").replace(/\n?```/gm, "").trim();
+      const fArrStart = filterCleaned.indexOf("[");
+      const fArrEnd = filterCleaned.lastIndexOf("]");
+      if (fArrStart !== -1 && fArrEnd !== -1) filterCleaned = filterCleaned.slice(fArrStart, fArrEnd + 1);
+      filterCleaned = filterCleaned.replace(/,\s*([\]\}])/g, "$1");
+
+      const parsed = JSON.parse(filterCleaned) as string[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        filteredObjectives = parsed;
+      }
+      // If filter returns empty array, fall back to raw objectives to avoid blank result
+    } catch (filterErr) {
+      console.warn("[suggest-objectives] Tier 2 filter failed, using raw objectives:", filterErr);
+    }
+
+    return res.json({ objectives: filteredObjectives.slice(0, 5) });
   } catch (err) {
     console.error("[suggest-objectives] error:", err);
     return res.status(500).json({ error: "Suggestion failed", detail: String(err) });

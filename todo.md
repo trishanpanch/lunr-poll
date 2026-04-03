@@ -399,3 +399,7 @@
 - [x] Register /integrations route in App.tsx
 - [x] Add Integrations nav item to Settings or sidebar
 - [x] Write vitest tests for Canvas API helper and sync procedure
+
+## Feature — Learning Objectives Guardrails
+- [x] Tier 1: Strengthen suggest-objectives system prompt to explicitly exclude administrative/biographical content
+- [x] Tier 2: Add post-generation classification filter pass to reject non-academic objectives
