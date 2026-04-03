@@ -482,54 +482,6 @@ function Sidebar({
       ) : (
         /* ── Expanded full sidebar ── */
         <>
-          {/* AI Banner */}
-          <div
-            style={{
-              margin: "8px 14px 0",
-              background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
-              border: "1.5px solid var(--border)",
-              borderRadius: 14,
-              padding: "16px 16px 14px",
-              display: "flex",
-              flexDirection: "column",
-              gap: 8,
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Sparkles size={18} style={{ color: "var(--ai-tab-icon)" }} />
-              <span style={{ fontFamily: "'Geist', system-ui, sans-serif", fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>
-                Generate with AI
-              </span>
-            </div>
-            <p style={{ fontSize: 12, color: "var(--muted-foreground)", lineHeight: 1.55, margin: 0 }}>
-              Paste your lecture notes or topic — AI will draft questions instantly.
-            </p>
-            <button
-              onClick={onOpenMagic}
-              style={{
-                marginTop: 4,
-                padding: "9px 14px",
-                borderRadius: 9,
-                border: "none",
-                background: "linear-gradient(135deg, var(--violet) 0%, var(--violet-hover) 100%)",
-                color: "#fff",
-                fontSize: 13,
-                fontWeight: 700,
-                fontFamily: "'Geist', system-ui, sans-serif",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 6,
-                boxShadow: "0 2px 8px oklch(0.52 0.22 290 / 0.28)",
-                transition: "opacity 0.15s",
-              }}
-              className="hover:opacity-88 transition-opacity"
-            >
-              <Sparkles size={14} />
-              Generate Questions
-            </button>
-          </div>
-
           {/* Question Types */}
           <div style={{ padding: "20px 14px 0" }}>
             <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em", color: "var(--muted-foreground)", marginBottom: 10 }}>
