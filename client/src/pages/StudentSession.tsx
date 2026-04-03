@@ -526,7 +526,7 @@ function StarRatingInput({ onSubmit, disabled }: { onSubmit: (a: string) => void
   );
 }
 
-// ── Likert Scale Input ───────────────────────────────────────────────────────
+// ── Labeled Scale Input ───────────────────────────────────────────────────────
 function LikertScaleInput({ labels, onSubmit, disabled }: { labels: string[]; onSubmit: (a: string) => void; disabled: boolean }) {
   const [selected, setSelected] = useState<number | null>(null);
   const effectiveLabels = labels.length === 5 ? labels : ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
@@ -886,7 +886,7 @@ export default function StudentSession() {
               {currentQ.type === "Star Rating" && (
                 <StarRatingInput onSubmit={handleSubmit} disabled={submitting} />
               )}
-              {currentQ.type === "Likert Scale" && (
+              {currentQ.type === "Labeled Scale" && (
                 <LikertScaleInput
                   labels={currentQ.likertLabels ?? ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]}
                   onSubmit={handleSubmit}

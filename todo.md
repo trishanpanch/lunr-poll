@@ -414,3 +414,7 @@
 - [x] LiveSession: render live response distribution for both types
 - [x] SessionResults: render bar chart / distribution for both types
 - [x] normaliseType: handle any legacy type name mismatches
+
+## Rename — Likert Scale → Labeled Scale
+- [x] Replace all "Likert Scale" strings with "Labeled Scale" across all source files
+- [x] Add "Likert Scale" → "Labeled Scale" to normaliseType for backward compatibility with existing DB data

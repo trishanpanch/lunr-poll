@@ -53,7 +53,7 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
   "File Upload": <Paperclip size={15} />,
   "Star Rating": <Star size={15} />,
   "True / False": <ToggleLeft size={15} />,
-  "Likert Scale": <AlignJustify size={15} />,
+  "Labeled Scale": <AlignJustify size={15} />,
   "Numeric Scale": <Sliders size={15} />,
 };
 
@@ -187,7 +187,7 @@ function ResponseChart({
     );
   }
 
-  if (type === "Likert Scale") {
+  if (type === "Labeled Scale") {
     const effectiveLabels = (likertLabels && likertLabels.length === 5)
       ? likertLabels
       : ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];

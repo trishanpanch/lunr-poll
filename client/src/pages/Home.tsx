@@ -72,7 +72,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type QuestionType = "Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False" | "Likert Scale" | "Numeric Scale";
+type QuestionType = "Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False" | "Labeled Scale" | "Numeric Scale";
 
 interface Question {
   id: string;
@@ -86,7 +86,7 @@ interface Question {
   modelAnswer?: string; // Model answer for Text questions
   presetSource?: "polling"; // Restricts type-change to Text/MC only
   mediaUrl?: string; // Optional photo attached to the question
-  // Likert Scale
+  // Labeled Scale
   likertLabels?: string[]; // 5 labels low→high
   // Numeric Scale
   numericMin?: number;
@@ -98,7 +98,8 @@ interface Question {
 // Normalise legacy type names stored in DB before the rename
 function normaliseType(raw: string): QuestionType {
   if (raw === "Short Text") return "Text";
-  const valid: QuestionType[] = ["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False", "Likert Scale", "Numeric Scale"];
+  if (raw === "Likert Scale") return "Labeled Scale";
+  const valid: QuestionType[] = ["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False", "Labeled Scale", "Numeric Scale"];
   return valid.includes(raw as QuestionType) ? (raw as QuestionType) : "Text";
 }
 
@@ -108,7 +109,7 @@ const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; de
   "File Upload":    { icon: <Paperclip size={18} />,   color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
   "Star Rating":    { icon: <Star size={18} />,        color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
   "True / False":   { icon: <ToggleLeft size={18} />,  color: "oklch(0.42 0.14 60)",  desc: "True or false answer" },
-  "Likert Scale":   { icon: <AlignJustify size={18} />, color: "oklch(0.50 0.18 200)", desc: "5-point labeled agreement scale" },
+  "Labeled Scale":   { icon: <AlignJustify size={18} />, color: "oklch(0.50 0.18 200)", desc: "5-point labeled agreement scale" },
   "Numeric Scale":  { icon: <Sliders size={18} />,     color: "oklch(0.52 0.18 240)", desc: "1–10 numeric intensity scale" },
 };
 
@@ -119,7 +120,7 @@ const TYPE_META_SMALL: Record<QuestionType, React.ReactNode> = {
   "File Upload":    <Paperclip size={10} />,
   "Star Rating":    <Star size={10} />,
   "True / False":   <ToggleLeft size={10} />,
-  "Likert Scale":   <AlignJustify size={10} />,
+  "Labeled Scale":   <AlignJustify size={10} />,
   "Numeric Scale":  <Sliders size={10} />,
 };
 
@@ -458,7 +459,7 @@ function Sidebar({
           <div style={{ width: 28, height: 1, background: "var(--border)", margin: "4px 0" }} />
 
           {/* Question type icons */}
-          {(["Text", "Multiple Choice", "True / False", "Star Rating", "Likert Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
+          {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
             const meta = TYPE_META[type];
             return (
               <button
@@ -516,7 +517,7 @@ function Sidebar({
               Add a Question
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Likert Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button
@@ -1708,8 +1709,8 @@ function QuestionCard({
             )}
           </div>
         )}
-        {/* Likert Scale label editor */}
-        {question.type === "Likert Scale" && onUpdateLikert && (
+        {/* Labeled Scale label editor */}
+        {question.type === "Labeled Scale" && onUpdateLikert && (
           <div style={{ marginTop: 12 }}>
             {/* Preset picker */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
@@ -1983,7 +1984,7 @@ const SUGGESTIONS: Record<QuestionType, string[]> = {
     "Rate the pace of today's lecture.",
   ],
   "True / False": [],
-  "Likert Scale": [
+  "Labeled Scale": [
     "How confident are you in using AI tools in your work?",
     "How well do you understand today's main concept?",
     "How relevant is today's material to your future career?",
@@ -3937,7 +3938,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
     if (!addModalType) return;
     const meta = TYPE_META[addModalType];
     const extra: Partial<Question> = {};
-    if (addModalType === "Likert Scale") {
+    if (addModalType === "Labeled Scale") {
       extra.likertLabels = DEFAULT_LIKERT_PRESETS[0].labels;
     } else if (addModalType === "Numeric Scale") {
       extra.numericMin = 1;
@@ -4209,7 +4210,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
               </button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Likert Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button

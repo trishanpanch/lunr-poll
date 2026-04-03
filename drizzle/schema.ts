@@ -188,7 +188,7 @@ export type QuestionType =
   | "File Upload"
   | "Star Rating"
   | "True / False"
-  | "Likert Scale"
+  | "Labeled Scale"
   | "Numeric Scale";
 
 export interface Question {
@@ -204,7 +204,7 @@ export interface Question {
   presetSource?: "polling";
   /** Optional S3 URL of a photo attached to this question, displayed above the question text. */
   mediaUrl?: string;
-  /** Likert Scale: array of exactly 5 label strings (low → high). */
+  /** Labeled Scale: array of exactly 5 label strings (low → high). */
   likertLabels?: string[];
   /** Numeric Scale: min value (default 1), max value (default 10), low label, high label. */
   numericMin?: number;
