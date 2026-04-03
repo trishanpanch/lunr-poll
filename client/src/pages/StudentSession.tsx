@@ -526,6 +526,122 @@ function StarRatingInput({ onSubmit, disabled }: { onSubmit: (a: string) => void
   );
 }
 
+// ── Likert Scale Input ───────────────────────────────────────────────────────
+function LikertScaleInput({ labels, onSubmit, disabled }: { labels: string[]; onSubmit: (a: string) => void; disabled: boolean }) {
+  const [selected, setSelected] = useState<number | null>(null);
+  const effectiveLabels = labels.length === 5 ? labels : ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {effectiveLabels.map((label, i) => {
+          const val = i + 1;
+          const isSelected = selected === val;
+          return (
+            <button
+              key={val}
+              onClick={() => { if (!disabled) setSelected(val); }}
+              disabled={disabled}
+              style={{
+                display: "flex", alignItems: "center", gap: 12,
+                padding: "14px 18px", borderRadius: 12,
+                border: `1.5px solid ${isSelected ? INDIGO : CARD_BORDER}`,
+                background: isSelected ? INDIGO_LIGHT : CARD_BG,
+                color: isSelected ? TEXT_DARK : TEXT_MID,
+                cursor: disabled ? "not-allowed" : "pointer",
+                transition: "all 0.15s", textAlign: "left",
+              }}
+            >
+              <span style={{
+                width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, fontWeight: 700,
+                background: isSelected ? INDIGO : "rgba(255,255,255,0.08)",
+                color: isSelected ? "#fff" : TEXT_MID,
+                border: `1px solid ${isSelected ? INDIGO : CARD_BORDER}`,
+              }}>{val}</span>
+              <span style={{ fontSize: 14, fontWeight: isSelected ? 600 : 400 }}>{label}</span>
+            </button>
+          );
+        })}
+      </div>
+      <button
+        onClick={() => selected !== null && onSubmit(String(selected))}
+        disabled={disabled || selected === null}
+        style={{
+          width: "100%", padding: "16px 24px", borderRadius: 14, border: "none",
+          background: selected !== null ? `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})` : "rgba(255,255,255,0.08)",
+          color: selected !== null ? "#fff" : TEXT_MUTED,
+          fontWeight: 700, fontSize: 16,
+          cursor: selected !== null && !disabled ? "pointer" : "not-allowed",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          transition: "all 0.2s",
+          boxShadow: selected !== null ? "0 4px 20px oklch(0.55 0.2 250 / 0.3)" : "none",
+        }}
+      >
+        {disabled ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> Submit Answer</>}
+      </button>
+    </div>
+  );
+}
+
+// ── Numeric Scale Input ───────────────────────────────────────────────────────
+function NumericScaleInput({ min, max, lowLabel, highLabel, onSubmit, disabled }: {
+  min: number; max: number; lowLabel: string; highLabel: string;
+  onSubmit: (a: string) => void; disabled: boolean;
+}) {
+  const [selected, setSelected] = useState<number | null>(null);
+  const nums = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+        {nums.map((n) => {
+          const isSelected = selected === n;
+          return (
+            <button
+              key={n}
+              onClick={() => { if (!disabled) setSelected(n); }}
+              disabled={disabled}
+              style={{
+                width: 52, height: 52, borderRadius: 12,
+                border: `1.5px solid ${isSelected ? INDIGO : CARD_BORDER}`,
+                background: isSelected ? `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})` : CARD_BG,
+                color: isSelected ? "#fff" : TEXT_MID,
+                fontSize: 16, fontWeight: 700,
+                cursor: disabled ? "not-allowed" : "pointer",
+                transition: "all 0.15s",
+                boxShadow: isSelected ? "0 4px 14px oklch(0.55 0.2 250 / 0.35)" : "none",
+                transform: isSelected ? "scale(1.1)" : "scale(1)",
+              }}
+            >{n}</button>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <span style={{ fontSize: 12, color: TEXT_MUTED }}>{lowLabel}</span>
+        <span style={{ fontSize: 12, color: TEXT_MUTED }}>{highLabel}</span>
+      </div>
+      <button
+        onClick={() => selected !== null && onSubmit(String(selected))}
+        disabled={disabled || selected === null}
+        style={{
+          width: "100%", padding: "16px 24px", borderRadius: 14, border: "none",
+          background: selected !== null ? `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})` : "rgba(255,255,255,0.08)",
+          color: selected !== null ? "#fff" : TEXT_MUTED,
+          fontWeight: 700, fontSize: 16,
+          cursor: selected !== null && !disabled ? "pointer" : "not-allowed",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+          transition: "all 0.2s",
+          boxShadow: selected !== null ? "0 4px 20px oklch(0.55 0.2 250 / 0.3)" : "none",
+        }}
+      >
+        {disabled ? <Loader2 size={18} className="animate-spin" /> : <><Send size={16} /> Submit Answer</>}
+      </button>
+    </div>
+  );
+}
+
 // ── Waiting-for-next-question state (after answering) ─────────────────────────
 function AnsweredState() {
   return (
@@ -769,6 +885,23 @@ export default function StudentSession() {
               )}
               {currentQ.type === "Star Rating" && (
                 <StarRatingInput onSubmit={handleSubmit} disabled={submitting} />
+              )}
+              {currentQ.type === "Likert Scale" && (
+                <LikertScaleInput
+                  labels={currentQ.likertLabels ?? ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]}
+                  onSubmit={handleSubmit}
+                  disabled={submitting}
+                />
+              )}
+              {currentQ.type === "Numeric Scale" && (
+                <NumericScaleInput
+                  min={currentQ.numericMin ?? 1}
+                  max={currentQ.numericMax ?? 10}
+                  lowLabel={currentQ.numericLowLabel ?? "Not at all"}
+                  highLabel={currentQ.numericHighLabel ?? "Extremely"}
+                  onSubmit={handleSubmit}
+                  disabled={submitting}
+                />
               )}
               {currentQ.type === "File Upload" && (
                 <div style={{

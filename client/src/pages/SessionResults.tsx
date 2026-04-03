@@ -29,6 +29,8 @@ import {
   Link2,
   X,
   GraduationCap,
+  AlignJustify,
+  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WordCloud from "@/components/WordCloud";
@@ -51,6 +53,8 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
   "File Upload": <Paperclip size={15} />,
   "Star Rating": <Star size={15} />,
   "True / False": <ToggleLeft size={15} />,
+  "Likert Scale": <AlignJustify size={15} />,
+  "Numeric Scale": <Sliders size={15} />,
 };
 
 // ── Response chart (reused from LiveSession) ──────────────────────────────────
@@ -62,6 +66,11 @@ function ResponseChart({
   correctIndex,
   tfAnswer,
   rawAnswers,
+  likertLabels,
+  numericMin,
+  numericMax,
+  numericLowLabel,
+  numericHighLabel,
 }: {
   type: string;
   tally: Record<string, number>;
@@ -70,6 +79,11 @@ function ResponseChart({
   correctIndex?: number;
   tfAnswer?: string;
   rawAnswers?: string[];
+  likertLabels?: string[];
+  numericMin?: number;
+  numericMax?: number;
+  numericLowLabel?: string;
+  numericHighLabel?: string;
 }) {
   const [showWordCloud, setShowWordCloud] = useState(false);
 
@@ -168,6 +182,85 @@ function ResponseChart({
               </div>
             );
           })}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "Likert Scale") {
+    const effectiveLabels = (likertLabels && likertLabels.length === 5)
+      ? likertLabels
+      : ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+    const totalWeighted = effectiveLabels.reduce((sum, _, i) => sum + (i + 1) * (tally[String(i + 1)] ?? 0), 0);
+    const avg = total > 0 ? (totalWeighted / total).toFixed(2) : "—";
+    return (
+      <div>
+        <p style={{ margin: "0 0 14px", fontSize: 22, fontWeight: 800, color: TEXT_DARK }}>
+          {avg} <span style={{ fontSize: 14, fontWeight: 400, color: TEXT_MUTED }}>avg score</span>
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {effectiveLabels.map((label, i) => {
+            const count = tally[String(i + 1)] ?? 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            return (
+              <div key={i} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: TEXT_DARK }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 11, fontWeight: 700, color: TEXT_MUTED }}>{i + 1}</span>
+                    {label}
+                  </span>
+                  <span style={{ fontWeight: 700, color: TEXT_MID }}>
+                    {count} <span style={{ fontWeight: 400, color: TEXT_MUTED, fontSize: 12 }}>({pct}%)</span>
+                  </span>
+                </div>
+                <div style={{ height: 10, borderRadius: 5, background: "var(--muted)", overflow: "hidden" }}>
+                  <div style={{ height: "100%", borderRadius: 5, width: `${pct}%`, background: INDIGO, transition: "width 0.5s ease" }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  if (type === "Numeric Scale") {
+    const min = numericMin ?? 1;
+    const max = numericMax ?? 10;
+    const nums = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+    const totalWeighted = nums.reduce((sum, n) => sum + n * (tally[String(n)] ?? 0), 0);
+    const avg = total > 0 ? (totalWeighted / total).toFixed(1) : "—";
+    const maxCount = Math.max(...nums.map((n) => tally[String(n)] ?? 0), 1);
+    return (
+      <div>
+        <p style={{ margin: "0 0 14px", fontSize: 22, fontWeight: 800, color: TEXT_DARK }}>
+          {avg} <span style={{ fontSize: 14, fontWeight: 400, color: TEXT_MUTED }}>avg score</span>
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+          {nums.map((n) => {
+            const count = tally[String(n)] ?? 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            const intensity = count / maxCount;
+            return (
+              <div key={n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flex: 1, minWidth: 36 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: 10,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 14, fontWeight: 700,
+                  background: `oklch(0.55 0.2 250 / ${0.08 + intensity * 0.65})`,
+                  color: intensity > 0.5 ? TEXT_DARK : TEXT_MID,
+                  border: `1.5px solid oklch(0.55 0.2 250 / ${0.15 + intensity * 0.5})`,
+                  transition: "all 0.3s",
+                }}>{n}</div>
+                <span style={{ fontSize: 11, color: TEXT_MUTED }}>{count}</span>
+                <span style={{ fontSize: 10, color: TEXT_MUTED }}>{pct}%</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 12, color: TEXT_MUTED }}>{numericLowLabel ?? "Not at all"}</span>
+          <span style={{ fontSize: 12, color: TEXT_MUTED }}>{numericHighLabel ?? "Extremely"}</span>
         </div>
       </div>
     );
@@ -666,6 +759,11 @@ export default function SessionResults() {
                     correctIndex={q.correctIndex}
                     tfAnswer={q.tfAnswer}
                     rawAnswers={qr.rawAnswers}
+                    likertLabels={q.likertLabels}
+                    numericMin={q.numericMin}
+                    numericMax={q.numericMax}
+                    numericLowLabel={q.numericLowLabel}
+                    numericHighLabel={q.numericHighLabel}
                   />
                 </div>
               );

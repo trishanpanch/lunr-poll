@@ -187,7 +187,9 @@ export type QuestionType =
   | "Multiple Choice"
   | "File Upload"
   | "Star Rating"
-  | "True / False";
+  | "True / False"
+  | "Likert Scale"
+  | "Numeric Scale";
 
 export interface Question {
   id: string;
@@ -202,4 +204,11 @@ export interface Question {
   presetSource?: "polling";
   /** Optional S3 URL of a photo attached to this question, displayed above the question text. */
   mediaUrl?: string;
+  /** Likert Scale: array of exactly 5 label strings (low → high). */
+  likertLabels?: string[];
+  /** Numeric Scale: min value (default 1), max value (default 10), low label, high label. */
+  numericMin?: number;
+  numericMax?: number;
+  numericLowLabel?: string;
+  numericHighLabel?: string;
 }

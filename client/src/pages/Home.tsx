@@ -16,6 +16,7 @@ import {
   ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
   PanelLeftClose, PanelLeftOpen,
   ImagePlus, ImageOff, MoreHorizontal, Trash2, ZoomIn,
+  AlignJustify, Sliders,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -71,7 +72,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type QuestionType = "Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False";
+type QuestionType = "Text" | "Multiple Choice" | "File Upload" | "Star Rating" | "True / False" | "Likert Scale" | "Numeric Scale";
 
 interface Question {
   id: string;
@@ -85,31 +86,58 @@ interface Question {
   modelAnswer?: string; // Model answer for Text questions
   presetSource?: "polling"; // Restricts type-change to Text/MC only
   mediaUrl?: string; // Optional photo attached to the question
+  // Likert Scale
+  likertLabels?: string[]; // 5 labels low→high
+  // Numeric Scale
+  numericMin?: number;
+  numericMax?: number;
+  numericLowLabel?: string;
+  numericHighLabel?: string;
 }
 
 // Normalise legacy type names stored in DB before the rename
 function normaliseType(raw: string): QuestionType {
   if (raw === "Short Text") return "Text";
-  const valid: QuestionType[] = ["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"];
+  const valid: QuestionType[] = ["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False", "Likert Scale", "Numeric Scale"];
   return valid.includes(raw as QuestionType) ? (raw as QuestionType) : "Text";
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
-  "Text":      { icon: <Type size={18} />,        color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
-  "Multiple Choice": { icon: <ListChecks size={18} />,  color: "oklch(0.52 0.22 290)", desc: "Select from options" },
-  "File Upload":     { icon: <Paperclip size={18} />,   color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
-  "Star Rating":     { icon: <Star size={18} />,        color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
-  "True / False":    { icon: <ToggleLeft size={18} />,  color: "oklch(0.42 0.14 60)",  desc: "True or false answer" },
+  "Text":           { icon: <Type size={18} />,        color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
+  "Multiple Choice":{ icon: <ListChecks size={18} />,  color: "oklch(0.52 0.22 290)", desc: "Select from options" },
+  "File Upload":    { icon: <Paperclip size={18} />,   color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
+  "Star Rating":    { icon: <Star size={18} />,        color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
+  "True / False":   { icon: <ToggleLeft size={18} />,  color: "oklch(0.42 0.14 60)",  desc: "True or false answer" },
+  "Likert Scale":   { icon: <AlignJustify size={18} />, color: "oklch(0.50 0.18 200)", desc: "5-point labeled agreement scale" },
+  "Numeric Scale":  { icon: <Sliders size={18} />,     color: "oklch(0.52 0.18 240)", desc: "1–10 numeric intensity scale" },
 };
 
 
 const TYPE_META_SMALL: Record<QuestionType, React.ReactNode> = {
-  "Text":      <Type size={10} />,
-  "Multiple Choice": <ListChecks size={10} />,
-  "File Upload":     <Paperclip size={10} />,
-  "Star Rating":     <Star size={10} />,
-  "True / False":    <ToggleLeft size={10} />,
+  "Text":           <Type size={10} />,
+  "Multiple Choice":<ListChecks size={10} />,
+  "File Upload":    <Paperclip size={10} />,
+  "Star Rating":    <Star size={10} />,
+  "True / False":   <ToggleLeft size={10} />,
+  "Likert Scale":   <AlignJustify size={10} />,
+  "Numeric Scale":  <Sliders size={10} />,
 };
+
+// ── Likert & Numeric preset label sets ────────────────────────────────────
+const DEFAULT_LIKERT_PRESETS: { name: string; labels: string[] }[] = [
+  { name: "Agreement",   labels: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"] },
+  { name: "Confidence",  labels: ["Not at all confident", "Slightly confident", "Moderately confident", "Very confident", "Extremely confident"] },
+  { name: "Frequency",   labels: ["Never", "Rarely", "Sometimes", "Often", "Always"] },
+  { name: "Satisfaction",labels: ["Very dissatisfied", "Dissatisfied", "Neutral", "Satisfied", "Very satisfied"] },
+  { name: "Importance",  labels: ["Not important", "Slightly important", "Moderately important", "Important", "Very important"] },
+];
+
+const DEFAULT_NUMERIC_PRESETS: { name: string; low: string; high: string; min: number; max: number }[] = [
+  { name: "Confidence (1–10)",  low: "Not at all",  high: "Extremely",      min: 1, max: 10 },
+  { name: "Agreement (1–10)",   low: "Strongly disagree", high: "Strongly agree", min: 1, max: 10 },
+  { name: "Likelihood (1–5)",  low: "Very unlikely", high: "Very likely",   min: 1, max: 5 },
+  { name: "Effort (1–10)",      low: "No effort",   high: "Maximum effort", min: 1, max: 10 },
+];
 
 const PRESETS = [
   {
@@ -430,7 +458,7 @@ function Sidebar({
           <div style={{ width: 28, height: 1, background: "var(--border)", margin: "4px 0" }} />
 
           {/* Question type icons */}
-          {(["Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
+          {(["Text", "Multiple Choice", "True / False", "Star Rating", "Likert Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
             const meta = TYPE_META[type];
             return (
               <button
@@ -488,7 +516,7 @@ function Sidebar({
               Add a Question
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {(["Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Likert Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button
@@ -1019,6 +1047,8 @@ function QuestionCard({
   onUpdateOptions,
   onUpdateType,
   onUpdateMedia,
+  onUpdateLikert,
+  onUpdateNumeric,
   iconNudge = 1,
   onReorder,
   totalCount = 1,
@@ -1031,6 +1061,8 @@ function QuestionCard({
   onUpdateOptions?: (options: string[], correctIndex: number | undefined) => void;
   onUpdateType?: (newType: QuestionType, newQuestion: Partial<Question>) => void;
   onUpdateMedia?: (mediaUrl: string | undefined) => void;
+  onUpdateLikert?: (labels: string[]) => void;
+  onUpdateNumeric?: (patch: { numericMin?: number; numericMax?: number; numericLowLabel?: string; numericHighLabel?: string }) => void;
   iconNudge?: number;
   onReorder?: (toIndex: number) => void;
   totalCount?: number;
@@ -1676,6 +1708,150 @@ function QuestionCard({
             )}
           </div>
         )}
+        {/* Likert Scale label editor */}
+        {question.type === "Likert Scale" && onUpdateLikert && (
+          <div style={{ marginTop: 12 }}>
+            {/* Preset picker */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "oklch(0.50 0.18 200)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scale Preset</span>
+              {DEFAULT_LIKERT_PRESETS.map((p) => {
+                const isActive = JSON.stringify(question.likertLabels) === JSON.stringify(p.labels);
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => onUpdateLikert(p.labels)}
+                    style={{
+                      fontSize: 11,
+                      fontWeight: isActive ? 700 : 500,
+                      padding: "2px 8px",
+                      borderRadius: 6,
+                      border: `1px solid ${isActive ? "oklch(0.50 0.18 200)" : "var(--border)"}`,
+                      background: isActive ? "oklch(0.50 0.18 200 / 0.1)" : "transparent",
+                      color: isActive ? "oklch(0.50 0.18 200)" : "var(--muted-foreground)",
+                      cursor: "pointer",
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      transition: "all 0.12s",
+                    }}
+                  >{p.name}</button>
+                );
+              })}
+              <button
+                onClick={() => onUpdateLikert([...DEFAULT_LIKERT_PRESETS[0].labels])}
+                style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, border: "1px solid var(--border)", background: "transparent", color: "var(--muted-foreground)", cursor: "pointer", fontFamily: "'Geist', system-ui, sans-serif" }}
+                title="Reset to default"
+              >Reset</button>
+            </div>
+            {/* Label inputs */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {(question.likertLabels ?? DEFAULT_LIKERT_PRESETS[0].labels).map((label, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: "oklch(0.50 0.18 200)", width: 14, textAlign: "center", fontFamily: "'Geist', system-ui, sans-serif", flexShrink: 0 }}>{i + 1}</span>
+                  <input
+                    value={label}
+                    onChange={(e) => {
+                      const newLabels = [...(question.likertLabels ?? DEFAULT_LIKERT_PRESETS[0].labels)];
+                      newLabels[i] = e.target.value;
+                      onUpdateLikert(newLabels);
+                    }}
+                    style={{
+                      flex: 1,
+                      fontSize: 12.5,
+                      padding: "4px 8px",
+                      borderRadius: 6,
+                      border: "1px solid var(--border)",
+                      background: "var(--background)",
+                      color: "var(--foreground)",
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      outline: "none",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Numeric Scale editor */}
+        {question.type === "Numeric Scale" && onUpdateNumeric && (
+          <div style={{ marginTop: 12 }}>
+            {/* Preset picker */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "oklch(0.52 0.18 240)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scale Preset</span>
+              {DEFAULT_NUMERIC_PRESETS.map((p) => {
+                const isActive = question.numericLowLabel === p.low && question.numericHighLabel === p.high && question.numericMin === p.min && question.numericMax === p.max;
+                return (
+                  <button
+                    key={p.name}
+                    onClick={() => onUpdateNumeric({ numericMin: p.min, numericMax: p.max, numericLowLabel: p.low, numericHighLabel: p.high })}
+                    style={{
+                      fontSize: 11,
+                      fontWeight: isActive ? 700 : 500,
+                      padding: "2px 8px",
+                      borderRadius: 6,
+                      border: `1px solid ${isActive ? "oklch(0.52 0.18 240)" : "var(--border)"}`,
+                      background: isActive ? "oklch(0.52 0.18 240 / 0.1)" : "transparent",
+                      color: isActive ? "oklch(0.52 0.18 240)" : "var(--muted-foreground)",
+                      cursor: "pointer",
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                      transition: "all 0.12s",
+                    }}
+                  >{p.name}</button>
+                );
+              })}
+              <button
+                onClick={() => onUpdateNumeric({ numericMin: 1, numericMax: 10, numericLowLabel: "Not at all", numericHighLabel: "Extremely" })}
+                style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, border: "1px solid var(--border)", background: "transparent", color: "var(--muted-foreground)", cursor: "pointer", fontFamily: "'Geist', system-ui, sans-serif" }}
+                title="Reset to default"
+              >Reset</button>
+            </div>
+            {/* Range + labels */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ fontSize: 11, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Min</span>
+                <input type="number" min={1} max={(question.numericMax ?? 10) - 1}
+                  value={question.numericMin ?? 1}
+                  onChange={(e) => onUpdateNumeric({ numericMin: Number(e.target.value) })}
+                  style={{ width: 48, fontSize: 12.5, padding: "3px 6px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", outline: "none", textAlign: "center" }}
+                />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ fontSize: 11, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Max</span>
+                <input type="number" min={(question.numericMin ?? 1) + 1} max={20}
+                  value={question.numericMax ?? 10}
+                  onChange={(e) => onUpdateNumeric({ numericMax: Number(e.target.value) })}
+                  style={{ width: 48, fontSize: 12.5, padding: "3px 6px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", outline: "none", textAlign: "center" }}
+                />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ fontSize: 11, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Low label</span>
+                <input
+                  value={question.numericLowLabel ?? "Not at all"}
+                  onChange={(e) => onUpdateNumeric({ numericLowLabel: e.target.value })}
+                  style={{ width: 110, fontSize: 12.5, padding: "3px 6px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", outline: "none" }}
+                />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ fontSize: 11, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>High label</span>
+                <input
+                  value={question.numericHighLabel ?? "Extremely"}
+                  onChange={(e) => onUpdateNumeric({ numericHighLabel: e.target.value })}
+                  style={{ width: 110, fontSize: 12.5, padding: "3px 6px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--background)", color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", outline: "none" }}
+                />
+              </div>
+            </div>
+            {/* Preview */}
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 0, justifyContent: "space-between" }}>
+              {Array.from({ length: (question.numericMax ?? 10) - (question.numericMin ?? 1) + 1 }, (_, i) => (question.numericMin ?? 1) + i).map((n) => (
+                <div key={n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, flex: 1 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, border: "1.5px solid oklch(0.52 0.18 240 / 0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "oklch(0.52 0.18 240)", fontFamily: "'Geist', system-ui, sans-serif", background: "oklch(0.52 0.18 240 / 0.06)" }}>{n}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+              <span style={{ fontSize: 10.5, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>{question.numericLowLabel ?? "Not at all"}</span>
+              <span style={{ fontSize: 10.5, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>{question.numericHighLabel ?? "Extremely"}</span>
+            </div>
+          </div>
+        )}
         <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <QBadge index={index} totalCount={totalCount ?? 1} onReorder={onReorder} />
           {/* Hidden file input — triggered from dropdown */}
@@ -1807,6 +1983,20 @@ const SUGGESTIONS: Record<QuestionType, string[]> = {
     "Rate the pace of today's lecture.",
   ],
   "True / False": [],
+  "Likert Scale": [
+    "How confident are you in using AI tools in your work?",
+    "How well do you understand today's main concept?",
+    "How relevant is today's material to your future career?",
+    "How comfortable are you with the pace of this course?",
+    "How satisfied are you with the feedback you've received so far?",
+  ],
+  "Numeric Scale": [
+    "On a scale of 1–10, how confident are you in today's material?",
+    "How much effort did you put into this week's assignments? (1 = very little, 10 = maximum)",
+    "How stressed are you about the upcoming exam? (1 = not at all, 10 = extremely)",
+    "How engaging was today's lecture? (1 = not engaging, 10 = very engaging)",
+    "How prepared do you feel for the next class? (1 = not at all, 10 = very prepared)",
+  ],
 };
 
 function AddQuestionModal({
@@ -3746,9 +3936,18 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   const confirmAdd = (text: string, options?: string[], correctIndex?: number, tfAnswer?: "True" | "False", modelAnswer?: string) => {
     if (!addModalType) return;
     const meta = TYPE_META[addModalType];
+    const extra: Partial<Question> = {};
+    if (addModalType === "Likert Scale") {
+      extra.likertLabels = DEFAULT_LIKERT_PRESETS[0].labels;
+    } else if (addModalType === "Numeric Scale") {
+      extra.numericMin = 1;
+      extra.numericMax = 10;
+      extra.numericLowLabel = "Not at all";
+      extra.numericHighLabel = "Extremely";
+    }
     setQuestions((prev) => [
       ...prev,
-      { id: uid(), type: addModalType, icon: meta.icon, text, color: meta.color, options, correctIndex, tfAnswer, modelAnswer },
+      { id: uid(), type: addModalType, icon: meta.icon, text, color: meta.color, options, correctIndex, tfAnswer, modelAnswer, ...extra },
     ]);
     setAddModalOpen(false);
     toast.success(`${addModalType} question added`);
@@ -3872,6 +4071,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       onUpdateOptions={(options, correctIndex) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, options, correctIndex } : item))}
                       onUpdateType={(_newType, update) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, ...update } : item))}
                       onUpdateMedia={(mediaUrl) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, mediaUrl } : item))}
+                      onUpdateLikert={(likertLabels) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, likertLabels } : item))}
+                      onUpdateNumeric={(patch) => setQuestions((prev) => prev.map((item) => item.id === q.id ? { ...item, ...patch } : item))}
                       iconNudge={contentXOffset}
                       totalCount={questions.length}
                       onReorder={(toIndex) => {
@@ -4008,7 +4209,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
               </button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {(["Text", "Multiple Choice", "True / False", "Star Rating", "File Upload"] as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Likert Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button

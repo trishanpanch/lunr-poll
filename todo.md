@@ -403,3 +403,14 @@
 ## Feature — Learning Objectives Guardrails
 - [x] Tier 1: Strengthen suggest-objectives system prompt to explicitly exclude administrative/biographical content
 - [x] Tier 2: Add post-generation classification filter pass to reject non-academic objectives
+
+## Feature — Likert Scale & Numeric Scale Question Types
+- [x] Add "Likert Scale" and "Numeric Scale" to QuestionType union and TYPE_META
+- [x] Likert Scale: 5-point labeled scale with preset label sets (Agreement, Confidence, Frequency, Satisfaction) + custom labels + reset to default
+- [x] Numeric Scale: 1–10 slider/row with custom min/max labels and configurable range + reset to default
+- [x] Session builder card editor: render label editors for both types
+- [x] Sidebar: add both types to the Add a Question grid
+- [x] StudentSession: render Likert as labeled button row, Numeric as number row
+- [x] LiveSession: render live response distribution for both types
+- [x] SessionResults: render bar chart / distribution for both types
+- [x] normaliseType: handle any legacy type name mismatches

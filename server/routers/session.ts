@@ -20,7 +20,7 @@ import type { Question } from "../../drizzle/schema";
 
 const QuestionSchema = z.object({
   id: z.string(),
-  type: z.enum(["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False"]),
+  type: z.enum(["Text", "Multiple Choice", "File Upload", "Star Rating", "True / False", "Likert Scale", "Numeric Scale"]),
   text: z.string(),
   color: z.string(),
   options: z.array(z.string()).optional(),
@@ -29,6 +29,13 @@ const QuestionSchema = z.object({
   modelAnswer: z.string().optional(),
   presetSource: z.enum(["polling"]).optional(),
   mediaUrl: z.string().url().optional(),
+  // Likert Scale
+  likertLabels: z.array(z.string()).length(5).optional(),
+  // Numeric Scale
+  numericMin: z.number().optional(),
+  numericMax: z.number().optional(),
+  numericLowLabel: z.string().optional(),
+  numericHighLabel: z.string().optional(),
 });
 
 export const sessionRouter = router({

@@ -31,6 +31,8 @@ import {
   Download,
   Cloud,
   ZoomIn,
+  AlignJustify,
+  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -65,6 +67,8 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
   "File Upload": <Paperclip size={16} />,
   "Star Rating": <Star size={16} />,
   "True / False": <ToggleLeft size={16} />,
+  "Likert Scale": <AlignJustify size={16} />,
+  "Numeric Scale": <Sliders size={16} />,
 };
 
 // ── QR Modal ──────────────────────────────────────────────────────────────────
@@ -162,7 +166,7 @@ function QRModal({ code, onClose }: { code: string; onClose: () => void }) {
   );
 }
 
-// ── Response bar chart ────────────────────────────────────────────────────────
+/// ── Response bar chart ────────────────────────────────────────────
 function ResponseChart({
   type,
   tally,
@@ -170,6 +174,11 @@ function ResponseChart({
   options,
   correctIndex,
   tfAnswer,
+  likertLabels,
+  numericMin,
+  numericMax,
+  numericLowLabel,
+  numericHighLabel,
 }: {
   type: string;
   tally: Record<string, number>;
@@ -177,6 +186,11 @@ function ResponseChart({
   options?: string[];
   correctIndex?: number;
   tfAnswer?: string;
+  likertLabels?: string[];
+  numericMin?: number;
+  numericMax?: number;
+  numericLowLabel?: string;
+  numericHighLabel?: string;
 }) {
   if (type === "Multiple Choice" && options) {
     return (
@@ -256,6 +270,67 @@ function ResponseChart({
             </div>
           );
         })}
+      </div>
+    );
+  }
+
+  if (type === "Likert Scale") {
+    const effectiveLabels = (likertLabels && likertLabels.length === 5)
+      ? likertLabels
+      : ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {effectiveLabels.map((label, i) => {
+          const val = String(i + 1);
+          const count = tally[val] ?? 0;
+          const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: TEXT_MID, width: 18, textAlign: "center", flexShrink: 0 }}>{i + 1}</span>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+                <span style={{ fontSize: 11, color: TEXT_MID }}>{label}</span>
+                <div style={{ height: 7, borderRadius: 4, background: "var(--muted)", overflow: "hidden" }}>
+                  <div style={{ height: "100%", borderRadius: 4, width: `${pct}%`, background: INDIGO, transition: "width 0.4s ease" }} />
+                </div>
+              </div>
+              <span style={{ fontSize: 12, color: TEXT_MUTED, width: 28, textAlign: "right", flexShrink: 0 }}>{count}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (type === "Numeric Scale") {
+    const min = numericMin ?? 1;
+    const max = numericMax ?? 10;
+    const nums = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {nums.map((n) => {
+            const count = tally[String(n)] ?? 0;
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            const intensity = total > 0 ? count / Math.max(...nums.map((x) => tally[String(x)] ?? 0), 1) : 0;
+            return (
+              <div key={n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flex: 1, minWidth: 32 }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 13, fontWeight: 700,
+                  background: `oklch(0.55 0.2 250 / ${0.1 + intensity * 0.7})`,
+                  color: intensity > 0.5 ? TEXT_DARK : TEXT_MID,
+                  border: `1.5px solid oklch(0.55 0.2 250 / ${0.2 + intensity * 0.5})`,
+                  transition: "all 0.3s",
+                }}>{n}</div>
+                <span style={{ fontSize: 10, color: TEXT_MUTED }}>{count}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ fontSize: 11, color: TEXT_MUTED }}>{numericLowLabel ?? "Not at all"}</span>
+          <span style={{ fontSize: 11, color: TEXT_MUTED }}>{numericHighLabel ?? "Extremely"}</span>
+        </div>
       </div>
     );
   }
@@ -641,6 +716,11 @@ export default function LiveSession() {
                     options={currentQ.options}
                     correctIndex={currentQ.correctIndex}
                     tfAnswer={currentQ.tfAnswer}
+                    likertLabels={currentQ.likertLabels}
+                    numericMin={currentQ.numericMin}
+                    numericMax={currentQ.numericMax}
+                    numericLowLabel={currentQ.numericLowLabel}
+                    numericHighLabel={currentQ.numericHighLabel}
                   />
                 )
               ) : (
