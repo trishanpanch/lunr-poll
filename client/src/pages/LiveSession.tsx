@@ -77,8 +77,16 @@ function QRModal({ code, onClose }: { code: string; onClose: () => void }) {
   const joinUrl = `${window.location.origin}/join?code=${code}`;
 
   useEffect(() => {
-    QRCode.toDataURL(joinUrl, { width: 260, margin: 2 }).then(setDataUrl);
+    QRCode.toDataURL(joinUrl, { width: 400, margin: 2, color: { dark: '#000000', light: '#ffffff' } }).then(setDataUrl);
   }, [joinUrl]);
+
+  const handleDownload = () => {
+    if (!dataUrl) return;
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `alicepoll-join-${code}.png`;
+    a.click();
+  };
 
   return (
     <div
@@ -150,6 +158,15 @@ function QRModal({ code, onClose }: { code: string; onClose: () => void }) {
             <ExternalLink size={13} /> Open
           </Button>
         </div>
+
+        <Button
+          size="sm"
+          onClick={handleDownload}
+          disabled={!dataUrl}
+          style={{ width: "100%", fontSize: 12, gap: 6 }}
+        >
+          <Download size={13} /> Download QR as PNG
+        </Button>
 
         <button
           onClick={onClose}

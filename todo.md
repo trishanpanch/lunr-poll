@@ -418,3 +418,7 @@
 ## Rename — Likert Scale → Labeled Scale
 - [x] Replace all "Likert Scale" strings with "Labeled Scale" across all source files
 - [x] Add "Likert Scale" → "Labeled Scale" to normaliseType for backward compatibility with existing DB data
+
+## Feature — Download QR Code as PNG
+- [x] Add Download QR Code button to the live session QR display
+- [x] Implement PNG export using canvas drawImage from the SVG QR element
