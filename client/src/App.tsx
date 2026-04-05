@@ -25,9 +25,10 @@ function BottomNav() {
   const [collapsed, setCollapsed] = useState(true);
   const { theme, toggleTheme } = useTheme();
 
-  // Hide bottom nav on live/student session pages to avoid clutter
+  // Hide bottom nav on live session and results pages to avoid clutter
+  // Student session pages still show the dev bar for navigation during development
   const isFullscreen =
-    location.startsWith("/live/") || location.startsWith("/student/session/") || location.startsWith("/results/");
+    location.startsWith("/live/") || location.startsWith("/results/");
   if (isFullscreen) return null;
 
   const tabs = [
@@ -174,7 +175,7 @@ function BottomNav() {
 function Router() {
   const [location] = useLocation();
   const isFullscreen =
-    location.startsWith("/live/") || location.startsWith("/student/session/") || location.startsWith("/results/");
+    location.startsWith("/live/") || location.startsWith("/results/");
 
   return (
     <>
