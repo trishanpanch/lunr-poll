@@ -32,7 +32,7 @@ export default function Join() {
 
   const code = chars.join("");
 
-  // Auto-fill from ?code= URL param (QR scan)
+  // Auto-fill AND auto-submit from ?code= URL param (QR scan)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const qCode = params.get("code");
@@ -40,7 +40,15 @@ export default function Join() {
       const cleaned = qCode.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, CODE_LENGTH);
       const padded = cleaned.split("").concat(Array(CODE_LENGTH).fill("")).slice(0, CODE_LENGTH);
       setChars(padded);
+      // If the URL already has a full code (e.g. from QR scan), skip the entry screen
+      if (cleaned.length === CODE_LENGTH) {
+        if (!sessionStorage.getItem("studentId")) {
+          sessionStorage.setItem("studentId", crypto.randomUUID());
+        }
+        joinMut.mutate({ code: cleaned });
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-focus first empty box on mount
