@@ -9,7 +9,7 @@ import {
   Plus, Rocket, ListChecks, Type, Paperclip, Star,
   Clock, CheckCircle2, XCircle, ChevronRight, Search,
   BarChart2, Pencil, Trash2, MoreHorizontal, Loader2,
-  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid, Settings, RotateCcw, CopyPlus,
+  ToggleLeft, QrCode, Copy, Link2, History, LayoutGrid, Settings, RotateCcw, CopyPlus, Download,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -106,16 +106,64 @@ function TypeIcons({ questions }: { questions: { type: string }[] }) {
 // ── QR Popover ─────────────────────────────────────────────────────────────────
 function QRPopover({ code, onClose }: { code: string; onClose: () => void }) {
   const [dataUrl, setDataUrl] = useState("");
+  const [codeCopied, setCodeCopied] = useState(false);
   const joinUrl = `${window.location.origin}/join?code=${code}`;
-  useState(() => {
-    QRCode.toDataURL(joinUrl, { width: 180, margin: 2 }).then(setDataUrl);
-  });
+
+  const [, forceRender] = useState(0);
+  if (!dataUrl) {
+    QRCode.toDataURL(joinUrl, { width: 400, margin: 2, color: { dark: '#000000', light: '#ffffff' } }).then((url) => {
+      setDataUrl(url);
+      forceRender(n => n + 1);
+    });
+  }
+
+  const handleDownload = () => {
+    if (!dataUrl) return;
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = `alicepoll-join-${code}.png`;
+    a.click();
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(joinUrl);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 1800);
+  };
+
+  const handleOpen = () => {
+    window.open(joinUrl, "_blank");
+  };
+
+  const btnStyle: React.CSSProperties = {
+    flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+    padding: "9px 10px", borderRadius: 10, border: "1.5px solid var(--border)",
+    background: "var(--background)", color: "var(--foreground)",
+    fontSize: 12, fontWeight: 600, fontFamily: "'Geist', system-ui, sans-serif",
+    cursor: "pointer", whiteSpace: "nowrap" as const,
+  };
+
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 16, padding: "24px 28px", display: "flex", flexDirection: "column", alignItems: "center", gap: 14, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 280, width: "100%" }}>
-        <p style={{ margin: 0, fontWeight: 700, fontSize: 16, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scan to Join</p>
-        {dataUrl ? <img src={dataUrl} alt="QR" style={{ width: 160, height: 160, borderRadius: 8 }} /> : <Loader2 size={24} style={{ color: "var(--primary)", animation: "spin 1s linear infinite" }} />}
-        <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 20, fontWeight: 800, letterSpacing: "0.15em", color: "var(--primary)" }}>{code}</span>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 20, padding: "28px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 16, boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 380, width: "100%" }}>
+        <p style={{ margin: 0, fontWeight: 700, fontSize: 17, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scan to Join</p>
+        <p style={{ margin: "-8px 0 0", fontSize: 13, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>Students scan this QR code to join instantly</p>
+        {dataUrl ? <img src={dataUrl} alt="QR" style={{ width: 220, height: 220, borderRadius: 8 }} /> : <Loader2 size={24} style={{ color: "var(--primary)", animation: "spin 1s linear infinite" }} />}
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontFamily: "'Geist Mono', monospace", fontSize: 22, fontWeight: 800, letterSpacing: "0.15em", color: "var(--primary)" }}>{code}</span>
+        </div>
+        {/* Three action buttons in one row */}
+        <div style={{ display: "flex", gap: 8, width: "100%" }}>
+          <button onClick={handleCopyLink} style={btnStyle}>
+            <Copy size={13} /> {codeCopied ? "Copied!" : "Copy Link"}
+          </button>
+          <button onClick={handleOpen} style={btnStyle}>
+            <Link2 size={13} /> Open
+          </button>
+          <button onClick={handleDownload} disabled={!dataUrl} style={{ ...btnStyle, opacity: dataUrl ? 1 : 0.5, cursor: dataUrl ? "pointer" : "not-allowed" }}>
+            <Download size={13} /> Download
+          </button>
+        </div>
         <button onClick={onClose} style={{ fontSize: 12, color: "var(--muted-foreground)", background: "none", border: "none", cursor: "pointer" }}>Close</button>
       </div>
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
@@ -267,12 +315,6 @@ function SessionCard({
           <span style={{ fontSize: 12, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif" }}>
             {timeAgo(session.updatedAt)}
           </span>
-          {session.questions.length > 0 && (
-            <>
-              <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>
-              <TypeIcons questions={session.questions} />
-            </>
-          )}
         </div>
 
         {/* Actions */}
@@ -429,12 +471,6 @@ function PastSessionRow({
           <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>
             {session.questions.length} {session.questions.length === 1 ? "question" : "questions"}
           </span>
-          {session.questions.length > 0 && (
-            <>
-              <span style={{ fontSize: 11, color: "var(--muted-foreground)" }}>·</span>
-              <TypeIcons questions={session.questions} />
-            </>
-          )}
         </div>
       </div>
 

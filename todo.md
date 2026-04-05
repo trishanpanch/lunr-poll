@@ -422,3 +422,8 @@
 ## Feature — Download QR Code as PNG
 - [x] Add Download QR Code button to the live session QR display
 - [x] Implement PNG export using canvas drawImage from the SVG QR element
+- [ ] Add Download QR as PNG button to My Sessions dashboard QR modal
+
+## Polish — Session Card Cleanup
+- [ ] Remove question type icon badges from My Sessions session cards
+- [ ] Add Download QR as PNG button to My Sessions QR modal
