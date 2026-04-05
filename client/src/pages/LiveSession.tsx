@@ -102,7 +102,7 @@ function QRModal({ code, onClose }: { code: string; onClose: () => void }) {
         style={{
           background: "var(--card)", borderRadius: 20, padding: "32px 36px",
           display: "flex", flexDirection: "column", alignItems: "center", gap: 20,
-          boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 340, width: "100%",
+          boxShadow: "0 8px 40px rgba(0,0,0,0.18)", maxWidth: 400, width: "100%",
         }}
       >
         <div style={{ textAlign: "center" }}>
@@ -124,11 +124,11 @@ function QRModal({ code, onClose }: { code: string; onClose: () => void }) {
 
         <div style={{
           background: BG, borderRadius: 12, padding: "12px 20px",
-          display: "flex", alignItems: "center", gap: 10, width: "100%",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: "100%",
         }}>
           <span style={{
             fontFamily: "'Geist Mono', monospace", fontSize: 22, fontWeight: 800,
-            letterSpacing: "0.15em", color: INDIGO, flex: 1, textAlign: "center",
+            letterSpacing: "0.15em", color: INDIGO, textAlign: "center",
           }}>
             {code}
           </span>
