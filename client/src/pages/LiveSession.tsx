@@ -157,16 +157,16 @@ function QRModal({ code, onClose }: { code: string; onClose: () => void }) {
           >
             <ExternalLink size={13} /> Open
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownload}
+            disabled={!dataUrl}
+            style={{ flex: 1, fontSize: 12 }}
+          >
+            <Download size={13} /> Download
+          </Button>
         </div>
-
-        <Button
-          size="sm"
-          onClick={handleDownload}
-          disabled={!dataUrl}
-          style={{ width: "100%", fontSize: 12, gap: 6 }}
-        >
-          <Download size={13} /> Download QR as PNG
-        </Button>
 
         <button
           onClick={onClose}
