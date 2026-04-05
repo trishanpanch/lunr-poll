@@ -31,6 +31,48 @@ interface ChangelogItem {
 
 const DAYS: ChangelogDay[] = [
   {
+    date: "April 5, 2026",
+    title: "QR Modal Redesign, Instructor Answer Key & QR Auto-Join",
+    groups: [
+      {
+        category: "QR Modal",
+        color: "oklch(0.52 0.22 290)",
+        items: [
+          {
+            title: "Three action buttons unified in one row",
+            description:
+              "The QR modal (both in My Sessions and Live Session) previously had Copy Link and Open as a pair of outline buttons, with Download QR as PNG as a separate full-width blue button below. All three are now in a single row with identical white/outlined styling. The modal is also wider (380 px) and the QR image is larger (220 px) for easier scanning.",
+            tag: "Polish",
+          },
+        ],
+      },
+      {
+        category: "Live Session",
+        color: "oklch(0.48 0.18 160)",
+        items: [
+          {
+            title: "Instructor answer key shown in live view",
+            description:
+              "A green 'Answer' banner now appears below the question text in the instructor live session view whenever a correct or model answer has been set. For Multiple Choice it shows the text of the correct option; for True / False it shows True or False; for Short Text it shows the model answer. Questions with no answer set are unaffected.",
+            tag: "Feature",
+          },
+        ],
+      },
+      {
+        category: "Student Join",
+        color: "oklch(0.52 0.18 200)",
+        items: [
+          {
+            title: "QR scan skips code entry screen",
+            description:
+              "When a student opens a QR code URL (which contains ?code=XXXXXX in the link), the join page now immediately fires the join mutation and navigates straight into the session — no code entry screen is shown. Students who navigate to /join manually without a code in the URL still see the code entry screen as normal.",
+            tag: "Improvement",
+          },
+        ],
+      },
+    ],
+  },
+  {
     date: "March 27, 2026",
     title: "Image Attachments, Lightbox, AI Dedup & Card UX",
     groups: [
