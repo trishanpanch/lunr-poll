@@ -4471,6 +4471,27 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                       </div>
                     )}
 
+                    {/* Instructor answer key */}
+                    {(q.modelAnswer ||
+                      q.correctIndex !== undefined ||
+                      q.tfAnswer
+                    ) && (
+                      <div style={{
+                        padding: "10px 14px", borderRadius: 10,
+                        background: "oklch(0.97 0.04 160)", border: "1.5px solid oklch(0.82 0.1 160)",
+                        display: "flex", alignItems: "flex-start", gap: 8,
+                      }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "oklch(0.42 0.15 160)", whiteSpace: "nowrap", paddingTop: 1 }}>Answer</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: "oklch(0.3 0.12 160)", lineHeight: 1.5 }}>
+                          {q.type === "Multiple Choice" && q.options && q.correctIndex !== undefined
+                            ? `${String.fromCharCode(65 + q.correctIndex)}) ${q.options[q.correctIndex]}`
+                            : q.type === "True / False" && q.tfAnswer
+                            ? q.tfAnswer
+                            : q.modelAnswer}
+                        </span>
+                      </div>
+                    )}
+
                     {/* Preview-only notice */}
                     <p style={{ fontSize: 11.5, color: "var(--muted-foreground)", textAlign: "center", margin: 0 }}>
                       This is a read-only preview — students will interact with this live.
