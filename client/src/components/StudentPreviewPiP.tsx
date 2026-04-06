@@ -415,11 +415,11 @@ function MiniStudentView({
 }
 
 // ── Main PiP component ───────────────────────────────────────────────────────
-const MIN_W = 240;
-const MIN_H = 200;
-const EXPANDED_W = 340;
-const EXPANDED_H = 480;
-const COLLAPSED_W = 180;
+const MIN_W = 180;
+const MIN_H = 280;
+const EXPANDED_W = 220;
+const EXPANDED_H = 390;
+const COLLAPSED_W = 160;
 const COLLAPSED_H = 36;
 
 export default function StudentPreviewPiP({
@@ -434,7 +434,10 @@ export default function StudentPreviewPiP({
   onClose: () => void;
 }) {
   const [minimized, setMinimized] = useState(false);
-  const [pos, setPos] = useState({ x: 24, y: 100 });
+  const [pos, setPos] = useState(() => ({
+    x: Math.max(16, window.innerWidth - 220 - 24),
+    y: Math.max(80, window.innerHeight - 390 - 24),
+  }));
   const [size, setSize] = useState({ w: EXPANDED_W, h: EXPANDED_H });
   const dragging = useRef(false);
   const resizing = useRef(false);
@@ -500,9 +503,9 @@ export default function StudentPreviewPiP({
         width: minimized ? COLLAPSED_W : size.w,
         height: minimized ? COLLAPSED_H : size.h,
         zIndex: 999,
-        borderRadius: 14,
+        borderRadius: 20,
         overflow: "hidden",
-        boxShadow: "0 8px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.08)",
+        boxShadow: "0 8px 40px rgba(0,0,0,0.35), 0 0 0 1.5px rgba(255,255,255,0.12)",
         transition: minimized
           ? "width 0.25s ease, height 0.25s ease"
           : "none",
