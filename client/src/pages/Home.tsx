@@ -2428,7 +2428,7 @@ function AiPanel({
 }) {
   const [content, setContent] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<Set<QuestionType>>(new Set(["Text", "Multiple Choice", "True / False"] as QuestionType[]));
-  const [count, setCount] = useState(3);
+  const [count, setCount] = useState(5);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
   const [transformingIdx, setTransformingIdx] = useState<Set<number>>(new Set());
@@ -2747,7 +2747,7 @@ function AiPanel({
     setSuggestedObjectives([]);
     setObjectiveInput("");
     setSelectedTypes(new Set(["Text", "Multiple Choice", "True / False"] as QuestionType[]));
-    setCount(3);
+    setCount(5);
     localStorage.removeItem("lunr_objectives");
   };
 
@@ -3271,27 +3271,40 @@ function AiPanel({
                 <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
                   Number of questions
                 </p>
-                <div style={{ display: "flex", gap: 6, marginBottom: 18 }}>
-                  {[2, 3, 5, 8].map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setCount(n)}
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <input
+                      type="range"
+                      min={4}
+                      max={12}
+                      step={1}
+                      value={count}
+                      onChange={(e) => setCount(Number(e.target.value))}
                       style={{
-                        width: 40, height: 36,
-                        borderRadius: 8,
-                        border: `1.5px solid ${count === n ? "var(--violet)" : "var(--border)"}`,
-                        background: count === n ? "var(--violet-light)" : "var(--card)",
-                        color: count === n ? "var(--violet)" : "var(--muted-foreground)",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        fontFamily: "'Geist', system-ui, sans-serif",
-                        cursor: "pointer",
-                        transition: "all 0.15s",
+                        flex: 1, height: 6, appearance: "none", WebkitAppearance: "none",
+                        borderRadius: 3, background: `linear-gradient(to right, var(--violet) 0%, var(--violet) ${((count - 4) / 8) * 100}%, var(--border) ${((count - 4) / 8) * 100}%, var(--border) 100%)`,
+                        outline: "none", cursor: "pointer",
+                        accentColor: "var(--violet)",
                       }}
-                    >
-                      {n}
-                    </button>
-                  ))}
+                    />
+                    <span style={{
+                      minWidth: 36, height: 36,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      borderRadius: 8,
+                      border: "1.5px solid var(--violet)",
+                      background: "var(--violet-light)",
+                      color: "var(--violet)",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      fontFamily: "'Geist', system-ui, sans-serif",
+                    }}>
+                      {count}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                    <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>4</span>
+                    <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>12</span>
+                  </div>
                 </div>
               </>
             )}

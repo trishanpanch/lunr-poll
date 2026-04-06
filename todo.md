@@ -438,3 +438,5 @@
 - [x] Fix vertical alignment of ANSWER label and answer text in live session green banner
 - [x] Use native Document Picture-in-Picture API for chromeless student preview overlay (like YouTube PiP)
 - [x] Fix student preview panel border radius to match app design system
+- [ ] Add phone-frame bezel to student preview (notch, status bar, rounded corners)
+- [x] Replace AI question count selector with slider (4-12 range)
