@@ -440,3 +440,4 @@
 - [x] Fix student preview panel border radius to match app design system
 - [ ] Add phone-frame bezel to student preview (notch, status bar, rounded corners)
 - [x] Replace AI question count selector with slider (4-12 range)
+- [x] Ensure shared links include session code and auto-join students directly

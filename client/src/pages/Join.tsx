@@ -28,11 +28,26 @@ export default function Join() {
   const [chars, setChars] = useState<string[]>(Array(CODE_LENGTH).fill(""));
   const [error, setError] = useState("");
   const [shake, setShake] = useState(false);
+  const [autoJoining, setAutoJoining] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const code = chars.join("");
 
-  // Auto-fill AND auto-submit from ?code= URL param (QR scan)
+  const joinMut = trpc.session.joinByCode.useMutation({
+    onSuccess: (data) => {
+      if (!sessionStorage.getItem("studentId")) {
+        sessionStorage.setItem("studentId", crypto.randomUUID());
+      }
+      navigate(`/student/session/${data.id}`);
+    },
+    onError: (err) => {
+      setAutoJoining(false);
+      setError(err.message);
+      triggerShake();
+    },
+  });
+
+  // Auto-fill AND auto-submit from ?code= URL param (QR scan or shared link)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const qCode = params.get("code");
@@ -45,29 +60,19 @@ export default function Join() {
         if (!sessionStorage.getItem("studentId")) {
           sessionStorage.setItem("studentId", crypto.randomUUID());
         }
+        setAutoJoining(true);
         joinMut.mutate({ code: cleaned });
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-focus first empty box on mount
+  // Auto-focus first empty box on mount (only if not auto-joining)
   useEffect(() => {
-    setTimeout(() => inputRefs.current[0]?.focus(), 80);
-  }, []);
-
-  const joinMut = trpc.session.joinByCode.useMutation({
-    onSuccess: (data) => {
-      if (!sessionStorage.getItem("studentId")) {
-        sessionStorage.setItem("studentId", crypto.randomUUID());
-      }
-      navigate(`/student/session/${data.id}`);
-    },
-    onError: (err) => {
-      setError(err.message);
-      triggerShake();
-    },
-  });
+    if (!autoJoining) {
+      setTimeout(() => inputRefs.current[0]?.focus(), 80);
+    }
+  }, [autoJoining]);
 
   const triggerShake = () => {
     setShake(true);
@@ -159,6 +164,27 @@ export default function Join() {
 
   const loading = joinMut.isPending;
   const filled = chars.filter((c) => c !== "").length;
+
+  // Show full-screen loading when auto-joining from a shared link
+  if (autoJoining) {
+    return (
+      <div style={{
+        minHeight: "100svh",
+        background: "linear-gradient(160deg, oklch(0.18 0.04 264) 0%, oklch(0.12 0.02 264) 100%)",
+        fontFamily: "'Geist', system-ui, sans-serif",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 20,
+      }}>
+        <Loader2 size={40} style={{ color: INDIGO, animation: "spin 1s linear infinite" }} />
+        <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: 0 }}>Joining session…</p>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", margin: 0 }}>Code: {chars.join("")}</p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={{
