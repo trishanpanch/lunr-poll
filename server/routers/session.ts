@@ -238,6 +238,7 @@ export const sessionRouter = router({
       if (!session) throw new Error("Session not found");
       const questions = (session.questions as Question[]) ?? [];
       return {
+        name: session.name,
         status: session.status,
         currentQuestionIndex: session.currentQuestionIndex,
         questionCount: questions.length,

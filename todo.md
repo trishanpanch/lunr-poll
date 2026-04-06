@@ -79,7 +79,7 @@
 - [ ] Advanced Question Types: Click-on-image heatmap questions
 - [ ] Auth & Security: enable real Google/Email auth providers for production
 - [ ] Auth & Security: implement row-level security (Firestore Security Rules)
-- [ ] Student Experience: "Waiting room" state before session goes live
+- [x] Student Experience: "Waiting room" state before session goes live — friendly waiting page with auto-redirect when session starts
 - [ ] Student Experience: ability to see own past submissions
 
 ## Sprint — Analytics & Waiting Room Polish

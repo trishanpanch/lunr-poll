@@ -96,9 +96,34 @@ function ErrorScreen({ onRetry }: { onRetry: () => void }) {
 }
 
 // ── Waiting room ──────────────────────────────────────────────────────────────
-function WaitingRoom({ participantCount }: { participantCount: number }) {
+function WaitingRoom({ sessionName, questionCount, participantCount }: { sessionName?: string; questionCount?: number; participantCount: number }) {
   return (
     <Shell>
+      {/* Top bar with session info */}
+      <header style={{
+        padding: "0 20px",
+        height: 52,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexShrink: 0,
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{
+            width: 8, height: 8, borderRadius: "50%",
+            background: "oklch(0.65 0.18 85)",
+            animation: "pulse 1.5s ease-in-out infinite",
+          }} />
+          <span style={{ fontSize: 12, fontWeight: 700, color: "oklch(0.65 0.18 85)", letterSpacing: "0.06em" }}>WAITING</span>
+        </div>
+        {questionCount !== undefined && questionCount > 0 && (
+          <span style={{ fontSize: 13, color: TEXT_MUTED, fontWeight: 500 }}>
+            {questionCount} question{questionCount !== 1 ? "s" : ""} prepared
+          </span>
+        )}
+      </header>
+
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
         {/* Animated pulse rings */}
         <div style={{ position: "relative", width: 96, height: 96, marginBottom: 32 }}>
@@ -125,11 +150,31 @@ function WaitingRoom({ participantCount }: { participantCount: number }) {
           </div>
         </div>
 
+        {/* Session name */}
+        {sessionName && (
+          <div style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 12,
+            padding: "8px 20px",
+            marginBottom: 20,
+            maxWidth: 320,
+          }}>
+            <p style={{
+              margin: 0, fontSize: 14, fontWeight: 600,
+              color: TEXT_MID, textAlign: "center",
+              lineHeight: 1.4,
+            }}>
+              {sessionName}
+            </p>
+          </div>
+        )}
+
         <h2 style={{ color: TEXT_DARK, fontWeight: 800, fontSize: 26, margin: "0 0 10px", letterSpacing: "-0.02em" }}>
-          Waiting Room
+          Waiting for your professor
         </h2>
-        <p style={{ color: TEXT_MID, fontSize: 15, margin: "0 0 32px", textAlign: "center", lineHeight: 1.55, maxWidth: 280 }}>
-          The professor hasn't started the session yet. Hang tight!
+        <p style={{ color: TEXT_MID, fontSize: 15, margin: "0 0 32px", textAlign: "center", lineHeight: 1.55, maxWidth: 300 }}>
+          The session hasn't started yet. You'll be taken to the first question automatically.
         </p>
 
         {/* Participant count pill */}
@@ -150,7 +195,7 @@ function WaitingRoom({ participantCount }: { participantCount: number }) {
         </div>
 
         <p style={{ color: TEXT_MUTED, fontSize: 13, marginTop: 20, animation: "pulse 2s ease-in-out infinite" }}>
-          Checking for updates every few seconds…
+          Listening for updates…
         </p>
       </div>
 
@@ -751,7 +796,7 @@ export default function StudentSession() {
   if (isLoading) return <LoadingScreen />;
   if (error || !data) return <ErrorScreen onRetry={() => navigate("/join")} />;
   if (data.status === "closed") return <SessionEnded onJoinAnother={() => navigate("/join")} />;
-  if (data.status === "draft") return <WaitingRoom participantCount={participantCount} />;
+  if (data.status === "draft") return <WaitingRoom sessionName={data.name} questionCount={data.questionCount} participantCount={participantCount} />;
 
   // Live — no question yet
   if (!currentQ) {

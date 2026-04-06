@@ -452,3 +452,83 @@ describe("session.reactivate", () => {
     await expect(caller.session.reactivate({ id: 10 })).rejects.toThrow("Only closed sessions");
   });
 });
+
+describe("session.studentPoll", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns session name, status, and current question for a live session", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({
+      ...sampleSession,
+      status: "live",
+    });
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentPoll({ sessionId: 10 });
+
+    expect(result).toMatchObject({
+      name: "Test Session",
+      status: "live",
+      questionCount: 1,
+      currentQuestionIndex: 0,
+    });
+    expect(result.currentQuestion).toBeTruthy();
+  });
+
+  it("returns draft status with session name for sessions not yet started", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({
+      ...sampleSession,
+      status: "draft",
+    });
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentPoll({ sessionId: 10 });
+
+    expect(result).toMatchObject({
+      name: "Test Session",
+      status: "draft",
+      questionCount: 1,
+    });
+  });
+
+  it("throws when session is not found", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(null);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    await expect(caller.session.studentPoll({ sessionId: 999 })).rejects.toThrow(
+      "Session not found"
+    );
+  });
+});
+
+describe("session.joinByCode — draft sessions (pre-live waiting)", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("allows joining a draft session so students can wait", async () => {
+    vi.mocked(db.getSessionByCode).mockResolvedValue({
+      ...sampleSession,
+      status: "draft",
+    });
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.joinByCode({ code: "ABCDE" });
+
+    expect(result).toMatchObject({
+      id: 10,
+      status: "draft",
+      name: "Test Session",
+    });
+  });
+
+  it("returns session name in joinByCode response", async () => {
+    vi.mocked(db.getSessionByCode).mockResolvedValue({
+      ...sampleSession,
+      name: "Midterm Review",
+      status: "live",
+    });
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.joinByCode({ code: "ABCDE" });
+
+    expect(result.name).toBe("Midterm Review");
+  });
+});
