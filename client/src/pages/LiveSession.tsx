@@ -813,9 +813,9 @@ export default function LiveSession() {
                 <div style={{
                   marginBottom: 20, padding: "10px 14px", borderRadius: 10,
                   background: "oklch(0.97 0.04 160)", border: "1.5px solid oklch(0.82 0.1 160)",
-                  display: "flex", alignItems: "flex-start", gap: 8,
+                  display: "flex", alignItems: "center", gap: 8,
                 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "oklch(0.42 0.15 160)", whiteSpace: "nowrap", paddingTop: 1 }}>Answer</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "oklch(0.42 0.15 160)", whiteSpace: "nowrap" }}>Answer</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "oklch(0.3 0.12 160)", lineHeight: 1.5 }}>
                     {currentQ.type === "Multiple Choice" && currentQ.options && currentQ.correctIndex !== undefined
                       ? currentQ.options[currentQ.correctIndex]

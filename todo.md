@@ -435,3 +435,4 @@
 - [x] Draggable PiP student preview window in instructor live session view
 - [x] Bento two-column layout: student preview docked left, instructor panel right
 - [x] Pop-out student preview into separate browser window (like YouTube PiP), synced with current question
+- [x] Fix vertical alignment of ANSWER label and answer text in live session green banner
