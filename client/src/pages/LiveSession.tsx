@@ -33,6 +33,7 @@ import {
   ZoomIn,
   AlignJustify,
   Sliders,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,6 +49,7 @@ import {
 import QRCode from "qrcode";
 import type { Question } from "@shared/types";
 import WordCloud from "@/components/WordCloud";
+import StudentPreviewPiP from "@/components/StudentPreviewPiP";
 
 // ── Colour tokens ─────────────────────────────────────────────────────────────
 const INDIGO = "var(--primary)";
@@ -381,6 +383,7 @@ export default function LiveSession() {
   const [closing, setClosing] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
+  const [showStudentPreview, setShowStudentPreview] = useState(false);
 
   const utils = trpc.useUtils();
 
@@ -548,6 +551,25 @@ export default function LiveSession() {
             style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "4px 8px", cursor: "pointer", display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: TEXT_MID }}
           >
             <Copy size={14} /> Share
+          </button>
+          <button
+            onClick={() => setShowStudentPreview((v) => !v)}
+            style={{
+              background: showStudentPreview ? "var(--indigo-light)" : "none",
+              border: `1px solid ${showStudentPreview ? INDIGO : BORDER}`,
+              borderRadius: 8,
+              padding: "4px 8px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              fontSize: 12,
+              color: showStudentPreview ? INDIGO : TEXT_MID,
+              transition: "all 0.15s",
+            }}
+            title={showStudentPreview ? "Hide student preview" : "Show student preview"}
+          >
+            <Eye size={14} /> Student View
           </button>
         </div>
 
@@ -865,6 +887,16 @@ export default function LiveSession() {
       </main>
 
       {showQR && <QRModal code={session.code} onClose={() => setShowQR(false)} />}
+
+      {/* Student View PiP */}
+      {showStudentPreview && currentQ && (
+        <StudentPreviewPiP
+          question={currentQ}
+          questionIndex={currentIdx}
+          questionCount={questions.length}
+          onClose={() => setShowStudentPreview(false)}
+        />
+      )}
 
       {/* End Session confirmation dialog */}
       <AlertDialog open={showEndConfirm} onOpenChange={setShowEndConfirm}>

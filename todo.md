@@ -425,5 +425,11 @@
 - [ ] Add Download QR as PNG button to My Sessions dashboard QR modal
 
 ## Polish — Session Card Cleanup
-- [ ] Remove question type icon badges from My Sessions session cards
-- [ ] Add Download QR as PNG button to My Sessions QR modal
+- [x] Remove question type icon badges from My Sessions session cards
+- [x] Add Download QR as PNG button to My Sessions QR modal
+- [x] QR modal: all three buttons in one row with consistent white/outlined style, wider modal
+- [x] Show instructor answer key in live session view
+- [x] Show instructor answer key in session preview modal
+- [x] Auto-join session when QR code is scanned (skip code entry screen)
+- [x] Dev mode bar visible on student session pages
+- [x] Draggable PiP student preview window in instructor live session view
