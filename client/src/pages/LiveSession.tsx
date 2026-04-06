@@ -732,7 +732,6 @@ export default function LiveSession() {
                     <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>STUDENT VIEW</span>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>Q{currentIdx + 1}/{questions.length}</span>
                     <button
                       onClick={handlePopOut}
                       title="Pop out to separate window"
