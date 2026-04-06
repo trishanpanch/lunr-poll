@@ -433,3 +433,5 @@
 - [x] Auto-join session when QR code is scanned (skip code entry screen)
 - [x] Dev mode bar visible on student session pages
 - [x] Draggable PiP student preview window in instructor live session view
+- [x] Bento two-column layout: student preview docked left, instructor panel right
+- [x] Pop-out student preview into separate browser window (like YouTube PiP), synced with current question

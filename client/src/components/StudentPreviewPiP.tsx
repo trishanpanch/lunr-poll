@@ -34,7 +34,7 @@ const S_BG_TOP = "oklch(0.18 0.04 264)";
 const S_BG_BOT = "oklch(0.12 0.02 264)";
 
 // ── Mini student question renderer ───────────────────────────────────────────
-function MiniStudentView({
+export function MiniStudentView({
   question,
   questionIndex,
   questionCount,

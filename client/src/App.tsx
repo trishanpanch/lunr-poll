@@ -13,6 +13,7 @@ import StudentSession from "./pages/StudentSession";
 import SessionResults from "./pages/SessionResults";
 import DesignSystemPage from "./pages/DesignSystem";
 import Changelog from "./pages/Changelog";
+import StudentPreview from "./pages/StudentPreview";
 import Settings from "./pages/Settings";
 import LmsIntegrations from "./pages/LmsIntegrations";
 import { Layers, LayoutDashboard, Home as HomeIcon, GraduationCap, BookOpen, ScrollText, Settings as SettingsIcon, ChevronDown, ChevronUp, Sun, Moon } from "lucide-react";
@@ -28,7 +29,7 @@ function BottomNav() {
   // Hide bottom nav on live session and results pages to avoid clutter
   // Student session pages still show the dev bar for navigation during development
   const isFullscreen =
-    location.startsWith("/live/") || location.startsWith("/results/");
+    location.startsWith("/live/") || location.startsWith("/results/") || location.startsWith("/preview/");
   if (isFullscreen) return null;
 
   const tabs = [
@@ -175,7 +176,7 @@ function BottomNav() {
 function Router() {
   const [location] = useLocation();
   const isFullscreen =
-    location.startsWith("/live/") || location.startsWith("/results/");
+    location.startsWith("/live/") || location.startsWith("/results/") || location.startsWith("/preview/");
 
   return (
     <>
@@ -192,6 +193,7 @@ function Router() {
           <Route path="/join" component={Join} />
           <Route path="/join/:code" component={Join} />
           <Route path="/student/session/:id" component={StudentSession} />
+          <Route path="/preview/:id" component={StudentPreview} />
           {/* Utility */}
           <Route path="/design-system" component={DesignSystemPage} />
           <Route path="/changelog" component={Changelog} />

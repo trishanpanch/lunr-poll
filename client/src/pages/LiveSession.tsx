@@ -49,7 +49,7 @@ import {
 import QRCode from "qrcode";
 import type { Question } from "@shared/types";
 import WordCloud from "@/components/WordCloud";
-import StudentPreviewPiP from "@/components/StudentPreviewPiP";
+import StudentPreviewPiP, { MiniStudentView } from "@/components/StudentPreviewPiP";
 
 // ── Colour tokens ─────────────────────────────────────────────────────────────
 const INDIGO = "var(--primary)";
@@ -384,6 +384,40 @@ export default function LiveSession() {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showStudentPreview, setShowStudentPreview] = useState(false);
+  const [previewWindow, setPreviewWindow] = useState<Window | null>(null);
+  const [isPoppedOut, setIsPoppedOut] = useState(false);
+
+  // Track if the pop-out window gets closed externally
+  useEffect(() => {
+    if (!previewWindow) return;
+    const timer = setInterval(() => {
+      if (previewWindow.closed) {
+        setPreviewWindow(null);
+        setIsPoppedOut(false);
+      }
+    }, 500);
+    return () => clearInterval(timer);
+  }, [previewWindow]);
+
+  const handlePopOut = () => {
+    const w = window.open(
+      `/preview/${sessionId}`,
+      `student-preview-${sessionId}`,
+      "width=375,height=667,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes"
+    );
+    if (w) {
+      setPreviewWindow(w);
+      setIsPoppedOut(true);
+    }
+  };
+
+  const handlePopIn = () => {
+    if (previewWindow && !previewWindow.closed) {
+      previewWindow.close();
+    }
+    setPreviewWindow(null);
+    setIsPoppedOut(false);
+  };
 
   const utils = trpc.useUtils();
 
@@ -552,25 +586,7 @@ export default function LiveSession() {
           >
             <Copy size={14} /> Share
           </button>
-          <button
-            onClick={() => setShowStudentPreview((v) => !v)}
-            style={{
-              background: showStudentPreview ? "var(--indigo-light)" : "none",
-              border: `1px solid ${showStudentPreview ? INDIGO : BORDER}`,
-              borderRadius: 8,
-              padding: "4px 8px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              fontSize: 12,
-              color: showStudentPreview ? INDIGO : TEXT_MID,
-              transition: "all 0.15s",
-            }}
-            title={showStudentPreview ? "Hide student preview" : "Show student preview"}
-          >
-            <Eye size={14} /> Student View
-          </button>
+
         </div>
 
         {/* Actions */}
@@ -606,8 +622,90 @@ export default function LiveSession() {
         )}
       </header>
 
-      {/* Main content */}
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 80px" }}>
+      {/* Main content — bento two-column layout */}
+      <main style={{ display: "flex", gap: 24, padding: "24px 24px 80px", maxWidth: 1280, margin: "0 auto", alignItems: "flex-start" }}>
+
+        {/* LEFT: Student Preview (always visible when live) */}
+        {isLive && currentQ && (
+          <div style={{
+            width: isPoppedOut ? 64 : 280, minWidth: isPoppedOut ? 64 : 280, flexShrink: 0,
+            position: "sticky", top: 84,
+            borderRadius: 24, overflow: "hidden",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px var(--border)",
+            background: "var(--card)",
+            transition: "width 0.3s ease, min-width 0.3s ease",
+          }}>
+            {isPoppedOut ? (
+              /* Compact indicator when popped out */
+              <div style={{
+                background: "oklch(0.14 0.02 264)",
+                padding: "16px 8px",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 12,
+                minHeight: 200,
+              }}>
+                <Eye size={16} style={{ color: "rgba(255,255,255,0.5)" }} />
+                <span style={{
+                  fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.4)",
+                  letterSpacing: "0.06em", writingMode: "vertical-rl", textOrientation: "mixed",
+                }}>STUDENT VIEW</span>
+                <div style={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: "oklch(0.52 0.18 160)",
+                  animation: "pulse 1.5s ease-in-out infinite",
+                }} />
+                <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", writingMode: "vertical-rl" }}>POPPED OUT</span>
+                <button
+                  onClick={handlePopIn}
+                  title="Dock preview back"
+                  style={{
+                    marginTop: 8, padding: "6px", borderRadius: 8,
+                    background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
+                    color: "rgba(255,255,255,0.6)", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            ) : (
+              /* Full inline preview */
+              <>
+                {/* Phone frame header with pop-out button */}
+                <div style={{
+                  background: "oklch(0.14 0.02 264)",
+                  padding: "8px 12px 4px",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <Eye size={12} style={{ color: "rgba(255,255,255,0.5)" }} />
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>STUDENT VIEW</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>Q{currentIdx + 1}/{questions.length}</span>
+                    <button
+                      onClick={handlePopOut}
+                      title="Pop out to separate window"
+                      style={{
+                        padding: "3px", borderRadius: 4,
+                        background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
+                        color: "rgba(255,255,255,0.5)", cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        transition: "all 0.15s",
+                      }}
+                    >
+                      <ExternalLink size={10} />
+                    </button>
+                  </div>
+                </div>
+                <MiniStudentView question={currentQ} questionIndex={currentIdx} questionCount={questions.length} />
+              </>
+            )}
+          </div>
+        )}
+
+        {/* RIGHT: Instructor panel */}
+        <div style={{ flex: 1, minWidth: 0 }}>
 
         {/* Draft state */}
         {isDraft && (
@@ -884,19 +982,12 @@ export default function LiveSession() {
             </div>
           </div>
         )}
+        </div>
       </main>
 
       {showQR && <QRModal code={session.code} onClose={() => setShowQR(false)} />}
 
-      {/* Student View PiP */}
-      {showStudentPreview && currentQ && (
-        <StudentPreviewPiP
-          question={currentQ}
-          questionIndex={currentIdx}
-          questionCount={questions.length}
-          onClose={() => setShowStudentPreview(false)}
-        />
-      )}
+
 
       {/* End Session confirmation dialog */}
       <AlertDialog open={showEndConfirm} onOpenChange={setShowEndConfirm}>
