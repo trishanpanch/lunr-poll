@@ -13,6 +13,7 @@ import {
   getResponsesForQuestion,
   hasStudentResponded,
   getParticipantCount,
+  getStudentResponses,
 } from "../db";
 import type { Question } from "../../drizzle/schema";
 
@@ -377,6 +378,71 @@ export const sessionRouter = router({
     .query(async ({ input }) => {
       const count = await getParticipantCount(input.sessionId);
       return { count };
+    }),
+
+  // ── Student Review (past submissions) ──────────────────────────────────────
+
+  /** Get a student's own submissions for a closed session, with question details and correctness */
+  studentReview: publicProcedure
+    .input(z.object({ sessionId: z.number(), studentId: z.string().min(1).max(64) }))
+    .query(async ({ input }) => {
+      const session = await getSessionById(input.sessionId);
+      if (!session) throw new Error("Session not found");
+
+      const questions = (session.questions as Question[]) ?? [];
+      const studentResponses = await getStudentResponses(input.sessionId, input.studentId);
+
+      // Build a map of studentId -> answer for quick lookup
+      const answerMap = new Map(studentResponses.map((r) => [r.questionId, r]));
+
+      const reviewItems = questions.map((q, index) => {
+        const response = answerMap.get(q.id);
+        let isCorrect: boolean | null = null;
+
+        if (response) {
+          if (q.type === "Multiple Choice" && q.correctIndex !== undefined && q.options) {
+            // Student answer is stored as the option index (e.g. "1"), not the text
+            const answerIndex = parseInt(response.answer, 10);
+            isCorrect = !isNaN(answerIndex)
+              ? answerIndex === q.correctIndex
+              : response.answer === q.options[q.correctIndex];
+          } else if (q.type === "True / False" && q.tfAnswer) {
+            isCorrect = response.answer === q.tfAnswer;
+          }
+          // For Text, Star Rating, File Upload, Labeled Scale, Numeric Scale — no auto-grading
+        }
+
+        return {
+          questionIndex: index,
+          question: {
+            id: q.id,
+            type: q.type,
+            text: q.text,
+            options: q.options,
+            correctIndex: q.correctIndex,
+            tfAnswer: q.tfAnswer,
+            modelAnswer: q.modelAnswer,
+            mediaUrl: q.mediaUrl,
+            likertLabels: q.likertLabels,
+            numericMin: q.numericMin,
+            numericMax: q.numericMax,
+            numericLowLabel: q.numericLowLabel,
+            numericHighLabel: q.numericHighLabel,
+          },
+          studentAnswer: response?.answer ?? null,
+          answeredAt: response?.createdAt ?? null,
+          isCorrect,
+        };
+      });
+
+      return {
+        sessionName: session.name,
+        sessionCode: session.code,
+        status: session.status,
+        questionCount: questions.length,
+        answeredCount: studentResponses.length,
+        reviewItems,
+      };
     }),
 
   /** Get response counts per question for a live session (professor) */

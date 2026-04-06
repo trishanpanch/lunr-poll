@@ -214,7 +214,9 @@ function WaitingRoom({ sessionName, questionCount, participantCount }: { session
 }
 
 // ── Session ended ─────────────────────────────────────────────────────────────
-function SessionEnded({ onJoinAnother }: { onJoinAnother: () => void }) {
+function SessionEnded({ onJoinAnother, sessionId }: { onJoinAnother: () => void; sessionId: number }) {
+  const [, navigate] = useLocation();
+
   return (
     <Shell>
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px" }}>
@@ -233,15 +235,30 @@ function SessionEnded({ onJoinAnother }: { onJoinAnother: () => void }) {
         <p style={{ color: TEXT_MID, fontSize: 15, margin: "0 0 36px", textAlign: "center", lineHeight: 1.55, maxWidth: 280 }}>
           The professor has ended this session. Thanks for participating!
         </p>
-        <button onClick={onJoinAnother} style={{
-          padding: "16px 32px", borderRadius: 14,
-          background: `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`,
-          color: "#fff", fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", gap: 10,
-          boxShadow: "0 4px 20px oklch(0.55 0.2 250 / 0.35)",
-        }}>
-          Join Another Session <ArrowRight size={18} />
-        </button>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+          <button
+            onClick={() => navigate(`/student/session/${sessionId}/review`)}
+            style={{
+              padding: "16px 32px", borderRadius: 14,
+              background: `linear-gradient(135deg, ${INDIGO}, ${INDIGO_DARK})`,
+              color: "#fff", fontWeight: 700, fontSize: 16, border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", gap: 10,
+              boxShadow: "0 4px 20px oklch(0.55 0.2 250 / 0.35)",
+            }}
+          >
+            Review My Answers <ArrowRight size={18} />
+          </button>
+          <button onClick={onJoinAnother} style={{
+            padding: "12px 24px", borderRadius: 12,
+            background: "rgba(255,255,255,0.06)",
+            border: `1.5px solid rgba(255,255,255,0.12)`,
+            color: TEXT_MID, fontWeight: 600, fontSize: 14, cursor: "pointer",
+            display: "flex", alignItems: "center", gap: 8,
+            transition: "all 0.15s",
+          }}>
+            Join Another Session
+          </button>
+        </div>
       </div>
     </Shell>
   );
@@ -795,7 +812,7 @@ export default function StudentSession() {
 
   if (isLoading) return <LoadingScreen />;
   if (error || !data) return <ErrorScreen onRetry={() => navigate("/join")} />;
-  if (data.status === "closed") return <SessionEnded onJoinAnother={() => navigate("/join")} />;
+  if (data.status === "closed") return <SessionEnded onJoinAnother={() => navigate("/join")} sessionId={sessionId} />;
   if (data.status === "draft") return <WaitingRoom sessionName={data.name} questionCount={data.questionCount} participantCount={participantCount} />;
 
   // Live — no question yet

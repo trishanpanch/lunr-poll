@@ -250,6 +250,22 @@ export async function upsertSettings(
   return getSettings(settingsKey);
 }
 
+/** Get all responses by a specific student for a session */
+export async function getStudentResponses(sessionId: number, studentId: string) {
+  const db = getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(responses)
+    .where(
+      and(
+        eq(responses.sessionId, sessionId),
+        eq(responses.studentId, studentId)
+      )
+    )
+    .orderBy(responses.createdAt);
+}
+
 export async function hasStudentResponded(
   sessionId: number,
   questionId: string,

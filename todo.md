@@ -80,7 +80,7 @@
 - [ ] Auth & Security: enable real Google/Email auth providers for production
 - [ ] Auth & Security: implement row-level security (Firestore Security Rules)
 - [x] Student Experience: "Waiting room" state before session goes live — friendly waiting page with auto-redirect when session starts
-- [ ] Student Experience: ability to see own past submissions
+- [x] Student Experience: ability to see own past submissions
 
 ## Sprint — Analytics & Waiting Room Polish
 - [x] CSV export: tRPC procedure to fetch all responses for a session and return as CSV string
@@ -441,3 +441,12 @@
 - [ ] Add phone-frame bezel to student preview (notch, status bar, rounded corners)
 - [x] Replace AI question count selector with slider (4-12 range)
 - [x] Ensure shared links include session code and auto-join students directly
+
+## Feature — Student Past Submissions Review
+- [x] Backend: tRPC endpoint to fetch a student's own responses for a given session (by studentId)
+- [x] Backend: include question text, type, correct answer, and student's answer in the response
+- [x] Frontend: student review page showing all their answers after a session ends
+- [x] Frontend: show correct/incorrect indicators for graded question types (MC, T/F)
+- [x] Frontend: link from the "Session Ended" screen to the review page
+- [x] Frontend: register route in App.tsx
+- [x] Vitest: add tests for the student submissions endpoint

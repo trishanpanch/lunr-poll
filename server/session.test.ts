@@ -22,6 +22,7 @@ vi.mock("./db", () => ({
   getResponsesForQuestion: vi.fn(),
   hasStudentResponded: vi.fn(),
   getParticipantCount: vi.fn(),
+  getStudentResponses: vi.fn(),
 }));
 
 import * as db from "./db";
@@ -530,5 +531,122 @@ describe("session.joinByCode — draft sessions (pre-live waiting)", () => {
     const result = await caller.session.joinByCode({ code: "ABCDE" });
 
     expect(result.name).toBe("Midterm Review");
+  });
+});
+
+describe("session.studentReview", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  const mcQuestion = {
+    id: "q-mc",
+    type: "Multiple Choice" as const,
+    text: "What is 2+2?",
+    color: "oklch(0.52 0.22 290)",
+    options: ["3", "4", "5"],
+    correctIndex: 1,
+  };
+
+  const tfQuestion = {
+    id: "q-tf",
+    type: "True / False" as const,
+    text: "The sky is blue",
+    color: "oklch(0.42 0.14 60)",
+    tfAnswer: "True" as const,
+  };
+
+  const textQuestion = {
+    id: "q-txt",
+    type: "Text" as const,
+    text: "Describe your experience",
+    color: "oklch(0.48 0.18 264)",
+    modelAnswer: "A thoughtful reflection on the course material.",
+  };
+
+  const sessionWithMixed = {
+    ...sampleSession,
+    status: "closed" as const,
+    questions: [mcQuestion, tfQuestion, textQuestion],
+  };
+
+  it("returns all questions with student answers and correctness", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(sessionWithMixed);
+    vi.mocked(db.getStudentResponses).mockResolvedValue([
+      { id: 1, sessionId: 10, questionId: "q-mc", studentId: "stu-1", studentName: null, answer: "1", createdAt: new Date() },
+      { id: 2, sessionId: 10, questionId: "q-tf", studentId: "stu-1", studentName: null, answer: "False", createdAt: new Date() },
+      { id: 3, sessionId: 10, questionId: "q-txt", studentId: "stu-1", studentName: null, answer: "Great class!", createdAt: new Date() },
+    ]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentReview({ sessionId: 10, studentId: "stu-1" });
+
+    expect(result.sessionName).toBe("Test Session");
+    expect(result.questionCount).toBe(3);
+    expect(result.answeredCount).toBe(3);
+    expect(result.reviewItems).toHaveLength(3);
+
+    // MC: correct (answered index "1", correctIndex=1)
+    expect(result.reviewItems[0].isCorrect).toBe(true);
+    expect(result.reviewItems[0].studentAnswer).toBe("1");
+
+    // T/F: incorrect (answered "False", correct is "True")
+    expect(result.reviewItems[1].isCorrect).toBe(false);
+    expect(result.reviewItems[1].studentAnswer).toBe("False");
+
+    // Text: no auto-grading
+    expect(result.reviewItems[2].isCorrect).toBeNull();
+    expect(result.reviewItems[2].studentAnswer).toBe("Great class!");
+  });
+
+  it("marks unanswered questions as null", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(sessionWithMixed);
+    vi.mocked(db.getStudentResponses).mockResolvedValue([
+      { id: 1, sessionId: 10, questionId: "q-mc", studentId: "stu-2", studentName: null, answer: "0", createdAt: new Date() },
+    ]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentReview({ sessionId: 10, studentId: "stu-2" });
+
+    expect(result.answeredCount).toBe(1);
+    // MC: incorrect (answered index "0", correctIndex is 1)
+    expect(result.reviewItems[0].isCorrect).toBe(false);
+    // T/F: not answered
+    expect(result.reviewItems[1].studentAnswer).toBeNull();
+    expect(result.reviewItems[1].isCorrect).toBeNull();
+    // Text: not answered
+    expect(result.reviewItems[2].studentAnswer).toBeNull();
+  });
+
+  it("includes question metadata (options, modelAnswer, etc.)", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(sessionWithMixed);
+    vi.mocked(db.getStudentResponses).mockResolvedValue([]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentReview({ sessionId: 10, studentId: "stu-3" });
+
+    expect(result.reviewItems[0].question.options).toEqual(["3", "4", "5"]);
+    expect(result.reviewItems[0].question.correctIndex).toBe(1);
+    expect(result.reviewItems[1].question.tfAnswer).toBe("True");
+    expect(result.reviewItems[2].question.modelAnswer).toBe("A thoughtful reflection on the course material.");
+  });
+
+  it("throws when session is not found", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(null);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    await expect(
+      caller.session.studentReview({ sessionId: 999, studentId: "stu-1" })
+    ).rejects.toThrow("Session not found");
+  });
+
+  it("returns empty answers when student has no responses", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(sessionWithMixed);
+    vi.mocked(db.getStudentResponses).mockResolvedValue([]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentReview({ sessionId: 10, studentId: "stu-new" });
+
+    expect(result.answeredCount).toBe(0);
+    expect(result.reviewItems.every((item) => item.studentAnswer === null)).toBe(true);
+    expect(result.reviewItems.every((item) => item.isCorrect === null)).toBe(true);
   });
 });
