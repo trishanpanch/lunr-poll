@@ -7,7 +7,7 @@
  * Polling interval: 2 s (lightweight, no websocket needed for MVP).
  */
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -384,38 +384,88 @@ export default function LiveSession() {
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showStudentPreview, setShowStudentPreview] = useState(false);
-  const [previewWindow, setPreviewWindow] = useState<Window | null>(null);
+  const [pipWindow, setPipWindow] = useState<Window | null>(null);
   const [isPoppedOut, setIsPoppedOut] = useState(false);
+  const pipContainerRef = useRef<HTMLDivElement>(null);
 
-  // Track if the pop-out window gets closed externally
+  // Track if the PiP window gets closed externally
   useEffect(() => {
-    if (!previewWindow) return;
-    const timer = setInterval(() => {
-      if (previewWindow.closed) {
-        setPreviewWindow(null);
-        setIsPoppedOut(false);
-      }
-    }, 500);
-    return () => clearInterval(timer);
-  }, [previewWindow]);
+    if (!pipWindow) return;
+    const handleClose = () => {
+      setPipWindow(null);
+      setIsPoppedOut(false);
+    };
+    pipWindow.addEventListener("pagehide", handleClose);
+    return () => pipWindow.removeEventListener("pagehide", handleClose);
+  }, [pipWindow]);
 
-  const handlePopOut = () => {
-    const w = window.open(
-      `/preview/${sessionId}`,
-      `student-preview-${sessionId}`,
-      "width=375,height=667,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes"
-    );
-    if (w) {
-      setPreviewWindow(w);
-      setIsPoppedOut(true);
+  const handlePopOut = async () => {
+    // Document Picture-in-Picture API
+    if ("documentPictureInPicture" in window) {
+      try {
+        const pip = await (window as any).documentPictureInPicture.requestWindow({
+          width: 320,
+          height: 560,
+        });
+        // Copy stylesheets so Tailwind/fonts work inside PiP
+        Array.from(document.styleSheets).forEach((sheet) => {
+          try {
+            const css = Array.from(sheet.cssRules).map((r) => r.cssText).join("\n");
+            const style = pip.document.createElement("style");
+            style.textContent = css;
+            pip.document.head.appendChild(style);
+          } catch {
+            // Cross-origin sheets — copy link instead
+            if (sheet.href) {
+              const link = pip.document.createElement("link");
+              link.rel = "stylesheet";
+              link.href = sheet.href;
+              pip.document.head.appendChild(link);
+            }
+          }
+        });
+        // Add Google Fonts link
+        const fontLink = pip.document.createElement("link");
+        fontLink.rel = "stylesheet";
+        fontLink.href = "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap";
+        pip.document.head.appendChild(fontLink);
+        // Style the PiP body
+        pip.document.body.style.margin = "0";
+        pip.document.body.style.padding = "0";
+        pip.document.body.style.overflow = "auto";
+        pip.document.body.style.background = "oklch(0.14 0.02 264)";
+        pip.document.body.style.fontFamily = "'Geist', system-ui, sans-serif";
+        setPipWindow(pip);
+        setIsPoppedOut(true);
+      } catch (e) {
+        console.error("Document PiP failed:", e);
+        toast.error("Picture-in-Picture is not supported in this browser.");
+      }
+    } else {
+      // Fallback: open in a regular window
+      const w = window.open(
+        `/preview/${sessionId}`,
+        `student-preview-${sessionId}`,
+        "width=375,height=667,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes"
+      );
+      if (w) {
+        setIsPoppedOut(true);
+        // Poll for close
+        const timer = setInterval(() => {
+          if (w.closed) {
+            clearInterval(timer);
+            setIsPoppedOut(false);
+          }
+        }, 500);
+      }
     }
   };
 
   const handlePopIn = () => {
-    if (previewWindow && !previewWindow.closed) {
-      previewWindow.close();
+    if (pipWindow) {
+      pipWindow.close();
     }
-    setPreviewWindow(null);
+    setPipWindow(null);
     setIsPoppedOut(false);
   };
 
@@ -1010,6 +1060,45 @@ export default function LiveSession() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Document PiP portal — renders student preview into the native PiP window */}
+      {isPoppedOut && pipWindow && currentQ && createPortal(
+        <div style={{
+          background: "oklch(0.14 0.02 264)",
+          minHeight: "100vh",
+          fontFamily: "'Geist', system-ui, sans-serif",
+          display: "flex",
+          flexDirection: "column",
+        }}>
+          {/* PiP header */}
+          <div style={{
+            padding: "8px 12px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Eye size={12} style={{ color: "rgba(255,255,255,0.5)" }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em" }}>STUDENT VIEW</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{
+                  width: 6, height: 6, borderRadius: "50%",
+                  background: "oklch(0.57 0.22 27)",
+                  animation: "pulse 1.5s ease-in-out infinite",
+                }} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: "oklch(0.57 0.22 27)" }}>LIVE</span>
+              </div>
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Q{currentIdx + 1}/{questions.length}</span>
+            </div>
+          </div>
+          <MiniStudentView question={currentQ} questionIndex={currentIdx} questionCount={questions.length} />
+          <style>{`
+            @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+          `}</style>
+        </div>,
+        pipWindow.document.body
+      )}
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
