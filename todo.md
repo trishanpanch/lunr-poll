@@ -437,3 +437,4 @@
 - [x] Pop-out student preview into separate browser window (like YouTube PiP), synced with current question
 - [x] Fix vertical alignment of ANSWER label and answer text in live session green banner
 - [x] Use native Document Picture-in-Picture API for chromeless student preview overlay (like YouTube PiP)
+- [x] Fix student preview panel border radius to match app design system

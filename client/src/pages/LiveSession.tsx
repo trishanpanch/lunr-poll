@@ -680,7 +680,7 @@ export default function LiveSession() {
           <div style={{
             width: isPoppedOut ? 64 : 280, minWidth: isPoppedOut ? 64 : 280, flexShrink: 0,
             position: "sticky", top: 84,
-            borderRadius: 24, overflow: "hidden",
+            borderRadius: 16, overflow: "hidden",
             boxShadow: "0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px var(--border)",
             background: "var(--card)",
             transition: "width 0.3s ease, min-width 0.3s ease",
