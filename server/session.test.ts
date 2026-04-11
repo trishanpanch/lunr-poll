@@ -23,6 +23,7 @@ vi.mock("./db", () => ({
   hasStudentResponded: vi.fn(),
   getParticipantCount: vi.fn(),
   getStudentResponses: vi.fn(),
+  getStudentRoster: vi.fn(),
 }));
 
 import * as db from "./db";
@@ -648,5 +649,123 @@ describe("session.studentReview", () => {
     expect(result.answeredCount).toBe(0);
     expect(result.reviewItems.every((item) => item.studentAnswer === null)).toBe(true);
     expect(result.reviewItems.every((item) => item.isCorrect === null)).toBe(true);
+  });
+});
+
+// ── session.studentGrades ─────────────────────────────────────────────────────
+
+const mcQuestion = {
+  id: "q-mc",
+  type: "Multiple Choice" as const,
+  text: "Who directed Gone Girl?",
+  color: "oklch(0.52 0.22 290)",
+  options: ["Flynn", "Fincher", "Cronenweth"],
+  correctIndex: 1,
+};
+
+const tfQuestion = {
+  id: "q-tf",
+  type: "True / False" as const,
+  text: "Nick was initially suspected.",
+  color: "oklch(0.42 0.14 60)",
+  tfAnswer: "True" as const,
+};
+
+const textQuestion = {
+  id: "q-txt",
+  type: "Text" as const,
+  text: "What was the main takeaway?",
+  color: "oklch(0.48 0.18 264)",
+};
+
+const gradingSession = {
+  ...sampleSession,
+  id: 20,
+  status: "closed" as const,
+  questions: [mcQuestion, tfQuestion, textQuestion],
+};
+
+describe("session.studentGrades", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns roster grouped by student with correctness", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(gradingSession);
+    // @ts-expect-error getStudentRoster is added but not in the mock type
+    vi.mocked(db.getStudentRoster).mockResolvedValue([
+      { id: 1, sessionId: 20, questionId: "q-mc", studentId: "stu-a", studentName: "Alice", answer: "1", createdAt: new Date() },
+      { id: 2, sessionId: 20, questionId: "q-tf", studentId: "stu-a", studentName: "Alice", answer: "True", createdAt: new Date() },
+      { id: 3, sessionId: 20, questionId: "q-mc", studentId: "stu-b", studentName: "Bob", answer: "0", createdAt: new Date() },
+    ]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentGrades({ sessionId: 20 });
+
+    expect(result.totalStudents).toBe(2);
+    expect(result.totalQuestions).toBe(3);
+    expect(result.questions).toHaveLength(3);
+
+    const alice = result.roster.find((s) => s.studentName === "Alice")!;
+    expect(alice.answeredCount).toBe(2);
+    expect(alice.correctCount).toBe(2);
+    expect(alice.gradedCount).toBe(2);
+
+    const bob = result.roster.find((s) => s.studentName === "Bob")!;
+    expect(bob.answeredCount).toBe(1);
+    expect(bob.correctCount).toBe(0);
+    expect(bob.gradedCount).toBe(1);
+  });
+
+  it("marks text answers as isCorrect=null (not graded)", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(gradingSession);
+    // @ts-expect-error
+    vi.mocked(db.getStudentRoster).mockResolvedValue([
+      { id: 1, sessionId: 20, questionId: "q-txt", studentId: "stu-c", studentName: "Carol", answer: "Great lecture!", createdAt: new Date() },
+    ]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentGrades({ sessionId: 20 });
+
+    const carol = result.roster[0];
+    const textAnswer = carol.questionAnswers.find((qa) => qa.questionId === "q-txt");
+    expect(textAnswer?.answer).toBe("Great lecture!");
+    expect(textAnswer?.isCorrect).toBeNull();
+    expect(carol.gradedCount).toBe(0);
+  });
+
+  it("returns empty roster when no responses exist", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(gradingSession);
+    // @ts-expect-error
+    vi.mocked(db.getStudentRoster).mockResolvedValue([]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentGrades({ sessionId: 20 });
+
+    expect(result.roster).toHaveLength(0);
+    expect(result.totalStudents).toBe(0);
+  });
+
+  it("throws when session is not found", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(null);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    await expect(
+      caller.session.studentGrades({ sessionId: 999 })
+    ).rejects.toThrow("Session not found");
+  });
+
+  it("sorts roster alphabetically by name", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(gradingSession);
+    // @ts-expect-error
+    vi.mocked(db.getStudentRoster).mockResolvedValue([
+      { id: 1, sessionId: 20, questionId: "q-mc", studentId: "stu-z", studentName: "Zara", answer: "1", createdAt: new Date() },
+      { id: 2, sessionId: 20, questionId: "q-mc", studentId: "stu-a", studentName: "Alice", answer: "1", createdAt: new Date() },
+      { id: 3, sessionId: 20, questionId: "q-mc", studentId: "stu-m", studentName: "Mike", answer: "0", createdAt: new Date() },
+    ]);
+
+    const caller = appRouter.createCaller(makeCtx(null));
+    const result = await caller.session.studentGrades({ sessionId: 20 });
+
+    const names = result.roster.map((s) => s.studentName);
+    expect(names).toEqual(["Alice", "Mike", "Zara"]);
   });
 });

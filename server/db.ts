@@ -266,6 +266,17 @@ export async function getStudentResponses(sessionId: number, studentId: string) 
     .orderBy(responses.createdAt);
 }
 
+/** Get all responses for a session grouped by student, for professor grading view */
+export async function getStudentRoster(sessionId: number) {
+  const db = getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(responses)
+    .where(eq(responses.sessionId, sessionId))
+    .orderBy(responses.studentId, responses.createdAt);
+}
+
 export async function hasStudentResponded(
   sessionId: number,
   questionId: string,

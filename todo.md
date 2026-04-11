@@ -450,3 +450,11 @@
 - [x] Frontend: link from the "Session Ended" screen to the review page
 - [x] Frontend: register route in App.tsx
 - [x] Vitest: add tests for the student submissions endpoint
+
+## Feature — Per-Student Grading View (Professor)
+- [x] Seed realistic student responses into an existing closed session for demo
+- [x] Backend: tRPC endpoint returning all students with their answers per question
+- [x] Frontend: "By Student" tab on the session results page
+- [x] Frontend: student roster with name, score, answered count
+- [x] Frontend: expandable per-student answer detail showing each Q&A with correct/incorrect
+- [x] Vitest: add tests for the per-student grading endpoint

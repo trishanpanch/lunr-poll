@@ -14,6 +14,7 @@ import {
   hasStudentResponded,
   getParticipantCount,
   getStudentResponses,
+  getStudentRoster,
 } from "../db";
 import type { Question } from "../../drizzle/schema";
 
@@ -442,6 +443,97 @@ export const sessionRouter = router({
         questionCount: questions.length,
         answeredCount: studentResponses.length,
         reviewItems,
+      };
+    }),
+
+  /**
+   * Per-student grading view for professors.
+   * Returns a roster of all students with their answer for every question,
+   * including correctness for graded question types (MC, T/F).
+   */
+  studentGrades: publicProcedure
+    .input(z.object({ sessionId: z.number() }))
+    .query(async ({ input }) => {
+      const session = await getSessionById(input.sessionId);
+      if (!session) throw new Error("Session not found");
+
+      const questions = (session.questions as Question[]) ?? [];
+      const allResponses = await getStudentRoster(input.sessionId);
+
+      // Group responses by studentId
+      const studentMap = new Map<string, { name: string | null; answers: Map<string, string> }>();
+      for (const r of allResponses) {
+        if (!studentMap.has(r.studentId)) {
+          studentMap.set(r.studentId, { name: r.studentName ?? null, answers: new Map() });
+        }
+        studentMap.get(r.studentId)!.answers.set(r.questionId, r.answer);
+      }
+
+      // Build per-student grade rows
+      const roster = Array.from(studentMap.entries()).map(([studentId, { name, answers }]) => {
+        let correctCount = 0;
+        let gradedCount = 0;
+
+        const questionAnswers = questions.map((q) => {
+          const answer = answers.get(q.id) ?? null;
+          let isCorrect: boolean | null = null;
+
+          if (answer !== null) {
+            if (q.type === "Multiple Choice" && q.correctIndex !== undefined) {
+              const idx = parseInt(answer, 10);
+              isCorrect = !isNaN(idx) ? idx === q.correctIndex : answer === (q.options ?? [])[q.correctIndex];
+            } else if (q.type === "True / False" && q.tfAnswer) {
+              isCorrect = answer === q.tfAnswer;
+            }
+          }
+
+          if (isCorrect !== null) {
+            gradedCount++;
+            if (isCorrect) correctCount++;
+          }
+
+          return {
+            questionId: q.id,
+            answer,
+            isCorrect,
+          };
+        });
+
+        return {
+          studentId,
+          studentName: name,
+          answeredCount: answers.size,
+          correctCount,
+          gradedCount,
+          questionAnswers,
+        };
+      });
+
+      // Sort: by name (named first, then anonymous), then by score desc
+      roster.sort((a, b) => {
+        const aName = a.studentName ?? "";
+        const bName = b.studentName ?? "";
+        if (aName && !bName) return -1;
+        if (!aName && bName) return 1;
+        if (aName && bName) return aName.localeCompare(bName);
+        return b.correctCount - a.correctCount;
+      });
+
+      return {
+        sessionName: session.name,
+        questions: questions.map((q, i) => ({
+          id: q.id,
+          index: i,
+          type: q.type,
+          text: q.text,
+          options: q.options,
+          correctIndex: q.correctIndex,
+          tfAnswer: q.tfAnswer,
+          modelAnswer: q.modelAnswer,
+        })),
+        roster,
+        totalStudents: roster.length,
+        totalQuestions: questions.length,
       };
     }),
 

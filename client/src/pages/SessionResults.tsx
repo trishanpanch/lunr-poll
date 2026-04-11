@@ -19,6 +19,8 @@ import {
   Download,
   Loader2,
   CheckCircle2,
+  XCircle,
+  Minus,
   Star,
   Type,
   ListChecks,
@@ -31,6 +33,9 @@ import {
   GraduationCap,
   AlignJustify,
   Sliders,
+  ChevronDown,
+  ChevronRight,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WordCloud from "@/components/WordCloud";
@@ -46,6 +51,10 @@ const TEXT_MUTED = "oklch(0.556 0 0)";
 const BG = "var(--background)";
 const GREEN = "oklch(0.52 0.18 160)";
 const GREEN_LIGHT = "oklch(0.92 0.08 160)";
+const RED = "oklch(0.55 0.22 27)";
+const RED_LIGHT = "oklch(0.95 0.05 27)";
+const AMBER = "oklch(0.62 0.18 60)";
+const AMBER_LIGHT = "oklch(0.96 0.06 60)";
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
   "Text": <Type size={15} />,
@@ -495,10 +504,16 @@ export default function SessionResults() {
   const sessionId = parseInt(params.id ?? "0");
   const [, navigate] = useLocation();
   const [showSyncModal, setShowSyncModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<"questions" | "students">("questions");
 
   const { data, isLoading, error } = trpc.session.results.useQuery(
     { id: sessionId },
     { enabled: !!sessionId }
+  );
+
+  const { data: gradesData, isLoading: gradesLoading } = trpc.session.studentGrades.useQuery(
+    { sessionId },
+    { enabled: !!sessionId && activeTab === "students" }
   );
 
   const csvExport = trpc.session.exportCsv.useQuery(
@@ -696,8 +711,33 @@ export default function SessionResults() {
           </div>
         )}
 
+        {/* Tab switcher */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 24, background: "var(--muted)", borderRadius: 12, padding: 4 }}>
+          {([
+            { key: "questions", label: "By Question", icon: <BarChart2 size={15} /> },
+            { key: "students",  label: "By Student",  icon: <UserCheck size={15} /> },
+          ] as const).map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              style={{
+                flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                padding: "9px 16px", borderRadius: 9, border: "none", cursor: "pointer",
+                fontSize: 13, fontWeight: 600,
+                background: activeTab === tab.key ? "var(--card)" : "transparent",
+                color: activeTab === tab.key ? TEXT_DARK : TEXT_MUTED,
+                boxShadow: activeTab === tab.key ? "0 1px 4px rgba(0,0,0,0.08)" : "none",
+                transition: "all 0.15s",
+              }}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         {/* Per-question results */}
-        {questionResults.length === 0 ? (
+        {activeTab === "questions" && questionResults.length === 0 ? (
           <div style={{
             background: "var(--card)", borderRadius: 16, border: `2px dashed ${BORDER}`,
             padding: "48px 32px", textAlign: "center",
@@ -770,9 +810,327 @@ export default function SessionResults() {
             })}
           </div>
         )}
+
+        {/* By-Student grading panel */}
+        {activeTab === "students" && (
+          <StudentGradingPanel
+            sessionId={sessionId}
+            data={gradesData}
+            isLoading={gradesLoading}
+          />
+        )}
       </main>
 
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
+
+// ── StudentGradingPanel ───────────────────────────────────────────────────────
+
+type GradesData = {
+  sessionName: string;
+  questions: Array<{
+    id: string;
+    index: number;
+    type: string;
+    text: string;
+    options?: string[];
+    correctIndex?: number;
+    tfAnswer?: string;
+    modelAnswer?: string;
+  }>;
+  roster: Array<{
+    studentId: string;
+    studentName: string | null;
+    answeredCount: number;
+    correctCount: number;
+    gradedCount: number;
+    questionAnswers: Array<{
+      questionId: string;
+      answer: string | null;
+      isCorrect: boolean | null;
+    }>;
+  }>;
+  totalStudents: number;
+  totalQuestions: number;
+};
+
+function StudentGradingPanel({
+  sessionId,
+  data,
+  isLoading,
+}: {
+  sessionId: number;
+  data: GradesData | undefined;
+  isLoading: boolean;
+}) {
+  const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
+  void sessionId;
+
+  if (isLoading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "60px 0" }}>
+        <Loader2 size={28} style={{ color: INDIGO, animation: "spin 1s linear infinite" }} />
+      </div>
+    );
+  }
+
+  if (!data || data.roster.length === 0) {
+    return (
+      <div style={{
+        background: "var(--card)", borderRadius: 16, border: `2px dashed ${BORDER}`,
+        padding: "48px 32px", textAlign: "center",
+      }}>
+        <Users size={32} style={{ color: TEXT_MUTED, marginBottom: 12 }} />
+        <p style={{ fontSize: 15, fontWeight: 600, color: TEXT_MUTED, margin: 0 }}>
+          No student responses yet.
+        </p>
+      </div>
+    );
+  }
+
+  const { questions, roster } = data;
+  const gradedQuestions = questions.filter(
+    (q) => q.type === "Multiple Choice" || q.type === "True / False"
+  );
+
+  // Class-wide stats for graded questions
+  const classAvg = gradedQuestions.length > 0
+    ? roster.reduce((sum, s) => sum + (s.gradedCount > 0 ? s.correctCount / s.gradedCount : 0), 0) / roster.length
+    : null;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+
+      {/* Class summary bar */}
+      {classAvg !== null && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 20,
+          padding: "14px 20px", borderRadius: 12,
+          background: INDIGO_LIGHT, border: `1px solid ${INDIGO}22`,
+          marginBottom: 16, fontSize: 13, color: TEXT_MID,
+        }}>
+          <GraduationCap size={18} style={{ color: INDIGO, flexShrink: 0 }} />
+          <span>
+            <strong style={{ color: TEXT_DARK }}>{roster.length}</strong> students &nbsp;·&nbsp;
+            <strong style={{ color: TEXT_DARK }}>{questions.length}</strong> questions &nbsp;·&nbsp;
+            Class avg on graded:{" "}
+            <strong style={{ color: classAvg >= 0.7 ? GREEN : classAvg >= 0.4 ? AMBER : RED }}>
+              {Math.round(classAvg * 100)}%
+            </strong>
+          </span>
+        </div>
+      )}
+
+      {/* Column headers */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "2fr 1fr 1fr 1fr",
+        gap: 8,
+        padding: "8px 16px",
+        fontSize: 11, fontWeight: 700, textTransform: "uppercase",
+        letterSpacing: "0.07em", color: TEXT_MUTED,
+        borderBottom: `1px solid ${BORDER}`,
+        marginBottom: 4,
+      }}>
+        <span>Student</span>
+        <span style={{ textAlign: "center" }}>Answered</span>
+        <span style={{ textAlign: "center" }}>Score</span>
+        <span style={{ textAlign: "right" }}>Details</span>
+      </div>
+
+      {/* Student rows */}
+      {roster.map((student) => {
+        const isExpanded = expandedStudent === student.studentId;
+        const scorePercent = student.gradedCount > 0
+          ? Math.round((student.correctCount / student.gradedCount) * 100)
+          : null;
+        const scoreColor = scorePercent === null ? TEXT_MUTED
+          : scorePercent >= 70 ? GREEN
+          : scorePercent >= 40 ? AMBER
+          : RED;
+        const scoreBg = scorePercent === null ? "transparent"
+          : scorePercent >= 70 ? GREEN_LIGHT
+          : scorePercent >= 40 ? AMBER_LIGHT
+          : RED_LIGHT;
+
+        return (
+          <div key={student.studentId}>
+            {/* Row */}
+            <div
+              onClick={() => setExpandedStudent(isExpanded ? null : student.studentId)}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "2fr 1fr 1fr 1fr",
+                gap: 8,
+                padding: "14px 16px",
+                borderRadius: isExpanded ? "12px 12px 0 0" : 12,
+                background: isExpanded ? INDIGO_LIGHT : "var(--card)",
+                border: `1px solid ${isExpanded ? INDIGO + "44" : BORDER}`,
+                borderBottom: isExpanded ? `1px solid ${INDIGO}22` : `1px solid ${BORDER}`,
+                marginBottom: isExpanded ? 0 : 6,
+                cursor: "pointer",
+                alignItems: "center",
+                transition: "background 0.15s",
+              }}
+            >
+              {/* Name */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
+                  background: INDIGO_LIGHT, color: INDIGO,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 12, fontWeight: 800,
+                }}>
+                  {(student.studentName ?? "?").charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 600, fontSize: 14, color: TEXT_DARK }}>
+                    {student.studentName ?? <span style={{ color: TEXT_MUTED, fontStyle: "italic" }}>Anonymous</span>}
+                  </p>
+                  <p style={{ margin: 0, fontSize: 11, color: TEXT_MUTED }}>
+                    {student.studentId.startsWith("stu-") ? "" : student.studentId.substring(0, 8) + "…"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Answered */}
+              <div style={{ textAlign: "center" }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: TEXT_DARK }}>
+                  {student.answeredCount}
+                </span>
+                <span style={{ fontSize: 12, color: TEXT_MUTED }}>/{questions.length}</span>
+              </div>
+
+              {/* Score */}
+              <div style={{ textAlign: "center" }}>
+                {scorePercent !== null ? (
+                  <span style={{
+                    display: "inline-block",
+                    padding: "3px 10px", borderRadius: 20,
+                    background: scoreBg, color: scoreColor,
+                    fontSize: 13, fontWeight: 700,
+                    border: `1px solid ${scoreColor}33`,
+                  }}>
+                    {scorePercent}%
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 12, color: TEXT_MUTED }}>—</span>
+                )}
+              </div>
+
+              {/* Expand toggle */}
+              <div style={{ textAlign: "right", color: INDIGO }}>
+                {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              </div>
+            </div>
+
+            {/* Expanded answer detail */}
+            {isExpanded && (
+              <div style={{
+                background: "var(--card)",
+                border: `1px solid ${INDIGO}44`,
+                borderTop: "none",
+                borderRadius: "0 0 12px 12px",
+                padding: "16px 20px",
+                marginBottom: 6,
+              }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {questions.map((q, qi) => {
+                    const qa = student.questionAnswers[qi];
+                    const answered = qa?.answer !== null && qa?.answer !== undefined;
+                    const isGraded = q.type === "Multiple Choice" || q.type === "True / False";
+
+                    // Resolve display text for MC answers
+                    let displayAnswer = qa?.answer ?? null;
+                    if (answered && q.type === "Multiple Choice" && q.options) {
+                      const idx = parseInt(qa!.answer!, 10);
+                      displayAnswer = !isNaN(idx) && q.options[idx] ? q.options[idx] : qa!.answer;
+                    }
+
+                    // Correct answer text
+                    let correctAnswerText: string | null = null;
+                    if (isGraded) {
+                      if (q.type === "Multiple Choice" && q.correctIndex !== undefined && q.options) {
+                        correctAnswerText = q.options[q.correctIndex] ?? null;
+                      } else if (q.type === "True / False" && q.tfAnswer) {
+                        correctAnswerText = q.tfAnswer;
+                      }
+                    }
+
+                    return (
+                      <div key={q.id} style={{
+                        display: "flex", alignItems: "flex-start", gap: 12,
+                        padding: "10px 14px", borderRadius: 10,
+                        background: !answered ? "var(--muted)"
+                          : qa?.isCorrect === true ? GREEN_LIGHT
+                          : qa?.isCorrect === false ? RED_LIGHT
+                          : "var(--muted)",
+                        border: `1px solid ${
+                          !answered ? BORDER
+                          : qa?.isCorrect === true ? GREEN + "44"
+                          : qa?.isCorrect === false ? RED + "44"
+                          : BORDER
+                        }`,
+                      }}>
+                        {/* Q number */}
+                        <div style={{
+                          width: 24, height: 24, borderRadius: 6, flexShrink: 0,
+                          background: INDIGO_LIGHT, color: INDIGO,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 10, fontWeight: 800,
+                        }}>
+                          Q{qi + 1}
+                        </div>
+
+                        {/* Content */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ margin: "0 0 4px", fontSize: 12, fontWeight: 600, color: TEXT_MID }}>
+                            {q.text.length > 80 ? q.text.substring(0, 80) + "…" : q.text}
+                          </p>
+                          {!answered ? (
+                            <span style={{ fontSize: 12, color: TEXT_MUTED, fontStyle: "italic" }}>No answer</span>
+                          ) : (
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                              <span style={{
+                                fontSize: 13, fontWeight: 600,
+                                color: qa?.isCorrect === true ? GREEN
+                                  : qa?.isCorrect === false ? RED
+                                  : TEXT_DARK,
+                              }}>
+                                {displayAnswer}
+                              </span>
+                              {isGraded && qa?.isCorrect === false && correctAnswerText && (
+                                <span style={{ fontSize: 11, color: GREEN, fontWeight: 500 }}>
+                                  ✓ {correctAnswerText}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Correctness icon */}
+                        <div style={{ flexShrink: 0 }}>
+                          {!answered ? (
+                            <Minus size={15} style={{ color: TEXT_MUTED }} />
+                          ) : qa?.isCorrect === true ? (
+                            <CheckCircle2 size={15} style={{ color: GREEN }} />
+                          ) : qa?.isCorrect === false ? (
+                            <XCircle size={15} style={{ color: RED }} />
+                          ) : (
+                            <MessageSquare size={15} style={{ color: INDIGO }} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
