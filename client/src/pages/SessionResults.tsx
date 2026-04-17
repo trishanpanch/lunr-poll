@@ -849,6 +849,68 @@ type GradesData = {
   totalQuestions: number;
 };
 
+function exportStudentsCsv(data: GradesData) {
+  const { sessionName, questions, roster } = data;
+
+  // Helper: turn a raw stored answer into a readable label
+  const readableAnswer = (answer: string | null, q: GradesData["questions"][0]): string => {
+    if (answer === null || answer === undefined) return "";
+    if (q.type === "Multiple Choice" && q.options) {
+      const idx = parseInt(answer, 10);
+      return isNaN(idx) ? answer : (q.options[idx] ?? answer);
+    }
+    return answer;
+  };
+
+  // Build header row
+  const headers = [
+    "Student Name",
+    "Student ID",
+    "Answered",
+    "Total Questions",
+    "Score (%)",
+    ...questions.map((q, i) => `Q${i + 1}: ${q.text.replace(/"/g, "'")}`.slice(0, 80)),
+  ];
+
+  // Build one row per student
+  const rows = roster.map((student) => {
+    const scorePercent = student.gradedCount > 0
+      ? Math.round((student.correctCount / student.gradedCount) * 100)
+      : "";
+    const answerCells = questions.map((q) => {
+      const qa = student.questionAnswers.find((a) => a.questionId === q.id);
+      return qa ? readableAnswer(qa.answer, q) : "";
+    });
+    return [
+      student.studentName ?? "Anonymous",
+      student.studentId,
+      student.answeredCount,
+      questions.length,
+      scorePercent,
+      ...answerCells,
+    ];
+  });
+
+  // Escape a CSV cell
+  const cell = (v: string | number) => {
+    const s = String(v);
+    return s.includes(",") || s.includes('"') || s.includes("\n")
+      ? `"${s.replace(/"/g, '""')}"`
+      : s;
+  };
+
+  const csv = [headers, ...rows].map((row) => row.map(cell).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const safeName = sessionName.replace(/[^a-z0-9]/gi, "_");
+  const date = new Date().toISOString().slice(0, 10);
+  a.download = `${safeName}_by_student_${date}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function StudentGradingPanel({
   sessionId,
   data,
@@ -897,24 +959,47 @@ function StudentGradingPanel({
     <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
 
       {/* Class summary bar */}
-      {classAvg !== null && (
-        <div style={{
-          display: "flex", alignItems: "center", gap: 20,
-          padding: "14px 20px", borderRadius: 12,
-          background: INDIGO_LIGHT, border: `1px solid ${INDIGO}22`,
-          marginBottom: 16, fontSize: 13, color: TEXT_MID,
-        }}>
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "14px 20px", borderRadius: 12,
+        background: INDIGO_LIGHT, border: `1px solid ${INDIGO}22`,
+        marginBottom: 16, fontSize: 13, color: TEXT_MID,
+        gap: 12,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <GraduationCap size={18} style={{ color: INDIGO, flexShrink: 0 }} />
           <span>
             <strong style={{ color: TEXT_DARK }}>{roster.length}</strong> students &nbsp;·&nbsp;
-            <strong style={{ color: TEXT_DARK }}>{questions.length}</strong> questions &nbsp;·&nbsp;
-            Class avg on graded:{" "}
-            <strong style={{ color: classAvg >= 0.7 ? GREEN : classAvg >= 0.4 ? AMBER : RED }}>
-              {Math.round(classAvg * 100)}%
-            </strong>
+            <strong style={{ color: TEXT_DARK }}>{questions.length}</strong> questions
+            {classAvg !== null && (
+              <>
+                &nbsp;·&nbsp; Class avg on graded:{" "}
+                <strong style={{ color: classAvg >= 0.7 ? GREEN : classAvg >= 0.4 ? AMBER : RED }}>
+                  {Math.round(classAvg * 100)}%
+                </strong>
+              </>
+            )}
           </span>
         </div>
-      )}
+        <button
+          onClick={() => exportStudentsCsv(data)}
+          title="Export gradebook as CSV"
+          style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "7px 14px", borderRadius: 8,
+            border: `1.5px solid ${INDIGO}44`,
+            background: "#fff", color: INDIGO,
+            fontSize: 12, fontWeight: 600,
+            cursor: "pointer", flexShrink: 0,
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = INDIGO_LIGHT; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#fff"; }}
+        >
+          <Download size={13} />
+          Export CSV
+        </button>
+      </div>
 
       {/* Column headers */}
       <div style={{

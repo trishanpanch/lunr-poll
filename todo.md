@@ -458,3 +458,8 @@
 - [x] Frontend: student roster with name, score, answered count
 - [x] Frontend: expandable per-student answer detail showing each Q&A with correct/incorrect
 - [x] Vitest: add tests for the per-student grading endpoint
+
+## Feature — Export By Student as CSV
+- [x] Frontend: Export button on the By Student tab header
+- [x] Frontend: CSV includes student name, answered count, score %, and one column per question with the student's answer
+- [x] Frontend: filename uses session name and date
