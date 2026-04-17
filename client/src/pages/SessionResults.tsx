@@ -654,14 +654,7 @@ export default function SessionResults() {
               label: "Questions",
               value: questions.length,
             },
-            ...(closedDate
-              ? [{
-                  icon: <Calendar size={18} style={{ color: "oklch(0.62 0.18 60)" }} />,
-                  label: "Closed",
-                  value: closedDate,
-                  small: true,
-                }]
-              : []),
+
           ].map((card, i) => (
             <div key={i} style={{
               background: "var(--card)", borderRadius: 14, border: `1px solid ${BORDER}`,
