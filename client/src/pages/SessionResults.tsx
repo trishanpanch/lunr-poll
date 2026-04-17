@@ -737,7 +737,7 @@ export default function SessionResults() {
         </div>
 
         {/* Per-question results */}
-        {activeTab === "questions" && questionResults.length === 0 ? (
+        {activeTab === "questions" && (questionResults.length === 0 ? (
           <div style={{
             background: "var(--card)", borderRadius: 16, border: `2px dashed ${BORDER}`,
             padding: "48px 32px", textAlign: "center",
@@ -809,7 +809,7 @@ export default function SessionResults() {
               );
             })}
           </div>
-        )}
+        ))}
 
         {/* By-Student grading panel */}
         {activeTab === "students" && (
