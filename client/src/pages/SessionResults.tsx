@@ -989,12 +989,18 @@ function StudentGradingPanel({
               </div>
 
               {/* Answered */}
-              <div style={{ textAlign: "center" }}>
-                <span style={{ fontSize: 14, fontWeight: 700, color: TEXT_DARK }}>
-                  {student.answeredCount}
-                </span>
-                <span style={{ fontSize: 12, color: TEXT_MUTED }}>/{questions.length}</span>
-              </div>
+              {(() => {
+                const belowHalf = student.answeredCount < questions.length / 2;
+                const fracColor = belowHalf ? "oklch(0.55 0.22 25)" : TEXT_MUTED;
+                return (
+                  <div style={{ textAlign: "center" }}>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: fracColor }}>
+                      {student.answeredCount}
+                    </span>
+                    <span style={{ fontSize: 14, fontWeight: 500, color: fracColor }}>/{questions.length}</span>
+                  </div>
+                );
+              })()}
 
               {/* Score */}
               <div style={{ textAlign: "center" }}>
