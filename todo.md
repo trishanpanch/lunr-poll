@@ -463,3 +463,13 @@
 - [x] Frontend: Export button on the By Student tab header
 - [x] Frontend: CSV includes student name, answered count, score %, and one column per question with the student's answer
 - [x] Frontend: filename uses session name and date
+
+## Feature — Manual Score Override for Short-Text Answers
+- [x] DB schema: add `manualScore` column (nullable boolean) to the responses table
+- [x] DB migration: run pnpm db:push
+- [x] Backend: tRPC procedure `session.setManualScore` — saves correct/incorrect override for a response
+- [x] Backend: `getStudentRoster` query includes `manualScore` and uses it when computing `correctCount`
+- [x] Frontend: correct/incorrect toggle buttons on short-text answer cells in the expanded student row
+- [x] Frontend: optimistic update — score badge and class avg update immediately on toggle
+- [x] Frontend: visual indicator (green ✓ / red ✗ / gray –) showing current manual grade state
+- [x] Vitest: add tests for the setManualScore procedure

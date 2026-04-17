@@ -15,6 +15,7 @@ import {
   getParticipantCount,
   getStudentResponses,
   getStudentRoster,
+  setManualScore,
 } from "../db";
 import type { Question } from "../../drizzle/schema";
 
@@ -460,26 +461,38 @@ export const sessionRouter = router({
       const questions = (session.questions as Question[]) ?? [];
       const allResponses = await getStudentRoster(input.sessionId);
 
-      // Group responses by studentId
-      const studentMap = new Map<string, { name: string | null; answers: Map<string, string> }>();
+      // Group responses by studentId, keeping manualScore per (studentId, questionId)
+      type StudentEntry = {
+        name: string | null;
+        answers: Map<string, string>;
+        manualScores: Map<string, boolean | null>;
+      };
+      const studentMap = new Map<string, StudentEntry>();
       for (const r of allResponses) {
         if (!studentMap.has(r.studentId)) {
-          studentMap.set(r.studentId, { name: r.studentName ?? null, answers: new Map() });
+          studentMap.set(r.studentId, { name: r.studentName ?? null, answers: new Map(), manualScores: new Map() });
         }
-        studentMap.get(r.studentId)!.answers.set(r.questionId, r.answer);
+        const entry = studentMap.get(r.studentId)!;
+        entry.answers.set(r.questionId, r.answer);
+        // manualScore may be undefined if column was just added; treat undefined as null
+        entry.manualScores.set(r.questionId, r.manualScore ?? null);
       }
 
       // Build per-student grade rows
-      const roster = Array.from(studentMap.entries()).map(([studentId, { name, answers }]) => {
+      const roster = Array.from(studentMap.entries()).map(([studentId, { name, answers, manualScores }]) => {
         let correctCount = 0;
         let gradedCount = 0;
 
         const questionAnswers = questions.map((q) => {
           const answer = answers.get(q.id) ?? null;
+          const manualScore = manualScores.get(q.id) ?? null;
           let isCorrect: boolean | null = null;
 
           if (answer !== null) {
-            if (q.type === "Multiple Choice" && q.correctIndex !== undefined) {
+            // Manual override takes precedence for short-text questions
+            if (manualScore !== null) {
+              isCorrect = manualScore;
+            } else if (q.type === "Multiple Choice" && q.correctIndex !== undefined) {
               const idx = parseInt(answer, 10);
               isCorrect = !isNaN(idx) ? idx === q.correctIndex : answer === (q.options ?? [])[q.correctIndex];
             } else if (q.type === "True / False" && q.tfAnswer) {
@@ -496,6 +509,7 @@ export const sessionRouter = router({
             questionId: q.id,
             answer,
             isCorrect,
+            manualScore,
           };
         });
 
@@ -535,6 +549,28 @@ export const sessionRouter = router({
         totalStudents: roster.length,
         totalQuestions: questions.length,
       };
+    }),
+
+  /** Professor manually marks a short-text answer as correct or incorrect */
+  setManualScore: publicProcedure
+    .input(z.object({
+      sessionId: z.number(),
+      questionId: z.string(),
+      studentId: z.string(),
+      /** true = correct, false = incorrect, null = clear override */
+      score: z.boolean().nullable(),
+    }))
+    .mutation(async ({ input }) => {
+      const session = await getSessionById(input.sessionId);
+      if (!session) throw new Error("Session not found");
+      const result = await setManualScore(
+        input.sessionId,
+        input.questionId,
+        input.studentId,
+        input.score
+      );
+      if (!result) throw new Error("Failed to save manual score");
+      return { ok: true };
     }),
 
   /** Get response counts per question for a live session (professor) */

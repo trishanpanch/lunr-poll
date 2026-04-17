@@ -843,6 +843,7 @@ type GradesData = {
       questionId: string;
       answer: string | null;
       isCorrect: boolean | null;
+      manualScore: boolean | null;
     }>;
   }>;
   totalStudents: number;
@@ -921,7 +922,16 @@ function StudentGradingPanel({
   isLoading: boolean;
 }) {
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
-  void sessionId;
+  const utils = trpc.useUtils();
+  const setManualScore = trpc.session.setManualScore.useMutation({
+    onSuccess: () => {
+      // Refetch grades so score badge and class avg update
+      utils.session.studentGrades.invalidate({ sessionId });
+    },
+    onError: () => {
+      toast.error("Failed to save score override. Please try again.");
+    },
+  });
 
   if (isLoading) {
     return (
@@ -1143,6 +1153,11 @@ function StudentGradingPanel({
                       }
                     }
 
+                    // For short-text questions, allow manual correct/incorrect toggle
+                    const isShortText = q.type === "Short Text";
+                    const manualScore = qa?.manualScore ?? null;
+                    const isPending = setManualScore.isPending;
+
                     return (
                       <div key={q.id} style={{
                         display: "flex", alignItems: "flex-start", gap: 12,
@@ -1188,6 +1203,75 @@ function StudentGradingPanel({
                               {isGraded && qa?.isCorrect === false && correctAnswerText && (
                                 <span style={{ fontSize: 11, color: GREEN, fontWeight: 500 }}>
                                   ✓ {correctAnswerText}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Manual grade toggle for short-text answers */}
+                          {isShortText && answered && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
+                              <span style={{ fontSize: 11, color: TEXT_MUTED, marginRight: 2 }}>Grade:</span>
+                              {/* Correct button */}
+                              <button
+                                disabled={isPending}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Toggle off if already marked correct
+                                  const newScore = manualScore === true ? null : true;
+                                  setManualScore.mutate({
+                                    sessionId,
+                                    questionId: q.id,
+                                    studentId: student.studentId,
+                                    score: newScore,
+                                  });
+                                }}
+                                title={manualScore === true ? "Click to clear" : "Mark correct"}
+                                style={{
+                                  display: "flex", alignItems: "center", gap: 4,
+                                  padding: "3px 10px", borderRadius: 20,
+                                  border: `1.5px solid ${manualScore === true ? GREEN : BORDER}`,
+                                  background: manualScore === true ? GREEN_LIGHT : "transparent",
+                                  color: manualScore === true ? GREEN : TEXT_MUTED,
+                                  fontSize: 11, fontWeight: 600, cursor: "pointer",
+                                  transition: "all 0.15s",
+                                  opacity: isPending ? 0.6 : 1,
+                                }}
+                              >
+                                <CheckCircle2 size={12} />
+                                Correct
+                              </button>
+                              {/* Incorrect button */}
+                              <button
+                                disabled={isPending}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newScore = manualScore === false ? null : false;
+                                  setManualScore.mutate({
+                                    sessionId,
+                                    questionId: q.id,
+                                    studentId: student.studentId,
+                                    score: newScore,
+                                  });
+                                }}
+                                title={manualScore === false ? "Click to clear" : "Mark incorrect"}
+                                style={{
+                                  display: "flex", alignItems: "center", gap: 4,
+                                  padding: "3px 10px", borderRadius: 20,
+                                  border: `1.5px solid ${manualScore === false ? RED : BORDER}`,
+                                  background: manualScore === false ? RED_LIGHT : "transparent",
+                                  color: manualScore === false ? RED : TEXT_MUTED,
+                                  fontSize: 11, fontWeight: 600, cursor: "pointer",
+                                  transition: "all 0.15s",
+                                  opacity: isPending ? 0.6 : 1,
+                                }}
+                              >
+                                <XCircle size={12} />
+                                Incorrect
+                              </button>
+                              {manualScore !== null && (
+                                <span style={{ fontSize: 10, color: TEXT_MUTED, fontStyle: "italic" }}>
+                                  (click again to clear)
                                 </span>
                               )}
                             </div>

@@ -71,6 +71,11 @@ export const responses = mysqlTable("responses", {
   studentName: varchar("studentName", { length: 128 }),
   /** The actual answer value (text, option index, rating, etc.) */
   answer: text("answer").notNull(),
+  /**
+   * Professor manual score override for short-text answers.
+   * null = not graded manually, true = marked correct, false = marked incorrect.
+   */
+  manualScore: boolean("manualScore"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

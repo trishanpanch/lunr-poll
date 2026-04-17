@@ -277,6 +277,28 @@ export async function getStudentRoster(sessionId: number) {
     .orderBy(responses.studentId, responses.createdAt);
 }
 
+/** Set or clear the manual score override for a specific response */
+export async function setManualScore(
+  sessionId: number,
+  questionId: string,
+  studentId: string,
+  score: boolean | null
+) {
+  const db = getDb();
+  if (!db) return null;
+  await db
+    .update(responses)
+    .set({ manualScore: score })
+    .where(
+      and(
+        eq(responses.sessionId, sessionId),
+        eq(responses.questionId, questionId),
+        eq(responses.studentId, studentId)
+      )
+    );
+  return { ok: true };
+}
+
 export async function hasStudentResponded(
   sessionId: number,
   questionId: string,

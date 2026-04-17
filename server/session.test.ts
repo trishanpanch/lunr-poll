@@ -24,6 +24,7 @@ vi.mock("./db", () => ({
   getParticipantCount: vi.fn(),
   getStudentResponses: vi.fn(),
   getStudentRoster: vi.fn(),
+  setManualScore: vi.fn(),
 }));
 
 import * as db from "./db";
@@ -767,5 +768,101 @@ describe("session.studentGrades", () => {
 
     const names = result.roster.map((s) => s.studentName);
     expect(names).toEqual(["Alice", "Mike", "Zara"]);
+  });
+});
+
+// ── session.setManualScore ────────────────────────────────────────────────────
+
+describe("session.setManualScore", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("saves a correct manual override for a short-text response", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({
+      ...sampleSession,
+      id: 30,
+      status: "closed" as const,
+      questions: [{ id: "q-txt", type: "Short Text" as const, text: "Describe your experience", color: "#000" }],
+    });
+    vi.mocked(db.setManualScore).mockResolvedValue({ success: true });
+
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.session.setManualScore({
+      sessionId: 30,
+      studentId: "stu-1",
+      questionId: "q-txt",
+      score: true,
+    });
+
+    expect(db.setManualScore).toHaveBeenCalledWith(30, "q-txt", "stu-1", true);
+    expect(result).toEqual({ ok: true });
+  });
+
+  it("saves an incorrect manual override (score=false)", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({
+      ...sampleSession,
+      id: 30,
+      status: "closed" as const,
+      questions: [{ id: "q-txt", type: "Short Text" as const, text: "Describe your experience", color: "#000" }],
+    });
+    vi.mocked(db.setManualScore).mockResolvedValue({ success: true });
+
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.session.setManualScore({
+      sessionId: 30,
+      studentId: "stu-1",
+      questionId: "q-txt",
+      score: false,
+    });
+
+    expect(db.setManualScore).toHaveBeenCalledWith(30, "q-txt", "stu-1", false);
+    expect(result).toEqual({ ok: true });
+  });
+
+  it("clears a manual override when score is null", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({
+      ...sampleSession,
+      id: 30,
+      status: "closed" as const,
+      questions: [{ id: "q-txt", type: "Short Text" as const, text: "Describe your experience", color: "#000" }],
+    });
+    vi.mocked(db.setManualScore).mockResolvedValue({ success: true });
+
+    const caller = appRouter.createCaller(makeCtx());
+    const result = await caller.session.setManualScore({
+      sessionId: 30,
+      studentId: "stu-1",
+      questionId: "q-txt",
+      score: null,
+    });
+
+    expect(db.setManualScore).toHaveBeenCalledWith(30, "q-txt", "stu-1", null);
+    expect(result).toEqual({ ok: true });
+  });
+
+  it("throws when session is not found", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue(null);
+
+    const caller = appRouter.createCaller(makeCtx());
+    await expect(
+      caller.session.setManualScore({ sessionId: 999, studentId: "stu-1", questionId: "q-txt", score: true })
+    ).rejects.toThrow("Session not found");
+  });
+
+  it("succeeds without authentication (public procedure)", async () => {
+    vi.mocked(db.getSessionById).mockResolvedValue({
+      ...sampleSession,
+      id: 30,
+      status: "closed" as const,
+    });
+    vi.mocked(db.setManualScore).mockResolvedValue({ success: true });
+
+    const caller = appRouter.createCaller(makeCtx(null)); // no auth required
+    const result = await caller.session.setManualScore({
+      sessionId: 30,
+      studentId: "stu-1",
+      questionId: "q-txt",
+      score: true,
+    });
+    expect(result).toEqual({ ok: true });
   });
 });
