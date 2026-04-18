@@ -2922,7 +2922,7 @@ function AiPanel({
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     onPaste={() => scrollTextareaToBottom()}
-                    placeholder="Paste your lecture notes, slides, or learning objectives here…"
+                    placeholder="Paste your lecture notes, slides, or topic description here…"
                     rows={6}
                     style={{ borderRadius: 10, fontSize: 13, resize: "none", marginBottom: 16 }}
                     disabled={loading}
