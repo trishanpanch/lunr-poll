@@ -2433,6 +2433,7 @@ function AiPanel({
   const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
   const [transformingIdx, setTransformingIdx] = useState<Set<number>>(new Set());
   const [isDragging, setIsDragging] = useState(false);
+  const [sourceTab, setSourceTab] = useState<"text" | "file" | "url">("text");
   const [urlInput, setUrlInput] = useState("");
   const [urlChips, setUrlChips] = useState<string[]>([]);
   const [fileChips, setFileChips] = useState<{ name: string; text: string }[]>([]);
@@ -2871,195 +2872,242 @@ function AiPanel({
                   Source material
                 </p>
 
-                {/* Drop zone */}
-                <div
-                  onDragOver={(e) => { e.preventDefault(); if (!fileUploading) setIsDragging(true); }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (!fileUploading) { const f = e.dataTransfer.files[0]; if (f) handleFile(f); } }}
-                  onClick={() => { if (!fileUploading) fileInputRef.current?.click(); }}
-                  style={{
-                    border: `1.5px dashed ${isDragging ? "var(--indigo-light)" : "var(--border)"}`,
-                    borderRadius: 10,
-                    padding: "14px 12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 6,
-                    cursor: fileUploading ? "not-allowed" : "pointer",
-                    background: isDragging ? "var(--muted)" : "var(--card)",
-                    opacity: fileUploading ? 0.6 : 1,
-                    transition: "all 0.15s",
-                    marginBottom: fileChips.length > 0 ? 8 : 10,
-                  }}
-                  className={fileUploading ? "" : "hover:border-[var(--indigo-light)] hover:bg-[var(--muted)] transition-all"}
-                >
-                  {fileUploading
-                    ? <Loader2 size={18} className="animate-spin" style={{ color: "var(--indigo-light)" }} />
-                    : <Upload size={18} style={{ color: "var(--indigo-light)" }} />
-                  }
-                  <span style={{ fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center", lineHeight: 1.4 }}>
-                    {fileUploading ? "Extracting text…" : <><strong>Drop a file</strong> or click to upload</>}<br />
-                    <span style={{ color: "var(--muted-foreground)", fontSize: 11 }}>PDF, DOCX, TXT supported</span>
-                  </span>
-                  <input ref={fileInputRef} type="file" accept=".txt,.pdf,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-                </div>
-
-                {/* File attachment chips */}
-                {fileChips.length > 0 && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
-                    {fileChips.map((fc, i) => (
-                      <div
-                        key={i}
+                {/* Source tabs */}
+                <div style={{ display: "flex", gap: 0, marginBottom: 10, borderRadius: 8, border: "1.5px solid var(--border)", overflow: "hidden" }}>
+                  {(["text", "file", "url"] as const).map((tab) => {
+                    const active = sourceTab === tab;
+                    const label = tab === "text" ? "Text" : tab === "file" ? "File" : "URL";
+                    const badge = tab === "file" ? fileChips.length : tab === "url" ? urlChips.length : 0;
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setSourceTab(tab)}
                         style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 5,
-                          padding: "4px 10px",
-                          borderRadius: 20,
-                          background: "var(--violet-light)",
-                          border: "1px solid var(--border)",
+                          flex: 1,
+                          padding: "7px 0",
                           fontSize: 12,
-                          fontWeight: 500,
-                          color: "var(--foreground)",
+                          fontWeight: active ? 700 : 500,
                           fontFamily: "'Geist', system-ui, sans-serif",
-                          maxWidth: 200,
+                          background: active ? "var(--indigo-light)" : "var(--card)",
+                          color: active ? "#fff" : "var(--muted-foreground)",
+                          border: "none",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 5,
+                          borderRight: tab !== "url" ? "1.5px solid var(--border)" : "none",
                         }}
                       >
-                        <FileText size={12} style={{ flexShrink: 0 }} />
-                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fc.name}</span>
-                        <button
-                          onClick={() => setFileChips((prev) => prev.filter((_, idx) => idx !== i))}
-                          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--indigo-light)", display: "flex", alignItems: "center", padding: 0, marginLeft: 2 }}
-                        >
-                          <X size={11} />
-                        </button>
+                        {label}
+                        {badge > 0 && (
+                          <span style={{
+                            display: "inline-flex", alignItems: "center", justifyContent: "center",
+                            minWidth: 16, height: 16, borderRadius: 8, fontSize: 10, fontWeight: 700,
+                            background: active ? "rgba(255,255,255,0.3)" : "var(--violet-light)",
+                            color: active ? "#fff" : "var(--foreground)",
+                            padding: "0 4px",
+                          }}>{badge}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Text tab */}
+                {sourceTab === "text" && (
+                  <Textarea
+                    ref={contentTextareaRef}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    onPaste={() => scrollTextareaToBottom()}
+                    placeholder="Paste your lecture notes, slides, or learning objectives here…"
+                    rows={6}
+                    style={{ borderRadius: 10, fontSize: 13, resize: "none", marginBottom: 16 }}
+                    disabled={loading}
+                  />
+                )}
+
+                {/* File tab */}
+                {sourceTab === "file" && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div
+                      onDragOver={(e) => { e.preventDefault(); if (!fileUploading) setIsDragging(true); }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (!fileUploading) { const f = e.dataTransfer.files[0]; if (f) handleFile(f); } }}
+                      onClick={() => { if (!fileUploading) fileInputRef.current?.click(); }}
+                      style={{
+                        border: `1.5px dashed ${isDragging ? "var(--indigo-light)" : "var(--border)"}`,
+                        borderRadius: 10,
+                        padding: "14px 12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 6,
+                        cursor: fileUploading ? "not-allowed" : "pointer",
+                        background: isDragging ? "var(--muted)" : "var(--card)",
+                        opacity: fileUploading ? 0.6 : 1,
+                        transition: "all 0.15s",
+                        marginBottom: fileChips.length > 0 ? 8 : 0,
+                      }}
+                      className={fileUploading ? "" : "hover:border-[var(--indigo-light)] hover:bg-[var(--muted)] transition-all"}
+                    >
+                      {fileUploading
+                        ? <Loader2 size={18} className="animate-spin" style={{ color: "var(--indigo-light)" }} />
+                        : <Upload size={18} style={{ color: "var(--indigo-light)" }} />
+                      }
+                      <span style={{ fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center", lineHeight: 1.4 }}>
+                        {fileUploading ? "Extracting text…" : <><strong>Drop a file</strong> or click to upload</>}<br />
+                        <span style={{ color: "var(--muted-foreground)", fontSize: 11 }}>PDF, DOCX, TXT supported</span>
+                      </span>
+                      <input ref={fileInputRef} type="file" accept=".txt,.pdf,.docx" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+                    </div>
+                    {fileChips.length > 0 && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                        {fileChips.map((fc, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 5,
+                              padding: "4px 10px",
+                              borderRadius: 20,
+                              background: "var(--violet-light)",
+                              border: "1px solid var(--border)",
+                              fontSize: 12,
+                              fontWeight: 500,
+                              color: "var(--foreground)",
+                              fontFamily: "'Geist', system-ui, sans-serif",
+                              maxWidth: 200,
+                            }}
+                          >
+                            <FileText size={12} style={{ flexShrink: 0 }} />
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fc.name}</span>
+                            <button
+                              onClick={() => setFileChips((prev) => prev.filter((_, idx) => idx !== i))}
+                              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--indigo-light)", display: "flex", alignItems: "center", padding: 0, marginLeft: 2 }}
+                            >
+                              <X size={11} />
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
 
-                {/* URL chip input */}
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <div style={{ flex: 1, position: "relative" }}>
-                      <LinkIcon
-                        size={13}
-                        style={{
-                          position: "absolute",
-                          left: 9,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          color: "var(--muted-foreground)",
-                          pointerEvents: "none",
-                        }}
-                      />
-                      <input
-                        type="url"
-                        value={urlInput}
-                        onChange={(e) => setUrlInput(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleAddUrl()}
-                        placeholder="Add a URL as source…"
-                        disabled={loading}
-                        style={{
-                          width: "100%",
-                          height: 34,
-                          paddingLeft: 28,
-                          paddingRight: 10,
-                          borderRadius: 8,
-                          border: "1.5px solid var(--border)",
-                          fontSize: 12,
-                          fontFamily: "'Geist', system-ui, sans-serif",
-                          color: "var(--foreground)",
-                          background: "var(--card)",
-                          outline: "none",
-                          boxSizing: "border-box",
-                          transition: "border-color 0.15s",
-                        }}
-                        onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)"; }}
-                        onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
-                      />
-                    </div>
-                    <button
-                      onClick={handleAddUrl}
-                      disabled={!urlInput.trim() || loading}
-                      style={{
-                        height: 34,
-                        padding: "0 12px",
-                        borderRadius: 8,
-                        border: "none",
-                        background: !urlInput.trim() || loading ? "var(--border)" : "oklch(0.52 0.22 290)",
-                        color: !urlInput.trim() || loading ? "var(--muted-foreground)" : "#fff",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        fontFamily: "'Geist', system-ui, sans-serif",
-                        cursor: !urlInput.trim() || loading ? "not-allowed" : "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 5,
-                        flexShrink: 0,
-                        transition: "all 0.15s",
-                      }}
-                    >
-                      Add
-                    </button>
-                  </div>
-                  {/* URL chips */}
-                  {urlChips.length > 0 && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 7 }}>
-                      {urlChips.map((chip) => (
-                        <div
-                          key={chip}
+                {/* URL tab */}
+                {sourceTab === "url" && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <div style={{ flex: 1, position: "relative" }}>
+                        <LinkIcon
+                          size={13}
                           style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 5,
-                            padding: "3px 8px 3px 7px",
-                            borderRadius: 20,
-                            background: "var(--violet-light)",
-                            border: "1px solid var(--border)",
-                            fontSize: 11,
+                            position: "absolute",
+                            left: 9,
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                            color: "var(--muted-foreground)",
+                            pointerEvents: "none",
+                          }}
+                        />
+                        <input
+                          type="url"
+                          value={urlInput}
+                          onChange={(e) => setUrlInput(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleAddUrl()}
+                          placeholder="Add a URL as source…"
+                          disabled={loading}
+                          style={{
+                            width: "100%",
+                            height: 34,
+                            paddingLeft: 28,
+                            paddingRight: 10,
+                            borderRadius: 8,
+                            border: "1.5px solid var(--border)",
+                            fontSize: 12,
                             fontFamily: "'Geist', system-ui, sans-serif",
                             color: "var(--foreground)",
-                            maxWidth: 220,
+                            background: "var(--card)",
+                            outline: "none",
+                            boxSizing: "border-box",
+                            transition: "border-color 0.15s",
                           }}
-                        >
-                          <LinkIcon size={10} style={{ flexShrink: 0 }} />
-                          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {chip.replace(/^https?:\/\/(www\.)?/, "")}
-                          </span>
-                          <button
-                            onClick={() => removeUrlChip(chip)}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)"; }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
+                        />
+                      </div>
+                      <button
+                        onClick={handleAddUrl}
+                        disabled={!urlInput.trim() || loading}
+                        style={{
+                          height: 34,
+                          padding: "0 12px",
+                          borderRadius: 8,
+                          border: "none",
+                          background: !urlInput.trim() || loading ? "var(--border)" : "oklch(0.52 0.22 290)",
+                          color: !urlInput.trim() || loading ? "var(--muted-foreground)" : "#fff",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          fontFamily: "'Geist', system-ui, sans-serif",
+                          cursor: !urlInput.trim() || loading ? "not-allowed" : "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 5,
+                          flexShrink: 0,
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {urlChips.length > 0 && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 7 }}>
+                        {urlChips.map((chip) => (
+                          <div
+                            key={chip}
                             style={{
-                              background: "none",
-                              border: "none",
-                              cursor: "pointer",
-                              color: "var(--indigo-light)",
-                              display: "flex",
+                              display: "inline-flex",
                               alignItems: "center",
-                              padding: 0,
-                              flexShrink: 0,
+                              gap: 5,
+                              padding: "3px 8px 3px 7px",
+                              borderRadius: 20,
+                              background: "var(--violet-light)",
+                              border: "1px solid var(--border)",
+                              fontSize: 11,
+                              fontFamily: "'Geist', system-ui, sans-serif",
+                              color: "var(--foreground)",
+                              maxWidth: 220,
                             }}
                           >
-                            <X size={10} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <p style={{ margin: "0 0 6px", fontSize: 11.5, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textAlign: "center" }}>or paste text</p>
-
-                <Textarea
-                  ref={contentTextareaRef}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  onPaste={() => scrollTextareaToBottom()}
-                  placeholder="Paste your lecture notes, slides, or learning objectives here…"
-                  rows={6}
-                  style={{ borderRadius: 10, fontSize: 13, resize: "none", marginBottom: 16 }}
-                  disabled={loading}
-                />
+                            <LinkIcon size={10} style={{ flexShrink: 0 }} />
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                              {chip.replace(/^https?:\/\/(www\.)?/, "")}
+                            </span>
+                            <button
+                              onClick={() => removeUrlChip(chip)}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                cursor: "pointer",
+                                color: "var(--indigo-light)",
+                                display: "flex",
+                                alignItems: "center",
+                                padding: 0,
+                                flexShrink: 0,
+                              }}
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Learning Objectives */}
                 <div style={{ marginBottom: 16 }}>
