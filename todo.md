@@ -474,3 +474,6 @@
 - [x] Frontend: visual indicator (green ✓ / red ✗ / gray –) showing current manual grade state
 - [x] Vitest: add tests for the setManualScore procedure
 - [x] Redesign Learning Objectives section in AI panel for better clarity
+- [x] Redesign Question Types section in AI panel for better clarity and aesthetics
+- [x] Redesign Number of Questions section in AI panel (replace slider with cleaner control)
+- [x] Hide left sidebar until at least one question exists in the session builder

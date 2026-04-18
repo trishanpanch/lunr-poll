@@ -610,7 +610,7 @@ function OnboardingSteps({
     },
     {
       label: "Add your first question",
-      sub: "Choose a type from the sidebar, use a preset, or generate with AI.",
+      sub: "Add a question manually, use a preset, or generate with AI.",
       done: hasQuestions,
       active: hasNamed && !hasQuestions,
     },
@@ -799,7 +799,7 @@ function EmptyState({
           margin: 0,
         }}
       >
-        Choose a type from the sidebar or use a preset to get started.
+        Add a question manually, use a preset, or generate with AI to get started.
       </p>
       <div style={{ display: "flex", gap: 10, marginTop: 4, flexWrap: "wrap", justifyContent: "center" }}>
         <Button
@@ -3296,78 +3296,143 @@ function AiPanel({
                   )}
                 </div>
 
-                {/* Question types */}
-                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                  Question types
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-                  {(["Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
-                    const meta = TYPE_META[t];
-                    const active = selectedTypes.has(t);
-                    return (
+                {/* Generation Settings — unified card */}
+                <div style={{
+                  border: "1.5px solid var(--border)",
+                  borderRadius: 14,
+                  background: "var(--card)",
+                  overflow: "hidden",
+                  marginBottom: 18,
+                }}>
+                  {/* Question Types */}
+                  <div style={{ padding: "14px 14px 12px" }}>
+                    <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Question types
+                    </p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {(["Text", "Multiple Choice", "True / False"] as QuestionType[]).map((t) => {
+                        const meta = TYPE_META[t];
+                        const active = selectedTypes.has(t);
+                        return (
+                          <button
+                            key={t}
+                            onClick={() => toggleType(t)}
+                            style={{
+                              flex: 1,
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              gap: 6,
+                              padding: "12px 6px 10px",
+                              borderRadius: 10,
+                              border: `1.5px solid ${active ? "var(--violet)" : "var(--border)"}`,
+                              background: active ? "var(--violet-light)" : "transparent",
+                              color: active ? "var(--violet)" : "var(--muted-foreground)",
+                              fontSize: 11,
+                              fontWeight: 600,
+                              fontFamily: "'Geist', system-ui, sans-serif",
+                              cursor: "pointer",
+                              transition: "all 0.15s",
+                              position: "relative",
+                            }}
+                          >
+                            {active && (
+                              <span style={{
+                                position: "absolute", top: 4, right: 4,
+                                width: 14, height: 14, borderRadius: "50%",
+                                background: "var(--violet)",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                              }}>
+                                <CheckCircle2 size={10} style={{ color: "#fff" }} />
+                              </span>
+                            )}
+                            <span style={{ color: active ? "var(--violet)" : meta.color, transition: "color 0.15s" }}>{meta.icon}</span>
+                            {t === "True / False" ? "T / F" : t}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div style={{ height: 1, background: "var(--border)" }} />
+
+                  {/* Number of Questions */}
+                  <div style={{ padding: "12px 14px 14px" }}>
+                    <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Number of questions
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      {/* Minus button */}
                       <button
-                        key={t}
-                        onClick={() => toggleType(t)}
+                        onClick={() => setCount((c) => Math.max(1, c - 1))}
+                        disabled={count <= 1}
                         style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 5,
-                          padding: "5px 10px",
-                          borderRadius: 20,
-                          border: `1.5px solid ${active ? "var(--violet)" : "var(--border)"}`,
-                          background: active ? "var(--violet-light)" : "var(--card)",
-                          color: active ? "var(--violet)" : "var(--muted-foreground)",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          fontFamily: "'Geist', system-ui, sans-serif",
-                          cursor: "pointer",
+                          width: 34, height: 34, borderRadius: 8,
+                          border: "1.5px solid var(--border)",
+                          background: "transparent",
+                          color: count <= 1 ? "var(--border)" : "var(--foreground)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: count <= 1 ? "not-allowed" : "pointer",
+                          fontSize: 18, fontWeight: 600,
                           transition: "all 0.15s",
+                          flexShrink: 0,
                         }}
                       >
-                        {meta.icon}
-                        {t}
+                        −
                       </button>
-                    );
-                  })}
-                </div>
 
-                {/* Count */}
-                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                  Number of questions
-                </p>
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <input
-                      type="range"
-                      min={4}
-                      max={12}
-                      step={1}
-                      value={count}
-                      onChange={(e) => setCount(Number(e.target.value))}
-                      style={{
-                        flex: 1, height: 6, appearance: "none", WebkitAppearance: "none",
-                        borderRadius: 3, background: `linear-gradient(to right, var(--violet) 0%, var(--violet) ${((count - 4) / 8) * 100}%, var(--border) ${((count - 4) / 8) * 100}%, var(--border) 100%)`,
-                        outline: "none", cursor: "pointer",
-                        accentColor: "var(--violet)",
-                      }}
-                    />
-                    <span style={{
-                      minWidth: 36, height: 36,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      borderRadius: 8,
-                      border: "1.5px solid var(--violet)",
-                      background: "var(--violet-light)",
-                      color: "var(--violet)",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      fontFamily: "'Geist', system-ui, sans-serif",
-                    }}>
-                      {count}
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                    <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>4</span>
-                    <span style={{ fontSize: 10, color: "var(--muted-foreground)" }}>12</span>
+                      {/* Preset buttons */}
+                      <div style={{ display: "flex", flex: 1, gap: 4 }}>
+                        {[4, 6, 8, 10, 12].map((n) => (
+                          <button
+                            key={n}
+                            onClick={() => setCount(n)}
+                            style={{
+                              flex: 1,
+                              height: 34,
+                              borderRadius: 8,
+                              border: `1.5px solid ${count === n ? "var(--violet)" : "var(--border)"}`,
+                              background: count === n ? "var(--violet)" : "transparent",
+                              color: count === n ? "#fff" : "var(--muted-foreground)",
+                              fontSize: 13,
+                              fontWeight: 700,
+                              fontFamily: "'Geist', system-ui, sans-serif",
+                              cursor: "pointer",
+                              transition: "all 0.15s",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                            }}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Plus button */}
+                      <button
+                        onClick={() => setCount((c) => Math.min(20, c + 1))}
+                        disabled={count >= 20}
+                        style={{
+                          width: 34, height: 34, borderRadius: 8,
+                          border: "1.5px solid var(--border)",
+                          background: "transparent",
+                          color: count >= 20 ? "var(--border)" : "var(--foreground)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: count >= 20 ? "not-allowed" : "pointer",
+                          fontSize: 18, fontWeight: 600,
+                          transition: "all 0.15s",
+                          flexShrink: 0,
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+                    {/* Show current count when not on a preset */}
+                    {![4, 6, 8, 10, 12].includes(count) && (
+                      <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--violet)", fontWeight: 600, textAlign: "center", fontFamily: "'Geist', system-ui, sans-serif" }}>
+                        {count} questions
+                      </p>
+                    )}
                   </div>
                 </div>
               </>
@@ -4084,17 +4149,19 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         background: "var(--background)",
         minHeight: "calc(100vh - 64px)",
       }}>
-        <Sidebar
-          onAddType={openAddType}
-          onAddPreset={addPreset}
-          onOpenMagic={() => setAiPanelOpen(true)}
-          collapsed={sidebarCollapsed}
-          onToggleCollapsed={() => {
-            const next = !sidebarCollapsed;
-            setSidebarCollapsed(next);
-            try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); } catch { /* ignore */ }
-          }}
-        />
+        {questions.length > 0 && (
+          <Sidebar
+            onAddType={openAddType}
+            onAddPreset={addPreset}
+            onOpenMagic={() => setAiPanelOpen(true)}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={() => {
+              const next = !sidebarCollapsed;
+              setSidebarCollapsed(next);
+              try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); } catch { /* ignore */ }
+            }}
+          />
+        )}
 
         {/* Canvas — shrinks when AI panel is open */}
         <main
@@ -4107,7 +4174,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             minWidth: 0,
             minHeight: "calc(100vh - 64px)",
             background: "transparent",
-            borderLeft: "1px solid var(--border)",
+            borderLeft: questions.length > 0 ? "1px solid var(--border)" : "none",
             borderRight: "1px solid var(--border)",
           }}
         >
