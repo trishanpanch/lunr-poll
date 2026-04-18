@@ -2889,7 +2889,7 @@ function AiPanel({
                           fontWeight: active ? 700 : 500,
                           fontFamily: "'Geist', system-ui, sans-serif",
                           background: active ? "var(--indigo-light)" : "var(--card)",
-                          color: active ? "#fff" : "var(--muted-foreground)",
+                          color: active ? "oklch(0.45 0.22 264)" : "var(--muted-foreground)",
                           border: "none",
                           cursor: "pointer",
                           transition: "all 0.15s",
@@ -2905,8 +2905,8 @@ function AiPanel({
                           <span style={{
                             display: "inline-flex", alignItems: "center", justifyContent: "center",
                             minWidth: 16, height: 16, borderRadius: 8, fontSize: 10, fontWeight: 700,
-                            background: active ? "rgba(255,255,255,0.3)" : "var(--violet-light)",
-                            color: active ? "#fff" : "var(--foreground)",
+                            background: active ? "oklch(0.45 0.22 264 / 0.15)" : "var(--violet-light)",
+                            color: active ? "oklch(0.45 0.22 264)" : "var(--foreground)",
                             padding: "0 4px",
                           }}>{badge}</span>
                         )}
