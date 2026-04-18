@@ -3109,131 +3109,20 @@ function AiPanel({
                   </div>
                 )}
 
-                {/* Learning Objectives */}
+                {/* Focus Areas (Learning Objectives) */}
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                    <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                      Learning Objectives
-                    </p>
-                    <button
-                      onClick={handleSuggestObjectives}
-                      disabled={suggestingObjectives || (!content.trim() && urlChips.length === 0 && fileChips.length === 0)}
-                      title={(!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "Add source material first" : "Suggest objectives from your source material"}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4,
-                        fontSize: 11,
-                        fontWeight: 600,
-                        color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--muted-foreground)" : "oklch(0.45 0.18 160)",
-                        background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--muted)" : "var(--green-light)",
-                        border: "1px solid " + ((!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--border)" : "oklch(0.84 0.1 160)"),
-                        borderRadius: 6,
-                        padding: "3px 8px",
-                        cursor: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "not-allowed" : "pointer",
-                        fontFamily: "'Geist', system-ui, sans-serif",
-                        transition: "all 0.15s",
-                      }}
-                    >
-                      {suggestingObjectives
-                        ? <><Loader2 size={10} className="animate-spin" /> Suggesting…</>
-                        : <><Sparkles size={10} /> Suggest</>}
-                    </button>
-                  </div>
-                  <p style={{ margin: "0 0 8px", fontSize: 11.5, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.5 }}>
-                    What should students be able to do after this session? AI will steer questions toward these goals.
+                  <p style={{ margin: "0 0 4px", fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                    Focus Areas
+                    <span style={{ textTransform: "none", letterSpacing: "normal", fontWeight: 400, fontSize: 11, marginLeft: 6, color: "var(--muted-foreground)", opacity: 0.7 }}>
+                      optional
+                    </span>
                   </p>
-                  {/* AI-suggested objectives — accept or dismiss */}
-                  {suggestedObjectives.length > 0 && (
-                    <div style={{ marginBottom: 10 }}>
-                      <p style={{ margin: "0 0 5px", fontSize: 10.5, fontWeight: 700, color: "oklch(0.52 0.22 290)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                        Suggestions — click to add
-                      </p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                        {suggestedObjectives.map((obj, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              display: "flex",
-                              alignItems: "flex-start",
-                              gap: 6,
-                              padding: "7px 10px",
-                              borderRadius: 8,
-                              background: "var(--violet-light)",
-                              border: "1px solid var(--border)",
-                            }}
-                          >
-                            <span style={{ flex: 1, fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
-                              {obj}
-                            </span>
-                            <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 1 }}>
-                              <button
-                                onClick={() => acceptSuggested(obj)}
-                                title="Add this objective"
-                                style={{
-                                  background: "var(--green)",
-                                  border: "none",
-                                  borderRadius: 5,
-                                  color: "#fff",
-                                  fontSize: 10,
-                                  fontWeight: 700,
-                                  fontFamily: "'Geist', system-ui, sans-serif",
-                                  padding: "2px 7px",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 3,
-                                }}
-                              >
-                                + Add
-                              </button>
-                              <button
-                                onClick={() => dismissSuggested(obj)}
-                                title="Dismiss"
-                                style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.6 0.06 290)", display: "flex", alignItems: "center", padding: 2 }}
-                              >
-                                <X size={11} />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {/* Objective chips */}
-                  {objectives.length > 0 && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 8 }}>
-                      {objectives.map((obj, i) => (
-                        <div
-                          key={i}
-                          style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: 6,
-                            padding: "7px 10px",
-                            borderRadius: 8,
-                            background: "var(--green-light)",
-                            border: "1px solid var(--green-border)",
-                          }}
-                        >
-                          <span style={{ fontSize: 10, fontWeight: 700, color: "var(--green)", fontFamily: "'Geist Mono', monospace", flexShrink: 0, marginTop: 1 }}>
-                            {i + 1}.
-                          </span>
-                          <span style={{ flex: 1, fontSize: 12, color: "var(--foreground)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.45 }}>
-                            {obj}
-                          </span>
-                          <button
-                            onClick={() => removeObjective(i)}
-                            style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.52 0.12 160)", display: "flex", alignItems: "center", padding: 0, flexShrink: 0, marginTop: 1 }}
-                          >
-                            <X size={11} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {/* Add objective input */}
-                  <div style={{ display: "flex", gap: 6 }}>
+                  <p style={{ margin: "0 0 10px", fontSize: 11.5, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", lineHeight: 1.5 }}>
+                    What should students learn? AI will focus questions on these topics.
+                  </p>
+
+                  {/* Input row — type + add, or suggest from material */}
+                  <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
                     <input
                       ref={objectiveInputRef}
                       type="text"
@@ -3246,7 +3135,7 @@ function AiPanel({
                         height: 34,
                         padding: "0 10px",
                         borderRadius: 8,
-                        border: "1.5px solid var(--green-border)",
+                        border: "1.5px solid var(--border)",
                         fontSize: 12,
                         fontFamily: "'Geist', system-ui, sans-serif",
                         color: "var(--foreground)",
@@ -3254,8 +3143,8 @@ function AiPanel({
                         outline: "none",
                         transition: "border-color 0.15s, box-shadow 0.15s",
                       }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.18 160)"; e.currentTarget.style.boxShadow = "0 0 0 3px oklch(0.52 0.18 160 / 0.12)"; }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = "oklch(0.88 0.08 160)"; e.currentTarget.style.boxShadow = "none"; }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.45 0.22 264)"; e.currentTarget.style.boxShadow = "0 0 0 3px oklch(0.45 0.22 264 / 0.1)"; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.boxShadow = "none"; }}
                     />
                     <button
                       onClick={addObjective}
@@ -3265,7 +3154,7 @@ function AiPanel({
                         padding: "0 12px",
                         borderRadius: 8,
                         border: "none",
-                        background: objectiveInput.trim() ? "oklch(0.52 0.18 160)" : "var(--border)",
+                        background: objectiveInput.trim() ? "oklch(0.45 0.22 264)" : "var(--border)",
                         color: objectiveInput.trim() ? "#fff" : "var(--muted-foreground)",
                         fontSize: 12,
                         fontWeight: 600,
@@ -3278,6 +3167,133 @@ function AiPanel({
                       Add
                     </button>
                   </div>
+
+                  {/* Suggest button — only when source material exists and no objectives yet */}
+                  {objectives.length === 0 && (
+                    <button
+                      onClick={handleSuggestObjectives}
+                      disabled={suggestingObjectives || (!content.trim() && urlChips.length === 0 && fileChips.length === 0)}
+                      title={(!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "Add source material first" : "AI will suggest focus areas from your source material"}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        width: "100%",
+                        padding: "8px 0",
+                        borderRadius: 8,
+                        border: "1.5px dashed " + ((!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--border)" : "oklch(0.75 0.12 264)"),
+                        background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--card)" : "oklch(0.97 0.02 264)",
+                        color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--muted-foreground)" : "oklch(0.45 0.22 264)",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        cursor: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "not-allowed" : "pointer",
+                        transition: "all 0.15s",
+                        marginBottom: 8,
+                      }}
+                    >
+                      {suggestingObjectives
+                        ? <><Loader2 size={13} className="animate-spin" /> Suggesting from your material…</>
+                        : <><Sparkles size={13} /> Suggest from source material</>}
+                    </button>
+                  )}
+
+                  {/* AI-suggested focus areas — click to accept, X to dismiss */}
+                  {suggestedObjectives.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 8 }}>
+                      {suggestedObjectives.map((obj, i) => (
+                        <button
+                          key={i}
+                          onClick={() => acceptSuggested(obj)}
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 6,
+                            padding: "7px 10px",
+                            borderRadius: 8,
+                            background: "oklch(0.97 0.02 264)",
+                            border: "1.5px dashed oklch(0.75 0.12 264)",
+                            cursor: "pointer",
+                            textAlign: "left",
+                            fontFamily: "'Geist', system-ui, sans-serif",
+                            transition: "all 0.15s",
+                            width: "100%",
+                          }}
+                          className="hover:bg-[oklch(0.95_0.04_264)] transition-colors"
+                        >
+                          <Sparkles size={12} style={{ flexShrink: 0, marginTop: 2, color: "oklch(0.52 0.22 264)" }} />
+                          <span style={{ flex: 1, fontSize: 12, color: "var(--foreground)", lineHeight: 1.45 }}>
+                            {obj}
+                          </span>
+                          <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 600, color: "oklch(0.45 0.22 264)", marginTop: 2 }}>+ Add</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); dismissSuggested(obj); }}
+                            title="Dismiss"
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.6 0 0)", display: "flex", alignItems: "center", padding: 0, flexShrink: 0, marginTop: 1 }}
+                          >
+                            <X size={11} />
+                          </button>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Accepted focus area chips */}
+                  {objectives.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: objectives.length > 0 ? 6 : 0 }}>
+                      {objectives.map((obj, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 5,
+                            padding: "5px 8px 5px 10px",
+                            borderRadius: 20,
+                            background: "oklch(0.96 0.04 264)",
+                            border: "1px solid oklch(0.88 0.06 264)",
+                            fontSize: 12,
+                            fontFamily: "'Geist', system-ui, sans-serif",
+                            color: "oklch(0.35 0.18 264)",
+                            lineHeight: 1.3,
+                          }}
+                        >
+                          <span>{obj}</span>
+                          <button
+                            onClick={() => removeObjective(i)}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "oklch(0.55 0.12 264)", display: "flex", alignItems: "center", padding: 0, flexShrink: 0 }}
+                          >
+                            <X size={11} />
+                          </button>
+                        </div>
+                      ))}
+                      {/* Inline suggest more button when objectives exist */}
+                      <button
+                        onClick={handleSuggestObjectives}
+                        disabled={suggestingObjectives || (!content.trim() && urlChips.length === 0 && fileChips.length === 0)}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          padding: "5px 10px",
+                          borderRadius: 20,
+                          border: "1.5px dashed oklch(0.82 0.06 264)",
+                          background: "transparent",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          fontFamily: "'Geist', system-ui, sans-serif",
+                          color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "var(--muted-foreground)" : "oklch(0.45 0.22 264)",
+                          cursor: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) ? "not-allowed" : "pointer",
+                          transition: "all 0.15s",
+                        }}
+                      >
+                        {suggestingObjectives
+                          ? <><Loader2 size={10} className="animate-spin" /> …</>
+                          : <><Sparkles size={10} /> Suggest</>}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Question types */}

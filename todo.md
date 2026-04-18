@@ -473,3 +473,4 @@
 - [x] Frontend: optimistic update — score badge and class avg update immediately on toggle
 - [x] Frontend: visual indicator (green ✓ / red ✗ / gray –) showing current manual grade state
 - [x] Vitest: add tests for the setManualScore procedure
+- [x] Redesign Learning Objectives section in AI panel for better clarity
