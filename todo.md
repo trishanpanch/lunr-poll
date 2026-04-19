@@ -477,3 +477,6 @@
 - [x] Redesign Question Types section in AI panel for better clarity and aesthetics
 - [x] Redesign Number of Questions section in AI panel (replace slider with cleaner control)
 - [x] Hide left sidebar until at least one question exists in the session builder
+- [x] Animate sidebar entrance — smooth slide-in when the first question is added
+- [x] Redesign Number of Questions control — feels clunky, make it cleaner and more refined
+- [x] Question count scroll-to-adjust — removed (felt weird); fixed vertical centering of number instead

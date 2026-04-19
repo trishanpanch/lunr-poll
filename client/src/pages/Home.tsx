@@ -372,15 +372,17 @@ function Sidebar({
   onOpenMagic,
   collapsed,
   onToggleCollapsed,
+  hidden = false,
 }: {
   onAddType: (t: QuestionType) => void;
   onAddPreset: (p: typeof PRESETS[0]) => void;
   onOpenMagic: () => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  hidden?: boolean;
 }) {
   const toggleCollapsed = onToggleCollapsed;
-  const W = collapsed ? 56 : 280;
+  const W = hidden ? 0 : (collapsed ? 56 : 280);
 
   return (
     <aside
@@ -389,10 +391,13 @@ function Sidebar({
         minWidth: W,
         background: "var(--card)",
         flexShrink: 0,
-        transition: "width 0.2s ease",
+        transition: "width 0.35s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, border-right-width 0.35s ease",
         alignSelf: "stretch",
         position: "relative",
-        borderRight: "1px solid var(--border)",
+        borderRight: hidden ? "0px solid var(--border)" : "1px solid var(--border)",
+        overflow: "hidden",
+        opacity: hidden ? 0 : 1,
+        pointerEvents: hidden ? "none" : "auto",
       }}
     >
       {/* Sticky inner container — pins content to viewport while aside fills full page height */}
@@ -3357,82 +3362,88 @@ function AiPanel({
                   {/* Divider */}
                   <div style={{ height: 1, background: "var(--border)" }} />
 
-                  {/* Number of Questions */}
+                  {/* Number of Questions — inline stepper */}
                   <div style={{ padding: "12px 14px 14px" }}>
-                    <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)", fontFamily: "'Geist', system-ui, sans-serif", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                      Number of questions
-                    </p>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      {/* Minus button */}
-                      <button
-                        onClick={() => setCount((c) => Math.max(1, c - 1))}
-                        disabled={count <= 1}
-                        style={{
-                          width: 34, height: 34, borderRadius: 8,
-                          border: "1.5px solid var(--border)",
-                          background: "transparent",
-                          color: count <= 1 ? "var(--border)" : "var(--foreground)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          cursor: count <= 1 ? "not-allowed" : "pointer",
-                          fontSize: 18, fontWeight: 600,
-                          transition: "all 0.15s",
-                          flexShrink: 0,
-                        }}
-                      >
-                        −
-                      </button>
-
-                      {/* Preset buttons */}
-                      <div style={{ display: "flex", flex: 1, gap: 4 }}>
-                        {[4, 6, 8, 10, 12].map((n) => (
-                          <button
-                            key={n}
-                            onClick={() => setCount(n)}
-                            style={{
-                              flex: 1,
-                              height: 34,
-                              borderRadius: 8,
-                              border: `1.5px solid ${count === n ? "var(--violet)" : "var(--border)"}`,
-                              background: count === n ? "var(--violet)" : "transparent",
-                              color: count === n ? "#fff" : "var(--muted-foreground)",
-                              fontSize: 13,
-                              fontWeight: 700,
-                              fontFamily: "'Geist', system-ui, sans-serif",
-                              cursor: "pointer",
-                              transition: "all 0.15s",
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                            }}
-                          >
-                            {n}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Plus button */}
-                      <button
-                        onClick={() => setCount((c) => Math.min(20, c + 1))}
-                        disabled={count >= 20}
-                        style={{
-                          width: 34, height: 34, borderRadius: 8,
-                          border: "1.5px solid var(--border)",
-                          background: "transparent",
-                          color: count >= 20 ? "var(--border)" : "var(--foreground)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          cursor: count >= 20 ? "not-allowed" : "pointer",
-                          fontSize: 18, fontWeight: 600,
-                          transition: "all 0.15s",
-                          flexShrink: 0,
-                        }}
-                      >
-                        +
-                      </button>
-                    </div>
-                    {/* Show current count when not on a preset */}
-                    {![4, 6, 8, 10, 12].includes(count) && (
-                      <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--violet)", fontWeight: 600, textAlign: "center", fontFamily: "'Geist', system-ui, sans-serif" }}>
-                        {count} questions
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}>
+                      <p style={{
+                        margin: 0,
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "var(--muted-foreground)",
+                        fontFamily: "'Geist', system-ui, sans-serif",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.08em",
+                      }}>
+                        Questions
                       </p>
-                    )}
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        background: "var(--muted)",
+                        borderRadius: 10,
+                        padding: "3px 4px",
+                      }}>
+                        <button
+                          onClick={() => setCount((c) => Math.max(1, c - 1))}
+                          disabled={count <= 1}
+                          style={{
+                            width: 28, height: 28, borderRadius: 7,
+                            border: "none",
+                            background: "transparent",
+                            color: count <= 1 ? "var(--border)" : "var(--muted-foreground)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            cursor: count <= 1 ? "not-allowed" : "pointer",
+                            fontSize: 16, fontWeight: 600,
+                            transition: "all 0.15s",
+                            flexShrink: 0,
+                          }}
+                          className={count > 1 ? "hover:bg-[var(--background)] hover:text-[var(--foreground)]" : ""}
+                        >
+                          −
+                        </button>
+                        <span
+                          style={{
+                            minWidth: 36,
+                            textAlign: "center",
+                            fontSize: 14,
+                            fontWeight: 700,
+                            fontFamily: "'Geist Mono', monospace",
+                            color: "var(--foreground)",
+                            userSelect: "none",
+                            lineHeight: "28px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            height: 28,
+                          }}
+                        >
+                          {count}
+                        </span>
+                        <button
+                          onClick={() => setCount((c) => Math.min(20, c + 1))}
+                          disabled={count >= 20}
+                          style={{
+                            width: 28, height: 28, borderRadius: 7,
+                            border: "none",
+                            background: "transparent",
+                            color: count >= 20 ? "var(--border)" : "var(--muted-foreground)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            cursor: count >= 20 ? "not-allowed" : "pointer",
+                            fontSize: 16, fontWeight: 600,
+                            transition: "all 0.15s",
+                            flexShrink: 0,
+                          }}
+                          className={count < 20 ? "hover:bg-[var(--background)] hover:text-[var(--foreground)]" : ""}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </>
@@ -4149,19 +4160,18 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         background: "var(--background)",
         minHeight: "calc(100vh - 64px)",
       }}>
-        {questions.length > 0 && (
-          <Sidebar
-            onAddType={openAddType}
-            onAddPreset={addPreset}
-            onOpenMagic={() => setAiPanelOpen(true)}
-            collapsed={sidebarCollapsed}
-            onToggleCollapsed={() => {
-              const next = !sidebarCollapsed;
-              setSidebarCollapsed(next);
-              try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); } catch { /* ignore */ }
-            }}
-          />
-        )}
+        <Sidebar
+          onAddType={openAddType}
+          onAddPreset={addPreset}
+          onOpenMagic={() => setAiPanelOpen(true)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => {
+            const next = !sidebarCollapsed;
+            setSidebarCollapsed(next);
+            try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); } catch { /* ignore */ }
+          }}
+          hidden={questions.length === 0}
+        />
 
         {/* Canvas — shrinks when AI panel is open */}
         <main
@@ -4174,8 +4184,9 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             minWidth: 0,
             minHeight: "calc(100vh - 64px)",
             background: "transparent",
-            borderLeft: questions.length > 0 ? "1px solid var(--border)" : "none",
+            borderLeft: questions.length > 0 ? "1px solid var(--border)" : "0px solid var(--border)",
             borderRight: "1px solid var(--border)",
+            transition: "border-left-width 0.35s ease",
           }}
         >
           {/* Onboarding */}
