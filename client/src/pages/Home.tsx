@@ -4,7 +4,7 @@
    Step tracker onboarding, 2×2 question type grid, AI banner hero.
 */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -2408,6 +2408,105 @@ type AiGenQuestion = {
   modelAnswer?: string;    // Text model answer
 };
 
+// ── Count Picker Dropdown (portal) ─────────────────────────────────────────
+function CountPickerDropdown({
+  count,
+  onSelect,
+  onClose,
+  anchorRef,
+}: {
+  count: number;
+  onSelect: (n: number) => void;
+  onClose: () => void;
+  anchorRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  // Position the dropdown relative to the anchor button
+  useEffect(() => {
+    const anchor = anchorRef.current;
+    if (!anchor) return;
+    const rect = anchor.getBoundingClientRect();
+    setPos({
+      top: rect.bottom + 6,
+      left: rect.right - 72, // align right edge
+    });
+  }, [anchorRef]);
+
+  // Click outside to close
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
+        anchorRef.current && !anchorRef.current.contains(e.target as Node)
+      ) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [onClose, anchorRef]);
+
+  // Auto-scroll to selected item on open
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+    const selected = el.querySelector('[data-selected="true"]') as HTMLElement | null;
+    if (selected) {
+      selected.scrollIntoView({ block: "center", behavior: "instant" });
+    }
+  }, []);
+
+  return (
+    <div
+      ref={dropdownRef}
+      style={{
+        position: "fixed",
+        top: pos.top,
+        left: pos.left,
+        width: 72,
+        maxHeight: 220,
+        overflowY: "auto",
+        background: "var(--card)",
+        border: "1.5px solid var(--border)",
+        borderRadius: 12,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+        padding: 4,
+        zIndex: 9999,
+        animation: "fadeInScale 0.15s ease-out",
+      }}
+    >
+      {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
+        <button
+          key={n}
+          data-selected={count === n ? "true" : undefined}
+          onClick={() => onSelect(n)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            padding: "6px 8px",
+            borderRadius: 8,
+            border: "none",
+            background: count === n ? "var(--violet)" : "transparent",
+            color: count === n ? "#fff" : "var(--foreground)",
+            fontSize: 13,
+            fontWeight: count === n ? 700 : 500,
+            fontFamily: "'Geist Mono', monospace",
+            cursor: "pointer",
+            transition: "all 0.1s",
+          }}
+          className={count !== n ? "hover:bg-[var(--violet-light)] hover:text-[var(--violet)]" : ""}
+        >
+          {n}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function AiPanel({
   open,
   onClose,
@@ -2434,6 +2533,8 @@ function AiPanel({
   const [content, setContent] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<Set<QuestionType>>(new Set(["Text", "Multiple Choice", "True / False"] as QuestionType[]));
   const [count, setCount] = useState(5);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState<AiGenQuestion[]>([]);
   const [transformingIdx, setTransformingIdx] = useState<Set<number>>(new Set());
@@ -3362,7 +3463,7 @@ function AiPanel({
                   {/* Divider */}
                   <div style={{ height: 1, background: "var(--border)" }} />
 
-                  {/* Number of Questions — inline stepper */}
+                  {/* Number of Questions — click-to-pick */}
                   <div style={{ padding: "12px 14px 14px" }}>
                     <div style={{
                       display: "flex",
@@ -3380,68 +3481,51 @@ function AiPanel({
                       }}>
                         Questions
                       </p>
-                      <div style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        background: "var(--muted)",
-                        borderRadius: 10,
-                        padding: "3px 4px",
-                      }}>
+                      <div style={{ position: "relative" }} ref={pickerRef}>
                         <button
-                          onClick={() => setCount((c) => Math.max(1, c - 1))}
-                          disabled={count <= 1}
+                          onClick={() => setPickerOpen((o) => !o)}
                           style={{
-                            width: 28, height: 28, borderRadius: 7,
-                            border: "none",
-                            background: "transparent",
-                            color: count <= 1 ? "var(--border)" : "var(--muted-foreground)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            cursor: count <= 1 ? "not-allowed" : "pointer",
-                            fontSize: 16, fontWeight: 600,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                            padding: "5px 10px 5px 14px",
+                            borderRadius: 9,
+                            border: pickerOpen ? "1.5px solid var(--violet)" : "1.5px solid var(--border)",
+                            background: pickerOpen ? "var(--violet-light)" : "transparent",
+                            cursor: "pointer",
                             transition: "all 0.15s",
-                            flexShrink: 0,
                           }}
-                          className={count > 1 ? "hover:bg-[var(--background)] hover:text-[var(--foreground)]" : ""}
+                          className="hover:border-[var(--violet)] hover:bg-[var(--violet-light)] transition-all"
                         >
-                          −
-                        </button>
-                        <span
-                          style={{
-                            minWidth: 36,
-                            textAlign: "center",
+                          <span style={{
                             fontSize: 14,
                             fontWeight: 700,
                             fontFamily: "'Geist Mono', monospace",
-                            color: "var(--foreground)",
-                            userSelect: "none",
-                            lineHeight: "28px",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            height: 28,
-                          }}
-                        >
-                          {count}
-                        </span>
-                        <button
-                          onClick={() => setCount((c) => Math.min(20, c + 1))}
-                          disabled={count >= 20}
-                          style={{
-                            width: 28, height: 28, borderRadius: 7,
-                            border: "none",
-                            background: "transparent",
-                            color: count >= 20 ? "var(--border)" : "var(--muted-foreground)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            cursor: count >= 20 ? "not-allowed" : "pointer",
-                            fontSize: 16, fontWeight: 600,
-                            transition: "all 0.15s",
-                            flexShrink: 0,
-                          }}
-                          className={count < 20 ? "hover:bg-[var(--background)] hover:text-[var(--foreground)]" : ""}
-                        >
-                          +
+                            color: pickerOpen ? "var(--violet)" : "var(--foreground)",
+                            lineHeight: 1,
+                          }}>
+                            {count}
+                          </span>
+                          <ChevronDown
+                            size={13}
+                            style={{
+                              color: pickerOpen ? "var(--violet)" : "var(--muted-foreground)",
+                              transition: "transform 0.2s",
+                              transform: pickerOpen ? "rotate(180deg)" : "rotate(0deg)",
+                            }}
+                          />
                         </button>
+
+                        {/* Dropdown picker — rendered as portal to escape overflow:hidden */}
+                        {pickerOpen && createPortal(
+                          <CountPickerDropdown
+                            count={count}
+                            onSelect={(n) => { setCount(n); setPickerOpen(false); }}
+                            onClose={() => setPickerOpen(false)}
+                            anchorRef={pickerRef}
+                          />,
+                          document.body,
+                        )}
                       </div>
                     </div>
                   </div>

@@ -480,3 +480,6 @@
 - [x] Animate sidebar entrance — smooth slide-in when the first question is added
 - [x] Redesign Number of Questions control — feels clunky, make it cleaner and more refined
 - [x] Question count scroll-to-adjust — removed (felt weird); fixed vertical centering of number instead
+- [x] Question count scroll picker — elegant dropdown picker that appears on click
+- [x] Question count scroll picker — elegant dropdown picker that appears on click
+- [x] Consistent violet selection color across all AI panel controls (question types + question count)
