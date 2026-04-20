@@ -10,11 +10,11 @@ import { useLocation } from "wouter";
 import { toast } from "sonner";
 import {
   Rocket, Sparkles, Type, ListChecks, Paperclip, Star,
-  RotateCcw, GripVertical, X, ChevronRight, CheckCircle2, ChevronsRight,
+  RotateCcw, GripVertical, X, ChevronRight, CheckCircle2, ChevronsRight, ChevronsLeft,
   Circle, Pencil, ArrowLeft, ToggleLeft, Upload, FileText,
   Loader2, Plus as PlusIcon, Trash2 as TrashIcon, Eye,
   ChevronLeft, ChevronRight as ChevronRightIcon, ChevronDown,
-  PanelLeftClose, PanelLeftOpen,
+  PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen,
   ImagePlus, ImageOff, MoreHorizontal, Trash2, ZoomIn,
   AlignJustify, Sliders,
 } from "lucide-react";
@@ -391,10 +391,10 @@ function Sidebar({
         minWidth: W,
         background: "var(--card)",
         flexShrink: 0,
-        transition: "width 0.35s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, border-right-width 0.35s ease",
+        transition: "width 0.35s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, border-left-width 0.35s ease",
         alignSelf: "stretch",
         position: "relative",
-        borderRight: hidden ? "0px solid var(--border)" : "1px solid var(--border)",
+        borderLeft: hidden ? "0px solid var(--border)" : "1px solid var(--border)",
         overflow: "hidden",
         opacity: hidden ? 0 : 1,
         pointerEvents: hidden ? "none" : "auto",
@@ -433,7 +433,7 @@ function Sidebar({
           }}
           className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
         >
-          {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+          {collapsed ? <PanelRightOpen size={18} /> : <PanelRightClose size={18} />}
         </button>
       </div>
 
@@ -2518,6 +2518,7 @@ function AiPanel({
   setIsResizingPanel,
   minPanelWidth,
   maxPanelWidth,
+  side = "right",
 }: {
   open: boolean;
   onClose: () => void;
@@ -2529,6 +2530,7 @@ function AiPanel({
   setIsResizingPanel: (v: boolean) => void;
   minPanelWidth: number;
   maxPanelWidth: number;
+  side?: "left" | "right";
 }) {
   const [content, setContent] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<Set<QuestionType>>(new Set(["Text", "Multiple Choice", "True / False"] as QuestionType[]));
@@ -2869,14 +2871,14 @@ function AiPanel({
           title="Generate with AI"
           style={{
             position: "fixed",
-            right: 0,
+            left: 0,
             top: 140,
             width: 44,
             height: 44,
-            borderRadius: "12px 0 0 12px",
+            borderRadius: "0 12px 12px 0",
             background: "linear-gradient(135deg, var(--violet-light) 0%, var(--destructive-light) 100%)",
             border: "1.5px solid var(--border)",
-            borderRight: "none",
+            borderLeft: "none",
             padding: 0,
             cursor: "pointer",
             display: "flex",
@@ -2891,20 +2893,6 @@ function AiPanel({
         </button>
       )}
 
-      {/* Resize handle — outside the overflow:hidden aside so it isn't clipped */}
-      {open && (
-        <div
-          onMouseDown={() => setIsResizingPanel(true)}
-          style={{
-            width: 1,
-            flexShrink: 0,
-            cursor: "col-resize",
-            background: "var(--border)",
-            alignSelf: "stretch",
-            zIndex: 10,
-          }}
-        />
-      )}
       {/* Inline aside — width animates so the canvas resizes naturally */}
       <aside
         style={{
@@ -2915,7 +2903,7 @@ function AiPanel({
           flexShrink: 0,
           alignSelf: "stretch",
           position: "relative",
-          borderLeft: "none",
+          borderRight: "none",
           backgroundClip: "padding-box",
         }}
       >
@@ -2963,7 +2951,7 @@ function AiPanel({
               style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)", display: "flex", alignItems: "center", padding: "4px 0 4px 4px", borderRadius: 6 }}
               className="hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
             >
-              <ChevronsRight size={16} />
+              <ChevronsLeft size={16} />
             </button>
             </div>
           </div>
@@ -3924,6 +3912,20 @@ function AiPanel({
           </div>
         </div>
       </aside>
+      {/* Resize handle — on the right edge of the AI panel */}
+      {open && (
+        <div
+          onMouseDown={() => setIsResizingPanel(true)}
+          style={{
+            width: 1,
+            flexShrink: 0,
+            cursor: "col-resize",
+            background: "var(--border)",
+            alignSelf: "stretch",
+            zIndex: 10,
+          }}
+        />
+      )}
     </>
   );
 }
@@ -4138,8 +4140,8 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
   useEffect(() => {
     if (!isResizingPanel) return;
     const handleMouseMove = (e: MouseEvent) => {
-      const viewport = document.documentElement.clientWidth;
-      const newWidth = viewport - e.clientX;
+      // Panel is on the left: width = cursor position from left edge
+      const newWidth = e.clientX;
       if (newWidth >= minPanelWidth && newWidth <= maxPanelWidth) {
         setAiPanelWidth(newWidth);
       }
@@ -4244,20 +4246,28 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
         background: "var(--background)",
         minHeight: "calc(100vh - 64px)",
       }}>
-        <Sidebar
-          onAddType={openAddType}
-          onAddPreset={addPreset}
-          onOpenMagic={() => setAiPanelOpen(true)}
-          collapsed={sidebarCollapsed}
-          onToggleCollapsed={() => {
-            const next = !sidebarCollapsed;
-            setSidebarCollapsed(next);
-            try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); } catch { /* ignore */ }
-          }}
-          hidden={questions.length === 0}
+        {/* AI Panel — inline, resizes the canvas (LEFT side) */}
+        <AiPanel
+          open={aiPanelOpen}
+          onClose={() => setAiPanelOpen(false)}
+          onOpen={() => setAiPanelOpen(true)}
+          onAddQuestions={handleAiAddQuestions}
+          existingQuestions={questions.map((q) => ({
+            type: q.type,
+            text: q.text,
+            options: q.options,
+            modelAnswer: q.modelAnswer,
+            tfAnswer: q.tfAnswer,
+          }))}
+          aiPanelWidth={aiPanelWidth}
+          isResizingPanel={isResizingPanel}
+          setIsResizingPanel={setIsResizingPanel}
+          minPanelWidth={minPanelWidth}
+          maxPanelWidth={maxPanelWidth}
+          side="left"
         />
 
-        {/* Canvas — shrinks when AI panel is open */}
+        {/* Canvas — shrinks when panels are open */}
         <main
           style={{
             flex: 1,
@@ -4268,9 +4278,9 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             minWidth: 0,
             minHeight: "calc(100vh - 64px)",
             background: "transparent",
-            borderLeft: questions.length > 0 ? "1px solid var(--border)" : "0px solid var(--border)",
-            borderRight: "1px solid var(--border)",
-            transition: "border-left-width 0.35s ease",
+            borderLeft: "1px solid var(--border)",
+            borderRight: questions.length > 0 ? "1px solid var(--border)" : "0px solid var(--border)",
+            transition: "border-right-width 0.35s ease",
           }}
         >
           {/* Onboarding */}
@@ -4391,24 +4401,18 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
           )}
         </main>
 
-        {/* AI Panel — inline, resizes the canvas */}
-        <AiPanel
-          open={aiPanelOpen}
-          onClose={() => setAiPanelOpen(false)}
-          onOpen={() => setAiPanelOpen(true)}
-          onAddQuestions={handleAiAddQuestions}
-          existingQuestions={questions.map((q) => ({
-            type: q.type,
-            text: q.text,
-            options: q.options,
-            modelAnswer: q.modelAnswer,
-            tfAnswer: q.tfAnswer,
-          }))}
-          aiPanelWidth={aiPanelWidth}
-          isResizingPanel={isResizingPanel}
-          setIsResizingPanel={setIsResizingPanel}
-          minPanelWidth={minPanelWidth}
-          maxPanelWidth={maxPanelWidth}
+        {/* Question types sidebar (RIGHT side) */}
+        <Sidebar
+          onAddType={openAddType}
+          onAddPreset={addPreset}
+          onOpenMagic={() => setAiPanelOpen(true)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapsed={() => {
+            const next = !sidebarCollapsed;
+            setSidebarCollapsed(next);
+            try { localStorage.setItem("lunr_sidebar_collapsed", next.toString()); } catch { /* ignore */ }
+          }}
+          hidden={questions.length === 0}
         />
 
       </div>
