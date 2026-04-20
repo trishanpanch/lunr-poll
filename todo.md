@@ -483,3 +483,8 @@
 - [x] Question count scroll picker — elegant dropdown picker that appears on click
 - [x] Question count scroll picker — elegant dropdown picker that appears on click
 - [x] Consistent violet selection color across all AI panel controls (question types + question count)
+- [x] Fix left sidebar pushed too low — big gap at top after sidebar animation changes
+- [x] Deep dive color audit — catalog all colors used across the app
+- [x] Establish dedicated "AI suggestion" color (Violet = --ai)
+- [x] Establish dedicated "selected state" color (Blue = --selected)
+- [x] Apply consistent color system across all components (Indigo=identity, Blue=selected, Violet=AI)

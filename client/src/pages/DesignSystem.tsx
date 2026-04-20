@@ -240,10 +240,13 @@ function DesignSystemContent() {
     { label: "Indigo (Primary)", token: "--indigo", value: "oklch(0.45 0.22 264)", light: false },
     { label: "Indigo Hover", token: "--indigo-hover", value: "oklch(0.38 0.22 264)", light: false },
     { label: "Indigo Light", token: "--indigo-light", value: "oklch(0.96 0.04 264)", light: true },
-    // AI accent
-    { label: "Violet (AI)", token: "--violet", value: "oklch(0.52 0.22 290)", light: false },
-    { label: "Violet Hover", token: "--violet-hover", value: "oklch(0.46 0.22 290)", light: false },
-    { label: "Violet Light", token: "--violet-light", value: "oklch(0.96 0.04 290)", light: true },
+    // AI accent (violet)
+    { label: "Violet (AI)", token: "--violet / --ai", value: "oklch(0.52 0.22 290)", light: false },
+    { label: "Violet Hover", token: "--violet-hover / --ai-hover", value: "oklch(0.46 0.22 290)", light: false },
+    { label: "Violet Light", token: "--violet-light / --ai-light", value: "oklch(0.96 0.04 290)", light: true },
+    // Selected state (blue)
+    { label: "Blue (Selected)", token: "--selected", value: "oklch(0.55 0.2 250)", light: false },
+    { label: "Blue Light", token: "--selected-light", value: "oklch(0.96 0.04 250)", light: true },
     // Reserved
     { label: "Crimson (Launch only)", token: "--crimson", value: "oklch(0.514 0.2 13.9)", light: false },
     // Success / Correct answer / Live status
@@ -288,11 +291,11 @@ function DesignSystemContent() {
   ];
 
   const questionTypes = [
-    { type: "Text", icon: <Type size={18} />, color: "oklch(0.45 0.22 264)", bg: "oklch(0.96 0.04 264)", desc: "Open-ended written response", token: "short_text" },
-    { type: "Multiple Choice", icon: <ListChecks size={18} />, color: "oklch(0.52 0.22 290)", bg: "oklch(0.96 0.04 290)", desc: "Select from defined options", token: "multiple_choice" },
-    { type: "True / False", icon: <ToggleLeft size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.92 0.08 160)", desc: "Binary correct-answer question", token: "true_false" },
-    { type: "File Upload", icon: <Paperclip size={18} />, color: "oklch(0.52 0.18 160)", bg: "oklch(0.96 0.04 160)", desc: "Students submit a file", token: "file_upload" },
-    { type: "Star Rating", icon: <Star size={18} />, color: "oklch(0.62 0.18 60)", bg: "oklch(0.97 0.04 60)", desc: "1–5 star rating scale", token: "rating" },
+    { type: "Text", icon: <Type size={18} />, color: "var(--indigo)", bg: "var(--indigo-light)", desc: "Open-ended written response", token: "short_text" },
+    { type: "Multiple Choice", icon: <ListChecks size={18} />, color: "var(--indigo)", bg: "var(--indigo-light)", desc: "Select from defined options", token: "multiple_choice" },
+    { type: "True / False", icon: <ToggleLeft size={18} />, color: "var(--indigo)", bg: "var(--indigo-light)", desc: "Binary correct-answer question", token: "true_false" },
+    { type: "File Upload", icon: <Paperclip size={18} />, color: "var(--indigo)", bg: "var(--indigo-light)", desc: "Students submit a file", token: "file_upload" },
+    { type: "Star Rating", icon: <Star size={18} />, color: "var(--indigo)", bg: "var(--indigo-light)", desc: "1\u20135 star rating scale", token: "rating" },
   ];
 
   return (
@@ -356,9 +359,10 @@ Harvard Poll — Design System
           </div>
           <div style={{ marginTop: 14, padding: "14px 16px", borderRadius: 10, background: "var(--muted)", border: "1px solid var(--border)", fontSize: 12, color: "oklch(0.205 0 0)", lineHeight: 1.7 }}>
             <strong style={{ display: "block", marginBottom: 4, fontSize: 10.5, textTransform: "uppercase", letterSpacing: "0.07em" }}>Usage Rules</strong>
-            · <strong>Indigo</strong> is the primary color. Use for all buttons, links, active states, and focus rings.<br />
+            · <strong>Indigo</strong> is the primary color. Use for all buttons, links, CTAs, and question type identity (all types share indigo).<br />
+            · <strong>Blue (Selected)</strong> is for all selected/active states — toggles, chosen items, active tabs, preset pickers. Use <code>var(--selected)</code> for borders/text and <code>var(--selected-light)</code> for backgrounds.<br />
+            · <strong>Violet (AI)</strong> is exclusively for AI-related UI — Generate button, AI panel header, sparkle icons, upload zone focus, and AI banner. Use <code>var(--ai)</code> for borders/text and <code>var(--ai-light)</code> for backgrounds.<br />
             · <strong>Crimson</strong> is reserved for the <em>Launch Session</em> button only. Do not use it anywhere else.<br />
-            · <strong>Violet</strong> is the AI feature color. Use for all AI-related UI — Generate button, AI panel header, question type pills, count selector selection states, and upload zone active state. All selection states inside the AI panel use <code>oklch(0.52 0.22 290)</code> border + <code>oklch(0.96 0.04 290)</code> background.<br />
             · <strong>Green</strong> is for success states: correct answer indicators, Live session status badge, and the True answer selection.<br />
             · <strong>Amber</strong> is for warning/pending states: Draft session status badge and validation hints awaiting user action.<br />
             · <strong>Destructive</strong> is for irreversible actions: delete, end session, remove. Use the light variant for backgrounds, full value for text and borders.

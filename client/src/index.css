@@ -2,9 +2,10 @@
    SOURCE OF TRUTH: These tokens match harvard-poll/src/app/globals.css exactly.
    Any token change here must be pushed to the GitHub repo via: pnpm run sync-ds
 
-   Primary:     Indigo   oklch(0.45 0.22 264)     — all primary actions
+   Primary:     Indigo   oklch(0.45 0.22 264)     — all primary actions + question type identity
    Launch CTA:  Crimson  oklch(0.514 0.2 13.9)    — Launch Session button ONLY (one place)
-   AI Accent:   Violet   oklch(0.52 0.22 290)     — AI generation UI only
+   AI:          Violet   oklch(0.52 0.22 290)     — anything AI-generated or AI-related
+   Selected:    Blue     oklch(0.55 0.2 250)       — all active/chosen/selected indicators
    Success:     Green    oklch(0.52 0.18 160)      — correct answers, Live badge, True selection
    Warning:     Amber    oklch(0.52 0.18 70)       — Draft badge, pending validation
    Destructive: Red-org  oklch(0.577 0.245 27.325) — delete / end session
@@ -107,17 +108,27 @@
   --crimson: oklch(0.514 0.2 13.9);
   --crimson-hover: oklch(0.44 0.2 13.9);
 
-  /* Blue — focus rings, links, secondary interactive states.
-     Conveys interactivity without urgency. Prefer --indigo for primary actions. */
+  /* Blue — SELECTED STATE color. Used for all active/chosen/selected indicators
+     across the app (toggles, picker highlights, active tabs, current selections).
+     Also used for focus rings and secondary interactive states. */
   --blue: oklch(0.55 0.2 250);
   --blue-hover: oklch(0.48 0.22 250);
   --blue-light: oklch(0.96 0.04 250);
   --blue-focus-ring: oklch(0.55 0.2 250 / 0.2);
+  /* Semantic aliases */
+  --selected: var(--blue);
+  --selected-hover: var(--blue-hover);
+  --selected-light: var(--blue-light);
 
-  /* Violet — AI features only */
+  /* Violet — AI SUGGESTION color. Used for anything AI-generated or AI-related:
+     AI panel, generate buttons, AI badges, AI-suggested content indicators. */
   --violet: oklch(0.52 0.22 290);
   --violet-light: oklch(0.96 0.04 290);
   --violet-hover: oklch(0.46 0.22 290);
+  /* Semantic aliases */
+  --ai: var(--violet);
+  --ai-hover: var(--violet-hover);
+  --ai-light: var(--violet-light);
 
   /* Green — success / correct answer / Live session badge / True answer selection */
   --green: oklch(0.52 0.18 160);
@@ -177,9 +188,15 @@
   --blue-hover: oklch(0.58 0.2 250);
   --blue-light: oklch(0.24 0.05 250);
   --blue-focus-ring: oklch(0.62 0.2 264 / 0.25);
+  --selected: var(--blue);
+  --selected-hover: var(--blue-hover);
+  --selected-light: var(--blue-light);
   --violet: oklch(0.65 0.2 290);
   --violet-light: oklch(0.24 0.06 290);
   --violet-hover: oklch(0.58 0.22 290);
+  --ai: var(--violet);
+  --ai-hover: var(--violet-hover);
+  --ai-light: var(--violet-light);
   --green: oklch(0.62 0.18 160);
   --green-hover: oklch(0.55 0.16 160);
   --green-light: oklch(0.22 0.06 160);

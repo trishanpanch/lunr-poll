@@ -104,13 +104,13 @@ function normaliseType(raw: string): QuestionType {
 }
 
 const TYPE_META: Record<QuestionType, { icon: React.ReactNode; color: string; desc: string }> = {
-  "Text":           { icon: <Type size={18} />,        color: "oklch(0.48 0.18 264)", desc: "Open-ended written response" },
-  "Multiple Choice":{ icon: <ListChecks size={18} />,  color: "oklch(0.52 0.22 290)", desc: "Select from options" },
-  "File Upload":    { icon: <Paperclip size={18} />,   color: "oklch(0.52 0.18 160)", desc: "Students submit a file" },
-  "Star Rating":    { icon: <Star size={18} />,        color: "oklch(0.62 0.18 60)",  desc: "1–5 star rating scale" },
-  "True / False":   { icon: <ToggleLeft size={18} />,  color: "oklch(0.42 0.14 60)",  desc: "True or false answer" },
-  "Labeled Scale":   { icon: <AlignJustify size={18} />, color: "oklch(0.50 0.18 200)", desc: "5-point labeled agreement scale" },
-  "Numeric Scale":  { icon: <Sliders size={18} />,     color: "oklch(0.52 0.18 240)", desc: "1–10 numeric intensity scale" },
+  "Text":           { icon: <Type size={18} />,        color: "var(--indigo)", desc: "Open-ended written response" },
+  "Multiple Choice":{ icon: <ListChecks size={18} />,  color: "var(--indigo)", desc: "Select from options" },
+  "File Upload":    { icon: <Paperclip size={18} />,   color: "var(--indigo)", desc: "Students submit a file" },
+  "Star Rating":    { icon: <Star size={18} />,        color: "var(--indigo)", desc: "1–5 star rating scale" },
+  "True / False":   { icon: <ToggleLeft size={18} />,  color: "var(--indigo)", desc: "True or false answer" },
+  "Labeled Scale":   { icon: <AlignJustify size={18} />, color: "var(--indigo)", desc: "5-point labeled agreement scale" },
+  "Numeric Scale":  { icon: <Sliders size={18} />,     color: "var(--indigo)", desc: "1–10 numeric intensity scale" },
 };
 
 
@@ -455,7 +455,7 @@ function Sidebar({
               transition: "all 0.15s",
               marginBottom: 4,
             }}
-            className="hover:border-[oklch(0.55_0.2_290)] hover:shadow-sm transition-all"
+            className="hover:border-[var(--ai)] hover:shadow-sm transition-all"
           >
             <Sparkles size={18} />
           </button>
@@ -899,10 +899,10 @@ function MCOptionRow({
           autoFocus
           style={{
             flex: 1, height: 28, padding: "0 8px",
-            borderRadius: 7, border: "1.5px solid oklch(0.52 0.22 290)",
+            borderRadius: 7, border: "1.5px solid var(--ai)",
             fontSize: 12.5, fontFamily: "'Geist', system-ui, sans-serif",
             color: "var(--foreground)", background: "var(--card)", outline: "none",
-            boxShadow: "0 0 0 3px oklch(0.52 0.22 290 / 0.12)",
+            boxShadow: "0 0 0 3px color-mix(in oklch, var(--ai) 12%, transparent)",
           }}
         />
       ) : (
@@ -1615,8 +1615,8 @@ function QuestionCard({
                   gap: 4,
                   fontSize: 11,
                   fontWeight: 600,
-                  color: "oklch(0.52 0.22 290)",
-                  background: "var(--violet-light)",
+                  color: "var(--ai)",
+                  background: "var(--ai-light)",
                   border: "1px solid var(--border)",
                   borderRadius: 7,
                   padding: "4px 9px",
@@ -1719,7 +1719,7 @@ function QuestionCard({
           <div style={{ marginTop: 12 }}>
             {/* Preset picker */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "oklch(0.50 0.18 200)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scale Preset</span>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--indigo)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scale Preset</span>
               {DEFAULT_LIKERT_PRESETS.map((p) => {
                 const isActive = JSON.stringify(question.likertLabels) === JSON.stringify(p.labels);
                 return (
@@ -1731,9 +1731,9 @@ function QuestionCard({
                       fontWeight: isActive ? 700 : 500,
                       padding: "2px 8px",
                       borderRadius: 6,
-                      border: `1px solid ${isActive ? "oklch(0.50 0.18 200)" : "var(--border)"}`,
-                      background: isActive ? "oklch(0.50 0.18 200 / 0.1)" : "transparent",
-                      color: isActive ? "oklch(0.50 0.18 200)" : "var(--muted-foreground)",
+                      border: `1px solid ${isActive ? "var(--selected)" : "var(--border)"}`,
+                      background: isActive ? "var(--selected-light)" : "transparent",
+                      color: isActive ? "var(--selected)" : "var(--muted-foreground)",
                       cursor: "pointer",
                       fontFamily: "'Geist', system-ui, sans-serif",
                       transition: "all 0.12s",
@@ -1751,7 +1751,7 @@ function QuestionCard({
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {(question.likertLabels ?? DEFAULT_LIKERT_PRESETS[0].labels).map((label, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 10.5, fontWeight: 700, color: "oklch(0.50 0.18 200)", width: 14, textAlign: "center", fontFamily: "'Geist', system-ui, sans-serif", flexShrink: 0 }}>{i + 1}</span>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--indigo)", width: 14, textAlign: "center", fontFamily: "'Geist', system-ui, sans-serif", flexShrink: 0 }}>{i + 1}</span>
                   <input
                     value={label}
                     onChange={(e) => {
@@ -1781,7 +1781,7 @@ function QuestionCard({
           <div style={{ marginTop: 12 }}>
             {/* Preset picker */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "oklch(0.52 0.18 240)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scale Preset</span>
+              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--indigo)", fontFamily: "'Geist', system-ui, sans-serif" }}>Scale Preset</span>
               {DEFAULT_NUMERIC_PRESETS.map((p) => {
                 const isActive = question.numericLowLabel === p.low && question.numericHighLabel === p.high && question.numericMin === p.min && question.numericMax === p.max;
                 return (
@@ -1793,9 +1793,9 @@ function QuestionCard({
                       fontWeight: isActive ? 700 : 500,
                       padding: "2px 8px",
                       borderRadius: 6,
-                      border: `1px solid ${isActive ? "oklch(0.52 0.18 240)" : "var(--border)"}`,
-                      background: isActive ? "oklch(0.52 0.18 240 / 0.1)" : "transparent",
-                      color: isActive ? "oklch(0.52 0.18 240)" : "var(--muted-foreground)",
+                      border: `1px solid ${isActive ? "var(--selected)" : "var(--border)"}`,
+                      background: isActive ? "var(--selected-light)" : "transparent",
+                      color: isActive ? "var(--selected)" : "var(--muted-foreground)",
                       cursor: "pointer",
                       fontFamily: "'Geist', system-ui, sans-serif",
                       transition: "all 0.12s",
@@ -1848,7 +1848,7 @@ function QuestionCard({
             <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 0, justifyContent: "space-between" }}>
               {Array.from({ length: (question.numericMax ?? 10) - (question.numericMin ?? 1) + 1 }, (_, i) => (question.numericMin ?? 1) + i).map((n) => (
                 <div key={n} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, flex: 1 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: 8, border: "1.5px solid oklch(0.52 0.18 240 / 0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "oklch(0.52 0.18 240)", fontFamily: "'Geist', system-ui, sans-serif", background: "oklch(0.52 0.18 240 / 0.06)" }}>{n}</div>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, border: "1.5px solid var(--indigo)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, color: "var(--indigo)", fontFamily: "'Geist', system-ui, sans-serif", background: "var(--indigo-light)" }}>{n}</div>
                 </div>
               ))}
             </div>
@@ -2309,8 +2309,8 @@ function AddQuestionModal({
                       transition: "border-color 0.15s, box-shadow 0.15s",
                     }}
                     onFocus={(e) => {
-                      e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)";
-                      e.currentTarget.style.boxShadow = "0 0 0 3px oklch(0.52 0.22 290 / 0.12)";
+                      e.currentTarget.style.borderColor = "var(--ai)";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px color-mix(in oklch, var(--ai) 12%, transparent)";
                     }}
                     onBlur={(e) => {
                       e.currentTarget.style.borderColor = "var(--border)";
@@ -2347,8 +2347,8 @@ function AddQuestionModal({
                   gap: 5,
                   fontSize: 12,
                   fontWeight: 600,
-                  color: "oklch(0.52 0.22 290)",
-                  background: "var(--violet-light)",
+                  color: "var(--ai)",
+                  background: "var(--ai-light)",
                   border: "1px solid var(--border)",
                   borderRadius: 7,
                   padding: "5px 10px",
@@ -2490,7 +2490,7 @@ function CountPickerDropdown({
             padding: "6px 8px",
             borderRadius: 8,
             border: "none",
-            background: count === n ? "var(--violet)" : "transparent",
+            background: count === n ? "var(--selected)" : "transparent",
             color: count === n ? "#fff" : "var(--foreground)",
             fontSize: 13,
             fontWeight: count === n ? 700 : 500,
@@ -2498,7 +2498,7 @@ function CountPickerDropdown({
             cursor: "pointer",
             transition: "all 0.1s",
           }}
-          className={count !== n ? "hover:bg-[var(--violet-light)] hover:text-[var(--violet)]" : ""}
+          className={count !== n ? "hover:bg-[var(--selected-light)] hover:text-[var(--selected)]" : ""}
         >
           {n}
         </button>
@@ -2994,8 +2994,8 @@ function AiPanel({
                           fontSize: 12,
                           fontWeight: active ? 700 : 500,
                           fontFamily: "'Geist', system-ui, sans-serif",
-                          background: active ? "var(--indigo-light)" : "var(--card)",
-                          color: active ? "oklch(0.45 0.22 264)" : "var(--muted-foreground)",
+                          background: active ? "var(--selected-light)" : "var(--card)",
+                          color: active ? "var(--selected)" : "var(--muted-foreground)",
                           border: "none",
                           cursor: "pointer",
                           transition: "all 0.15s",
@@ -3011,8 +3011,8 @@ function AiPanel({
                           <span style={{
                             display: "inline-flex", alignItems: "center", justifyContent: "center",
                             minWidth: 16, height: 16, borderRadius: 8, fontSize: 10, fontWeight: 700,
-                            background: active ? "oklch(0.45 0.22 264 / 0.15)" : "var(--violet-light)",
-                            color: active ? "oklch(0.45 0.22 264)" : "var(--foreground)",
+                            background: active ? "var(--selected-light)" : "var(--muted)",
+                            color: active ? "var(--selected)" : "var(--foreground)",
                             padding: "0 4px",
                           }}>{badge}</span>
                         )}
@@ -3142,7 +3142,7 @@ function AiPanel({
                             boxSizing: "border-box",
                             transition: "border-color 0.15s",
                           }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = "oklch(0.52 0.22 290)"; }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = "var(--ai)"; }}
                           onBlur={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}
                         />
                       </div>
@@ -3154,7 +3154,7 @@ function AiPanel({
                           padding: "0 12px",
                           borderRadius: 8,
                           border: "none",
-                          background: !urlInput.trim() || loading ? "var(--border)" : "oklch(0.52 0.22 290)",
+                          background: !urlInput.trim() || loading ? "var(--border)" : "var(--ai)",
                           color: !urlInput.trim() || loading ? "var(--muted-foreground)" : "#fff",
                           fontSize: 12,
                           fontWeight: 700,
@@ -3431,9 +3431,9 @@ function AiPanel({
                               gap: 6,
                               padding: "12px 6px 10px",
                               borderRadius: 10,
-                              border: `1.5px solid ${active ? "var(--violet)" : "var(--border)"}`,
-                              background: active ? "var(--violet-light)" : "transparent",
-                              color: active ? "var(--violet)" : "var(--muted-foreground)",
+                              border: `1.5px solid ${active ? "var(--selected)" : "var(--border)"}`,
+                              background: active ? "var(--selected-light)" : "transparent",
+                              color: active ? "var(--selected)" : "var(--muted-foreground)",
                               fontSize: 11,
                               fontWeight: 600,
                               fontFamily: "'Geist', system-ui, sans-serif",
@@ -3446,13 +3446,13 @@ function AiPanel({
                               <span style={{
                                 position: "absolute", top: 4, right: 4,
                                 width: 14, height: 14, borderRadius: "50%",
-                                background: "var(--violet)",
+                                background: "var(--selected)",
                                 display: "flex", alignItems: "center", justifyContent: "center",
                               }}>
                                 <CheckCircle2 size={10} style={{ color: "#fff" }} />
                               </span>
                             )}
-                            <span style={{ color: active ? "var(--violet)" : meta.color, transition: "color 0.15s" }}>{meta.icon}</span>
+                            <span style={{ color: active ? "var(--selected)" : meta.color, transition: "color 0.15s" }}>{meta.icon}</span>
                             {t === "True / False" ? "T / F" : t}
                           </button>
                         );
@@ -3490,18 +3490,18 @@ function AiPanel({
                             gap: 6,
                             padding: "5px 10px 5px 14px",
                             borderRadius: 9,
-                            border: pickerOpen ? "1.5px solid var(--violet)" : "1.5px solid var(--border)",
-                            background: pickerOpen ? "var(--violet-light)" : "transparent",
+                            border: pickerOpen ? "1.5px solid var(--selected)" : "1.5px solid var(--border)",
+                            background: pickerOpen ? "var(--selected-light)" : "transparent",
                             cursor: "pointer",
                             transition: "all 0.15s",
                           }}
-                          className="hover:border-[var(--violet)] hover:bg-[var(--violet-light)] transition-all"
+                          className="hover:border-[var(--selected)] hover:bg-[var(--selected-light)] transition-all"
                         >
                           <span style={{
                             fontSize: 14,
                             fontWeight: 700,
                             fontFamily: "'Geist Mono', monospace",
-                            color: pickerOpen ? "var(--violet)" : "var(--foreground)",
+                            color: pickerOpen ? "var(--selected)" : "var(--foreground)",
                             lineHeight: 1,
                           }}>
                             {count}
@@ -3509,7 +3509,7 @@ function AiPanel({
                           <ChevronDown
                             size={13}
                             style={{
-                              color: pickerOpen ? "var(--violet)" : "var(--muted-foreground)",
+                              color: pickerOpen ? "var(--selected)" : "var(--muted-foreground)",
                               transition: "transform 0.2s",
                               transform: pickerOpen ? "rotate(180deg)" : "rotate(0deg)",
                             }}
@@ -3875,7 +3875,7 @@ function AiPanel({
                   border: "none",
                   background: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading
                     ? "var(--border)"
-                    : "linear-gradient(135deg, oklch(0.48 0.22 290) 0%, oklch(0.52 0.22 290) 100%)",
+                    : "linear-gradient(135deg, var(--ai-hover) 0%, var(--ai) 100%)",
                   color: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "var(--muted-foreground)" : "#fff",
                   fontSize: 13,
                   fontWeight: 700,
@@ -3886,7 +3886,7 @@ function AiPanel({
                   gap: 7,
                   cursor: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "not-allowed" : "pointer",
                   transition: "all 0.15s",
-                  boxShadow: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "none" : "0 2px 10px oklch(0.52 0.22 290 / 0.28)",
+                  boxShadow: (!content.trim() && urlChips.length === 0 && fileChips.length === 0) || loading ? "none" : "0 2px 10px color-mix(in oklch, var(--ai) 28%, transparent)",
                 }}
               >
                 {loading
@@ -4500,27 +4500,27 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                   gap: 8,
                   padding: "16px 14px",
                   borderRadius: 12,
-                  border: "1.5px solid oklch(0.88 0.06 290)",
-                  background: "linear-gradient(135deg, oklch(0.97 0.03 290) 0%, oklch(0.98 0.02 10) 100%)",
+                  border: "1.5px solid color-mix(in oklch, var(--ai) 30%, transparent)",
+                  background: "linear-gradient(135deg, var(--ai-light) 0%, var(--destructive-light) 100%)",
                   cursor: "pointer",
                   textAlign: "left",
                   transition: "all 0.15s",
                 }}
-                className="hover:border-[oklch(0.7_0.18_290)] hover:shadow-sm transition-all"
+                className="hover:border-[var(--ai)] hover:shadow-sm transition-all"
               >
                 <span
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    color: "oklch(0.52 0.22 290)",
+                    color: "var(--ai)",
                     alignSelf: "flex-start",
                   }}
                 >
                   <Sparkles size={18} />
                 </span>
                 <div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "oklch(0.38 0.18 290)", fontFamily: "'Geist', system-ui, sans-serif" }}>Generate with AI</p>
-                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "oklch(0.52 0.14 290)", fontFamily: "'Geist', system-ui, sans-serif" }}>AI drafts questions for you</p>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--ai-hover)", fontFamily: "'Geist', system-ui, sans-serif" }}>Generate with AI</p>
+                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--ai)", fontFamily: "'Geist', system-ui, sans-serif" }}>AI drafts questions for you</p>
                 </div>
               </button>
             </div>
