@@ -760,9 +760,11 @@ function OnboardingSteps({
 function EmptyState({
   onMagic,
   onManual,
+  onAddPreset,
 }: {
   onMagic: () => void;
   onManual: () => void;
+  onAddPreset: (preset: typeof PRESETS[0]) => void;
 }) {
   return (
     <div
@@ -810,7 +812,7 @@ function EmptyState({
         <Button
           onClick={onManual}
           style={{
-            background: "oklch(0.48 0.18 264)",
+            background: "var(--indigo)",
             color: "#fff",
             fontSize: 13,
             fontWeight: 700,
@@ -824,6 +826,50 @@ function EmptyState({
         >
           + Add a Question
         </Button>
+      </div>
+
+      {/* Preset quick-start options */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8, width: "100%", maxWidth: 340 }}>
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--muted-foreground)",
+            margin: 0,
+          }}
+        >
+          or start with a preset
+        </p>
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.name}
+              onClick={() => onAddPreset(preset)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
+                padding: "8px 14px",
+                borderRadius: 9,
+                border: "1.5px solid var(--border)",
+                background: "var(--card)",
+                fontSize: 12.5,
+                fontWeight: 500,
+                fontFamily: "'Geist', system-ui, sans-serif",
+                color: "var(--foreground)",
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+              className="hover:border-[var(--indigo)] hover:bg-[oklch(0.982_0.0107_271.3)] hover:text-[var(--indigo)] hover:shadow-sm transition-all"
+            >
+              <span style={{ color: "var(--muted-foreground)", display: "flex", alignItems: "center" }}>{preset.icon}</span>
+              {preset.name}
+              <span style={{ fontSize: 11, color: "var(--muted-foreground)", fontWeight: 400 }}>({preset.count})</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -4397,6 +4443,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             <EmptyState
               onMagic={() => setAiPanelOpen(true)}
               onManual={() => setTypePickerOpen(true)}
+              onAddPreset={addPreset}
             />
           )}
         </main>

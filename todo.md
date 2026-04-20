@@ -489,3 +489,4 @@
 - [x] Establish dedicated "selected state" color (Blue = --selected)
 - [x] Apply consistent color system across all components (Indigo=identity, Blue=selected, Violet=AI)
 - [x] Swap panel positions — AI panel on left, question types sidebar on right
+- [x] Add preset options under the "+ Add a Question" button in the null/empty state
