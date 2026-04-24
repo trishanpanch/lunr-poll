@@ -395,7 +395,6 @@ function Sidebar({
         alignSelf: "stretch",
         position: "relative",
         borderLeft: hidden ? "0px solid var(--border)" : "1px solid var(--border)",
-        overflow: "hidden",
         opacity: hidden ? 0 : 1,
         pointerEvents: hidden ? "none" : "auto",
       }}
@@ -417,7 +416,7 @@ function Sidebar({
       <div style={{
         display: "flex",
         justifyContent: collapsed ? "center" : "flex-end",
-        padding: collapsed ? "12px 0" : "10px 10px 0",
+        padding: collapsed ? "8px 0" : "6px 10px 0",
         flexShrink: 0,
       }}>
         <button
@@ -466,7 +465,7 @@ function Sidebar({
           <div style={{ width: 28, height: 1, background: "var(--border)", margin: "4px 0" }} />
 
           {/* Question type icons */}
-          {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
+          {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale"] as QuestionType[]).map((type) => {
             const meta = TYPE_META[type];
             return (
               <button
@@ -519,12 +518,12 @@ function Sidebar({
         /* ── Expanded full sidebar ── */
         <>
           {/* Question Types */}
-          <div style={{ padding: "20px 14px 0" }}>
+          <div style={{ padding: "10px 14px 0" }}>
             <p style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em", color: "var(--muted-foreground)", marginBottom: 10 }}>
               Add a Question
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button
@@ -691,12 +690,10 @@ function OnboardingSteps({
                   ? { background: "var(--green-light)", color: "var(--green)" }
                   : step.active
                   ? {
-                      background: "var(--blue)",
+                      background: "var(--indigo)",
                       color: "#fff",
-                      boxShadow: "0 0 0 3px oklch(0.55 0.2 250 / 0.22)",
-                      animation: "step-ring-pulse 1.8s ease-in-out infinite",
                     }
-                  : { background: "var(--blue-light)", color: "oklch(0.56 0.08 250)" }),
+                  : { background: "var(--muted)", border: "1.5px solid var(--border)", color: "var(--muted-foreground)" }),
               }}
             >
               {step.done ? (
@@ -2953,7 +2950,6 @@ function AiPanel({
           position: "relative",
           borderRight: "none",
           backgroundClip: "padding-box",
-          overflow: "hidden",
         }}
       >
         {/* Sticky inner container — pins content to viewport while aside fills full page height */}
@@ -4503,7 +4499,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
               </button>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale", "File Upload"] as QuestionType[]).map((type) => {
+              {(["Text", "Multiple Choice", "True / False", "Star Rating", "Labeled Scale", "Numeric Scale"] as QuestionType[]).map((type) => {
                 const meta = TYPE_META[type];
                 return (
                   <button
@@ -4544,39 +4540,7 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
                   </button>
                 );
               })}
-              {/* Generate with AI tile */}
-              <button
-                onClick={() => { setTypePickerOpen(false); setAiPanelOpen(true); }}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "flex-start",
-                  gap: 8,
-                  padding: "16px 14px",
-                  borderRadius: 12,
-                  border: "1.5px solid color-mix(in oklch, var(--ai) 30%, transparent)",
-                  background: "linear-gradient(135deg, var(--ai-light) 0%, var(--destructive-light) 100%)",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  transition: "all 0.15s",
-                }}
-                className="hover:border-[var(--ai)] hover:shadow-sm transition-all"
-              >
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    color: "var(--ai)",
-                    alignSelf: "flex-start",
-                  }}
-                >
-                  <Sparkles size={18} />
-                </span>
-                <div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--ai-hover)", fontFamily: "'Geist', system-ui, sans-serif" }}>Generate with AI</p>
-                  <p style={{ margin: "2px 0 0", fontSize: 11.5, color: "var(--ai)", fontFamily: "'Geist', system-ui, sans-serif" }}>AI drafts questions for you</p>
-                </div>
-              </button>
+
             </div>
           </div>
         </div>
