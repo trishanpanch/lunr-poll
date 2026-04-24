@@ -409,7 +409,9 @@ function Sidebar({
         flexDirection: "column",
         overflowY: collapsed ? "visible" : "auto",
         overflowX: "hidden",
-        width: "100%",
+        width: W,
+        minWidth: W,
+        transition: "width 0.35s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
       }}>
       {/* Toggle button — always visible at top */}
       <div style={{
@@ -2951,10 +2953,11 @@ function AiPanel({
           position: "relative",
           borderRight: "none",
           backgroundClip: "padding-box",
+          overflow: "hidden",
         }}
       >
         {/* Sticky inner container — pins content to viewport while aside fills full page height */}
-        <div style={{ width: aiPanelWidth, display: "flex", flexDirection: "column", height: "calc(100vh - 64px)", overflowY: "hidden", overflowX: "hidden", background: "transparent", position: "sticky", top: 64 }}>
+        <div style={{ width: open ? aiPanelWidth : 0, minWidth: open ? aiPanelWidth : 0, display: "flex", flexDirection: "column", height: "calc(100vh - 64px)", overflowY: "hidden", overflowX: "hidden", background: "transparent", position: "sticky", top: 64, transition: isResizingPanel ? "none" : "width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1)" }}>
           {/* Header */}
           <div style={{
             padding: "16px 18px 14px",
@@ -4324,9 +4327,9 @@ export default function Home({ params: routeParams }: { params?: { id?: string }
             minWidth: 0,
             minHeight: "calc(100vh - 64px)",
             background: "transparent",
-            borderLeft: "1px solid var(--border)",
+            borderLeft: aiPanelOpen ? "1px solid var(--border)" : "0px solid var(--border)",
             borderRight: questions.length > 0 ? "1px solid var(--border)" : "0px solid var(--border)",
-            transition: "border-right-width 0.35s ease",
+            transition: "border-left-width 0.35s ease, border-right-width 0.35s ease",
           }}
         >
           {/* Onboarding */}
